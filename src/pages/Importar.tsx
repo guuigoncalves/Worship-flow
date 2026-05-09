@@ -1,0 +1,11 @@
+import { useState } from 'react';
+import { HINARIO_PUBLICO } from '../data/hinario-publico';
+import { parsearCifra } from '../utils/importarParser';
+import { useMusicas } from '../hooks/useMusicas';
+
+export default function Importar() {
+  const { salvarMusica } = useMusicas();
+  const [texto, setTexto] = useState('');
+  const [preview, setPreview] = useState<ReturnType<typeof parsearCifra> | null>(null);
+  return <main className="app-page"><h1 className="font-display text-3xl font-bold">Importar</h1><div className="mt-6 grid gap-4"><section className="card p-5"><h2 className="font-display text-xl font-bold">1. Colar Texto</h2><textarea className="input mt-3 min-h-[220px] font-mono" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Cole a cifra aqui" /><button className="btn-primary mt-3" onClick={() => setPreview(parsearCifra(texto))}>Estruturar Automaticamente</button>{preview ? <div className="mt-4 grid gap-3"><input className="input" value={preview.titulo} onChange={(e) => setPreview({ ...preview, titulo:e.target.value })} /><textarea className="input min-h-[160px] font-mono" value={preview.letra} onChange={(e) => setPreview({ ...preview, letra:e.target.value })} /><button className="btn-primary" onClick={() => void salvarMusica(preview)}>Salvar cifra</button></div> : null}</section><section className="card p-5"><h2 className="font-display text-xl font-bold">2. Arquivo</h2><input className="input mt-3" type="file" accept=".txt,.cho,.pro,.chordpro,.json" onChange={(e) => { const file = e.target.files?.[0]; if (file) void file.text().then((content) => { setTexto(content); setPreview(parsearCifra(content)); }); }} /></section><section className="card p-5"><h2 className="font-display text-xl font-bold">3. Link de Referência</h2><input className="input mt-3" placeholder="URL de referência" /><p className="mt-2 text-sm text-textoSecundario">Cole o conteúdo manualmente na opção acima.</p></section><section className="card p-5"><h2 className="font-display text-xl font-bold">4. Hinário Público</h2><div className="mt-3 grid gap-2">{HINARIO_PUBLICO.map((hino) => <button key={hino.id} className="btn-ghost justify-between" onClick={() => void salvarMusica(hino)}><span>{hino.titulo}</span><span className="chip">Domínio Público</span></button>)}</div></section></div></main>;
+}
