@@ -59,10 +59,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const preparar = useCallback((proxima: FaixaAudio) => {
     howlRef.current?.unload();
+    howlRef.current = null;
     if (!proxima.audioUrl) {
       setFaixa(proxima);
       setDuracao(0);
       setProgresso(0);
+      setTocando(false);
       return null;
     }
     const howl = new Howl({
