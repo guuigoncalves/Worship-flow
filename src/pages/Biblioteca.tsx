@@ -1,140 +1,134 @@
-import { Grid2X2, Import, List } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { BarraBusca } from '../components/biblioteca/BarraBusca';
-import { CardMusica } from '../components/biblioteca/CardMusica';
-import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
-import { PainelDeslizante } from '../components/compartilhado/PainelDeslizante';
-import { useFila } from '../hooks/useFila';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
-import { usePerfil } from '../hooks/usePerfil';
-import { useToast } from '../hooks/useToast';
-import { extrairAcordes, importarTextoLivre, temAcordeProibido } from '../utils/acordes';
-import type { TagMusica, Tom } from '../types';
+import { SectionHeader, CapaMusica, LinhaLista } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import { Search, Plus, Music, Star } from 'lucide-react';
 
-type Ordem = 'recentes' | 'tocadas' | 'az' | 'tom' | 'dificuldade';
+export const Biblioteca: React.FC = () => {
+    const navigate = useNavigate();
+    const { musicas, loading, alternarFavorita } = useMusicas();
+    const [busca, setBusca] = useState('');
+    const [filtroTom, setFiltroTom] = useState<string>('TODOS');
 
-export default function Biblioteca() {
-  const { t } = useTranslation();
-  const { musicas, buscar, alternarFavorita, excluirMusica, duplicarMusica, salvarMusica } = useMusicas();
-  const { adicionarFila } = useFila();
-  const { perfil } = usePerfil();
-  const { showToast } = useToast();
-  const [consulta, setConsulta] = useState('');
-  const [grade, setGrade] = useState(true);
-  const [ordem, setOrdem] = useState<Ordem>('recentes');
-  const [importOpen, setImportOpen] = useState(false);
-  const [textoImportado, setTextoImportado] = useState('');
-  const [tituloImportado, setTituloImportado] = useState('');
-  const [artistaImportado, setArtistaImportado] = useState('');
-  const [tomImportado, setTomImportado] = useState<Tom>('G');
-  const [tagsImportadas, setTagsImportadas] = useState<TagMusica[]>(['louvor']);
+    const tonsDisponiveis = useMemo(() => {
+        const setTons = new Set<string>();
+        musicas.forEach((m) => {
+            if (m.tom) setTons.add(m.tom);
+        });
+            return ['TODOS', ...Array.from(setTons)];
+    }, [musicas]);
 
-  const resultados = useMemo(() => {
-    const base = consulta ? buscar(consulta).map((item) => item.musica) : musicas;
-    return [...base].sort((a, b) => {
-      if (ordem === 'tocadas') return b.vezesTocada - a.vezesTocada;
-      if (ordem === 'az') return a.titulo.localeCompare(b.titulo);
-      if (ordem === 'tom') return a.tom.localeCompare(b.tom);
-      if (ordem === 'dificuldade') return a.dificuldade.localeCompare(b.dificuldade);
-      return (b.ultimaTocada ?? b.criadaEm).localeCompare(a.ultimaTocada ?? a.criadaEm);
-    });
-  }, [buscar, consulta, musicas, ordem]);
+    const musicasFiltradas = useMemo(() => {
+        return musicas.filter((m) => {
+            const atendeBusca =
+            m.titulo.toLowerCase().includes(busca.toLowerCase()) ||
+            (m.artista && m.artista.toLowerCase().includes(busca.toLowerCase()));
+            const atendeTom = filtroTom === 'TODOS' || m.tom === filtroTom;
+            return atendeBusca && atendeTom;
+        });
+    }, [musicas, busca, filtroTom]);
 
-  function queue(id: string) {
-    adicionarFila(id);
-    showToast(t('toast.queue'), 'sucesso');
-  }
-
-  function estruturarImportacao() {
-    const estruturado = importarTextoLivre(textoImportado);
-    setTextoImportado(estruturado);
-    const acordes = extrairAcordes(estruturado);
-    const raiz = acordes[0]?.match(/^[A-G](#|b)?/)?.[0] as Tom | undefined;
-    if (raiz) setTomImportado(raiz);
-    if (!tituloImportado) {
-      const primeiraLinha = textoImportado.split(/\r?\n/).find((linha) => linha.trim());
-      if (primeiraLinha) setTituloImportado(primeiraLinha.replace(/\[[^\]]+]/g, '').slice(0, 60));
+    if (loading) {
+        return (
+            <div className="app-page flex items-center justify-center min-h-[60vh]">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
     }
-  }
 
-  return (
-    <main className="app-page fade-in space-y-5">
-      <header className="flex items-center justify-between gap-3">
-        <h1 className="m-0 text-2xl font-extrabold">{t('library.title')}</h1>
-        <button type="button" className="btn-primary" onClick={() => setImportOpen(true)}>
-          <Import className="h-4 w-4" aria-hidden="true" />
-          {t('library.import')}
-        </button>
-      </header>
-      <BarraBusca value={consulta} onChange={setConsulta} placeholder={t('search.placeholder')} />
-      <div className="flex flex-wrap gap-2">
-        <button type="button" className={`btn-ghost ${grade ? 'text-primaria' : ''}`} onClick={() => setGrade(true)}><Grid2X2 className="h-4 w-4" />{t('library.grid')}</button>
-        <button type="button" className={`btn-ghost ${!grade ? 'text-primaria' : ''}`} onClick={() => setGrade(false)}><List className="h-4 w-4" />{t('library.list')}</button>
-        <select className="input max-w-[210px]" value={ordem} onChange={(event) => setOrdem(event.target.value as Ordem)}>
-          <option value="recentes">{t('library.sortRecent')}</option>
-          <option value="tocadas">{t('library.sortPlayed')}</option>
-          <option value="az">{t('library.sortAz')}</option>
-          <option value="tom">{t('library.sortKey')}</option>
-          <option value="dificuldade">{t('library.sortDifficulty')}</option>
-        </select>
-      </div>
-      <section className={grade ? 'grid gap-3 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-3'}>
-        {resultados.length ? resultados.map((musica) => (
-          <CardMusica
-            key={musica.id}
-            musica={musica}
-            temAcordeProibido={temAcordeProibido(musica.acordes, perfil.acordesProibidos)}
-            onFavorite={() => void alternarFavorita(musica.id)}
-            onQueue={() => queue(musica.id)}
-            onDelete={() => void excluirMusica(musica.id)}
-            onDuplicate={() => void duplicarMusica(musica.id)}
-          />
-        )) : <EstadoVazio titulo={t('common.empty')} texto={t('library.title')} />}
-      </section>
-      <PainelDeslizante aberto={importOpen} titulo={t('library.import')} onClose={() => setImportOpen(false)}>
-        <div className="space-y-3">
-          <p className="m-0 text-sm text-textoSecundario">Copie de qualquer site de cifras e cole aqui.</p>
-          <textarea className="input min-h-[260px] font-mono" value={textoImportado} onChange={(event) => setTextoImportado(event.target.value)} placeholder="Cole a cifra aqui" />
-          <button type="button" className="btn-ghost w-full" onClick={estruturarImportacao}>Estruturar automaticamente</button>
-          <div className="grid gap-2 sm:grid-cols-3">
-            <input className="input" value={tituloImportado} onChange={(event) => setTituloImportado(event.target.value)} placeholder="Título" />
-            <input className="input" value={artistaImportado} onChange={(event) => setArtistaImportado(event.target.value)} placeholder="Artista" />
-            <select className="input" value={tomImportado} onChange={(event) => setTomImportado(event.target.value as Tom)}>
-              {(['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as Tom[]).map((tom) => <option key={tom}>{tom}</option>)}
-            </select>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {(['adoracao', 'louvor', 'ministerio', 'entrega', 'declaracao', 'congregacional'] as TagMusica[]).map((tag) => (
-              <button key={tag} type="button" className={`chip ${tagsImportadas.includes(tag) ? 'chip-active' : ''}`} onClick={() => setTagsImportadas((atuais) => atuais.includes(tag) ? atuais.filter((item) => item !== tag) : [...atuais, tag])}>{tag}</button>
-            ))}
-          </div>
-          <button
-            type="button"
-            className="btn-primary w-full"
-            onClick={() => {
-              const letra = importarTextoLivre(textoImportado);
-              void salvarMusica({
-                titulo: tituloImportado || 'Nova música',
-                artista: artistaImportado || 'Importado',
-                tom: tomImportado,
-                letra,
-                tags: tagsImportadas,
-                dificuldade: 'intermediario'
-              }).then(() => {
-                setTextoImportado('');
-                setTituloImportado('');
-                setArtistaImportado('');
-                setTomImportado('G');
-                setTagsImportadas(['louvor']);
-                setImportOpen(false);
-              });
-            }}
-          >
-            {t('library.import')}
-          </button>
+    return (
+        <div className="app-page space-y-6 pb-24 fade-in">
+        <div className="flex items-center justify-between">
+        <div>
+        <h1 className="text-2xl font-bold text-gradient">Biblioteca</h1>
+        <p className="text-xs text-white/60">
+        {musicas.length} {musicas.length === 1 ? 'música cadastrada' : 'músicas cadastradas'}
+        </p>
         </div>
-      </PainelDeslizante>
-    </main>
-  );
-}
+        <button
+        onClick={() => navigate('/editor')}
+        className="btn-primary py-2 px-3 text-xs flex items-center gap-1.5"
+        >
+        <Plus size={16} />
+        <span>Nova</span>
+        </button>
+        </div>
+
+        <div className="relative">
+        <Search size={16} className="absolute left-3.5 top-3.5 text-white/40" />
+        <input
+        type="text"
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+        placeholder="Buscar por música ou artista..."
+        className="input pl-10 text-xs w-full"
+        />
+        </div>
+
+        {tonsDisponiveis.length > 1 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {tonsDisponiveis.map((t) => (
+                <button
+                key={t}
+                onClick={() => setFiltroTom(t)}
+                className={`chip text-xs px-3 py-1 shrink-0 ${
+                    filtroTom === t
+                    ? 'bg-purple-600 text-white font-semibold'
+                    : 'bg-white/5 text-white/60 hover:bg-white/10'
+                }`}
+                >
+                {t}
+                </button>
+            ))}
+            </div>
+        )}
+
+        <div>
+        <SectionHeader icone={<Music size={16} />} titulo="Músicas" />
+
+        {musicasFiltradas.length === 0 ? (
+            <EstadoVazio
+            titulo="Nenhuma música encontrada"
+            texto={
+                busca || filtroTom !== 'TODOS'
+                ? 'Tente ajustar os filtros ou a busca para encontrar suas cifras.'
+                : 'Sua biblioteca está vazia. Adicione novas cifras para começar!'
+            }
+            />
+        ) : (
+            <div className="card divide-y divide-white/5">
+            {musicasFiltradas.map((m) => (
+                <LinhaLista
+                key={m.id}
+                prefixo={<CapaMusica tom={m.tom} titulo={m.titulo} tamanho="sm" />}
+                titulo={m.titulo}
+                subtitulo={m.artista || 'Artista não informado'}
+                sufixo={
+                    <div className="flex items-center gap-2">
+                    <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        alternarFavorita(m.id);
+                    }}
+                    className="p-1.5 text-amber-400 hover:scale-110 transition-transform"
+                    title={m.eFavorita ? 'Remover dos favoritos' : 'Favoritar'}
+                    >
+                    <Star size={16} fill={m.eFavorita ? 'currentColor' : 'none'} />
+                    </button>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    {m.tom || 'N/A'}
+                    </span>
+                    </div>
+                }
+                onClick={() => navigate(`/musica/${m.id}`)}
+                />
+            ))}
+            </div>
+        )}
+        </div>
+        </div>
+    );
+};
+
+export default Biblioteca;

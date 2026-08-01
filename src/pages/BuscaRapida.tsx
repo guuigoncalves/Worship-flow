@@ -1,75 +1,97 @@
-import { Plus, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { BarraBusca } from '../components/biblioteca/BarraBusca';
-import { useFila } from '../hooks/useFila';
-import { useHistorico } from '../hooks/useHistorico';
 import { useMusicas } from '../hooks/useMusicas';
-import { usePerfil } from '../hooks/usePerfil';
-import { useToast } from '../hooks/useToast';
-import { temAcordeProibido } from '../utils/acordes';
-import { corDoTom } from '../utils/tomCores';
+import { SectionHeader, CapaMusica, LinhaLista } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import { Search, ArrowLeft, Zap } from 'lucide-react';
 
-export default function BuscaRapida() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { buscar } = useMusicas();
-  const { recentes, favoritas } = useHistorico();
-  const { adicionarFila } = useFila();
-  const { perfil } = usePerfil();
-  const { showToast } = useToast();
-  const [consulta, setConsulta] = useState('');
-  const resultados = buscar(consulta).slice(0, 12);
-  const chips = useMemo(() => [...recentes.slice(0, 3), ...favoritas.slice(0, 3)].filter((musica, index, arr) => arr.findIndex((item) => item.id === musica.id) === index), [favoritas, recentes]);
+export const BuscaRapida: React.FC = () => {
+    const navigate = useNavigate();
+    const { musicas, loading } = useMusicas();
+    const [termo, setTermo] = useState('');
 
-  function addQueue(id: string) {
-    adicionarFila(id);
-    showToast(t('toast.queue'), 'sucesso');
-  }
+    const resultados = useMemo(() => {
+        if (!termo.trim()) return [];
+        const t = termo.toLowerCase();
+        return musicas.filter(
+            (m) =>
+            m.titulo.toLowerCase().includes(t) ||
+            (m.artista && m.artista.toLowerCase().includes(t)) ||
+            (m.tags && m.tags.some((tag) => tag.toLowerCase().includes(t)))
+        );
+    }, [musicas, termo]);
 
-  return (
-    <main className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-4 pt-[max(16px,env(safe-area-inset-top))] backdrop-blur-sm animate-[fade-in_200ms_ease-out]">
-      <section className="mx-auto min-h-[calc(100vh-32px)] max-w-xl rounded-2xl border border-borda bg-fundo p-4 shadow-2xl">
-        <header className="mb-4 flex items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <BarraBusca value={consulta} onChange={setConsulta} placeholder={t('search.placeholder')} autoFocus />
-          </div>
-          <button className="btn-ghost h-11 w-11 shrink-0 p-0" type="button" onClick={() => navigate(-1)} aria-label={t('common.cancel')}>
-            <X className="h-5 w-5" aria-hidden="true" />
-          </button>
-        </header>
+    if (loading) {
+        return (
+            <div className="app-page flex items-center justify-center min-h-[60vh]">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
-        {!consulta ? (
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-            {chips.map((musica) => (
-              <button key={musica.id} type="button" className="chip" onClick={() => navigate(`/tocar/${musica.id}`)}>
-                {musica.titulo}
-              </button>
-            ))}
-          </div>
-        ) : null}
+    return (
+        <div className="app-page space-y-6 pb-24 fade-in">
+        <button
+        onClick={() => navigate(-1)}
+        className="btn-ghost text-xs flex items-center gap-2"
+        >
+        <ArrowLeft size={16} />
+        <span>Voltar</span>
+        </button>
 
-        <div className="space-y-2">
-          {resultados.map(({ musica }) => {
-            const cor = corDoTom(musica.tom);
-            const proibido = temAcordeProibido(musica.acordes, perfil.acordesProibidos);
-            return (
-              <article key={musica.id} className="card pressable flex items-center gap-3 border-l-[3px] p-3" style={{ borderLeftColor: cor }}>
-                <button type="button" className="min-w-0 flex-1 text-left" onClick={() => navigate(`/tocar/${musica.id}`)}>
-                  <strong className="block truncate text-lg">{musica.titulo}</strong>
-                  <span className="block truncate text-sm text-textoSecundario">{musica.artista}</span>
-                  {proibido ? <span className="mt-1 inline-flex rounded bg-perigo/20 px-2 py-1 text-xs text-perigo">{t('library.forbidden')}</span> : null}
-                </button>
-                <span className="rounded px-2 py-1 text-sm font-bold text-black" style={{ backgroundColor: cor }}>{musica.tom}</span>
-                <button className="btn-ghost h-11 w-11 shrink-0 p-0" type="button" onClick={() => addQueue(musica.id)} aria-label={t('common.addQueue')}>
-                  <Plus className="h-5 w-5" aria-hidden="true" />
-                </button>
-              </article>
-            );
-          })}
+        <div>
+        <h1 className="text-2xl font-bold text-gradient">Busca Rápida</h1>
+        <p className="text-xs text-white/60">
+        Encontre rapidamente qualquer música, tom ou tag no seu repertório
+        </p>
         </div>
-      </section>
-    </main>
-  );
-}
+
+        <div className="relative">
+        <Search size={18} className="absolute left-3.5 top-3.5 text-purple-400" />
+        <input
+        type="text"
+        value={termo}
+        onChange={(e) => setTermo(e.target.value)}
+        placeholder="Digite título, artista ou palavra-chave..."
+        autoFocus
+        className="input pl-10 text-sm w-full py-3 bg-white/5 border-purple-500/30 focus:border-purple-500"
+        />
+        </div>
+
+        <div>
+        <SectionHeader icone={<Zap size={16} />} titulo="Resultados" />
+
+        {!termo.trim() ? (
+            <EstadoVazio
+            titulo="Digite para buscar"
+            texto="Comece a digitar no campo acima para pesquisar instantaneamente."
+            />
+        ) : resultados.length === 0 ? (
+            <EstadoVazio
+            titulo="Nenhum resultado encontrado"
+            texto={`Não encontramos nada para "${termo}". Tente outras palavras.`}
+            />
+        ) : (
+            <div className="card divide-y divide-white/5">
+            {resultados.map((m) => (
+                <LinhaLista
+                key={m.id}
+                prefixo={<CapaMusica tom={m.tom} titulo={m.titulo} tamanho="sm" />}
+                titulo={m.titulo}
+                subtitulo={m.artista || 'Artista não informado'}
+                sufixo={
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    {m.tom || 'N/A'}
+                    </span>
+                }
+                onClick={() => navigate(`/musica/${m.id}`)}
+                />
+            ))}
+            </div>
+        )}
+        </div>
+        </div>
+    );
+};
+
+export default BuscaRapida;

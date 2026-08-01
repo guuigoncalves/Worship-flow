@@ -1,14 +1,91 @@
-import { Link } from 'react-router-dom';
-import { Disc3 } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
+import { SectionHeader, CapaMusica } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import { Disc, Info } from 'lucide-react';
 
-export default function Albuns() {
-  const { musicas } = useMusicas();
-  const albuns = Object.values(musicas.reduce<Record<string, { id: string; titulo: string; artista: string; faixas: number }>>((acc, musica) => {
-    const id = musica.artista.toLowerCase().replace(/\W+/g, '-');
-    acc[id] ??= { id, titulo: `Essenciais de ${musica.artista}`, artista: musica.artista, faixas: 0 };
-    acc[id].faixas += 1;
-    return acc;
-  }, {}));
-  return <main className="app-page"><h1 className="font-display text-3xl font-bold">Álbuns</h1><div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{albuns.map((album) => <Link key={album.id} className="card p-4" to={`/album/${album.id}`}><div className="grid aspect-square place-items-center rounded-xl bg-elevada text-primaria"><Disc3 className="h-14 w-14" /></div><h2 className="mt-3 font-display text-xl font-bold">{album.titulo}</h2><p className="text-sm text-textoSecundario">{album.artista} · {album.faixas} faixas</p></Link>)}</div></main>;
-}
+export const Albuns: React.FC = () => {
+    const navigate = useNavigate();
+    const { musicas, loading } = useMusicas();
+
+    const albuns = React.useMemo(() => {
+        const mapa = new Map<string, typeof musicas>();
+        musicas.forEach((m) => {
+            const chave = m.artista ? m.artista : 'Sem Artista';
+            const lista = mapa.get(chave) || [];
+            lista.push(m);
+            mapa.set(chave, lista);
+        });
+
+        return Array.from(mapa.entries()).map(([artista, lista]) => ({
+            id: encodeURIComponent(artista),
+                                                                     nome: `Coletânea ${artista}`,
+                                                                     artista,
+                                                                     totalMusicas: lista.length,
+                                                                     primeiraMusica: lista[0],
+        }));
+    }, [musicas]);
+
+    if (loading) {
+        return (
+            <div className="app-page flex items-center justify-center min-h-[60vh]">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="app-page space-y-6 pb-24 fade-in">
+        <div>
+        <h1 className="text-2xl font-bold text-gradient">Álbuns</h1>
+        <p className="text-xs text-white/60">
+        Coleções virtuais organizadas por artista
+        </p>
+        </div>
+
+        <div className="card p-3 bg-purple-500/10 border border-purple-500/20 text-xs text-white/70 flex items-start gap-2.5">
+        <Info size={16} className="text-purple-400 shrink-0 mt-0.5" />
+        <p>
+        Os álbuns são agrupamentos derivados automaticamente do artista das suas músicas cadastradas.
+        </p>
+        </div>
+
+        <SectionHeader icone={<Disc size={16} />} titulo="Todos os Álbuns" />
+
+        {albuns.length === 0 ? (
+            <EstadoVazio
+            titulo="Nenhum álbum disponível"
+            texto="Cadastre músicas com artistas definidos para gerar suas coletâneas."
+            />
+        ) : (
+            <div className="grid grid-cols-2 gap-3">
+            {albuns.map((alb) => (
+                <div
+                key={alb.id}
+                onClick={() => navigate(`/album/${alb.id}`)}
+                className="card p-3.5 cursor-pointer hover:bg-white/10 transition-all border border-white/10 flex flex-col items-center text-center gap-3 group"
+                >
+                <CapaMusica
+                tom={alb.primeiraMusica?.tom}
+                titulo={alb.nome}
+                tamanho="lg"
+                className="group-hover:scale-105 transition-transform"
+                />
+                <div className="w-full min-w-0">
+                <p className="text-xs font-semibold text-white truncate">
+                {alb.nome}
+                </p>
+                <p className="text-[10px] text-white/50 truncate mt-0.5">
+                {alb.totalMusicas} {alb.totalMusicas === 1 ? 'música' : 'músicas'}
+                </p>
+                </div>
+                </div>
+            ))}
+            </div>
+        )}
+        </div>
+    );
+};
+
+export default Albuns;

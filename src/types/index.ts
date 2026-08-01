@@ -112,6 +112,64 @@ export interface ResultadoBusca {
   destaque: Partial<Record<'titulo' | 'artista' | 'letra' | 'tags', string>>;
 }
 
+export type PapelEspaco = 'dono' | 'admin' | 'editor' | 'leitor';
+
+export interface Espaco {
+  id: string;
+  nome: string;
+  tipo: 'ministerio' | 'banda' | 'estudo' | 'outro';
+  donoUid: string;
+  codigo: string;
+  criadoEm: string;
+}
+
+export interface MembroEspaco {
+  uid: string;
+  nome: string;
+  papel: PapelEspaco;
+  entrouEm: string;
+}
+
+// Cópia da música dentro do espaço — deliberadamente desacoplada da música
+// pessoal de quem compartilhou (edições no espaço não vazam pra biblioteca
+// pessoal de ninguém, e vice-versa).
+export interface MusicaEspaco {
+  id: string;
+  titulo: string;
+  artista: string;
+  tom: Tom;
+  letra: string;
+  compartilhadaPor: string;
+  compartilhadaEm: string;
+}
+
+export type StatusMusica = 'pendente' | 'aprovada' | 'rejeitada';
+
+export interface MusicaComunidade {
+  id: string;
+  titulo: string;
+  artista: string;
+  tom: Tom;
+  letra: string;
+  acordes: string[];
+  tags: TagMusica[];
+  dificuldade: Nivel;
+  status: StatusMusica;
+  enviadaPor: string;
+  enviadaEm: string;
+  aprovadaEm?: string;
+  rejeitadaEm?: string;
+}
+
+export interface Playlist {
+  id: string;
+  nome: string;
+  descricao?: string;
+  faixas: string[];
+  criadaEm: string;
+  atualizadaEm: string;
+}
+
 export interface ToastMessage {
   id: string;
   tipo: 'sucesso' | 'erro' | 'info';

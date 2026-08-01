@@ -5,5 +5,57 @@ service cloud.firestore {
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Lookup de convite: documento com ID = código de 6 caracteres, valor = espacoId.
+    // "get" (buscar 1 doc por ID exato) é permitido pra qualquer autenticado —
+    // mas "list" (varrer a coleção) é proibido, então só dá pra achar um espaço
+    // sabendo o código exato. Sem isso, entrar por código exigiria ler /espacos
+    // sem ainda ser membro (catch-22), ou abrir a coleção pra listagem, o que
+    // vazaria o código de convite de todo mundo pra qualquer usuário logado.
+    match /codigos/{codigo} {
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // Espaços colaborativos — dono/admin/editor/leitor.
+    // A checagem de papel lê o subdocumento de membro do próprio usuário
+    // autenticado (get() com o UID da requisição, nunca de um id arbitrário
+    // vindo do client), então não dá pra forjar um papel mais alto.
+    match /espacos/{espacoId} {
+      function ehMembro() {
+        return request.auth != null && exists(/databases/$(database)/documents/espacos/$(espacoId)/membros/$(request.auth.uid));
+      }
+      function papel() {
+        return get(/databases/$(database)/documents/espacos/$(espacoId)/membros/$(request.auth.uid)).data.papel;
+      }
+      function podeGerenciar() {
+        return ehMembro() && papel() in ['dono', 'admin'];
+      }
+
+      // "get" (1 doc, ID conhecido — vindo do lookup de código ou de
+      // users/{uid}/espacos) é liberado pra qualquer autenticado; "list"
+      // (varrer /espacos inteiro) fica restrito a membro, mas o app nem usa
+      // list aqui — a lista "meus espaços" vem do espelho em users/{uid}/espacos.
+      allow get: if request.auth != null;
+      allow list: if ehMembro();
+      allow create: if request.auth != null && request.resource.data.donoUid == request.auth.uid;
+      allow update, delete: if podeGerenciar();
+
+      match /membros/{uid} {
+        allow read: if ehMembro();
+        // Um usuário sempre pode criar/apagar o PRÓPRIO vínculo de membro
+        // (entrar/sair). Só dono/admin podem alterar o papel de outra pessoa.
+        allow create, delete: if request.auth != null && request.auth.uid == uid;
+        allow update: if podeGerenciar();
+      }
+
+      match /musicas/{musicaId} {
+        allow read: if ehMembro();
+        allow create, update: if ehMembro() && papel() in ['dono', 'admin', 'editor'];
+        allow delete: if ehMembro() && papel() in ['dono', 'admin', 'editor'];
+      }
+    }
   }
 }

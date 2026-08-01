@@ -21,5 +21,14 @@ export function EditorLetra({ value, onChange, onInsertReady }: { value: string;
     onInsertReady(insert);
   }, [insert, onInsertReady]);
 
-  return <textarea ref={ref} className="input min-h-[360px] resize-y font-mono text-sm leading-7" value={value} onChange={(event) => onChange(event.target.value)} />;
+  return (
+    <div className="card p-3">
+      <textarea
+        ref={ref}
+        className="input min-h-[360px] resize-y font-mono text-sm leading-7"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
+  );
 }

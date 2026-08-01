@@ -3,10 +3,13 @@ import type { ReactNode } from 'react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { ComunidadeProvider } from './hooks/useComunidade';
+import { EspacosProvider } from './hooks/useEspacos';
 import { FilaProvider } from './hooks/useFila';
 import { MedleysProvider } from './hooks/useMedleys';
 import { MusicasProvider } from './hooks/useMusicas';
 import { PerfilProvider } from './hooks/usePerfil';
+import { PlaylistsProvider } from './hooks/usePlaylists';
 import { ToastProvider } from './hooks/useToast';
 import { PlayerProvider } from './hooks/usePlayer';
 import { ErrorBoundary } from './components/compartilhado/ErrorBoundary';
@@ -18,6 +21,8 @@ import { MiniPlayer } from './components/player/MiniPlayer';
 
 const Inicio = lazy(() => import('./pages/Inicio'));
 const Login = lazy(() => import('./pages/Login'));
+const Musica = lazy(() => import('./pages/Musica'));
+const Cifra = lazy(() => import('./pages/Cifra'));
 const Biblioteca = lazy(() => import('./pages/Biblioteca'));
 const DetalheMusica = lazy(() => import('./pages/DetalheMusica'));
 const Tocar = lazy(() => import('./pages/Tocar'));
@@ -37,6 +42,10 @@ const Espaco = lazy(() => import('./pages/Espaco'));
 const EntrarEspaco = lazy(() => import('./pages/EntrarEspaco'));
 const Importar = lazy(() => import('./pages/Importar'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const Comunidade = lazy(() => import('./pages/Comunidade'));
+const Playlists = lazy(() => import('./pages/Playlists'));
+const DetalhePlaylist = lazy(() => import('./pages/DetalhePlaylist'));
+const CamadaPrivada = lazy(() => import('./pages/CamadaPrivada'));
 
 function Providers({ children }: { children: ReactNode }) {
   return (
@@ -45,7 +54,13 @@ function Providers({ children }: { children: ReactNode }) {
         <PerfilProvider>
           <MusicasProvider>
             <MedleysProvider>
-              <FilaProvider><PlayerProvider>{children}</PlayerProvider></FilaProvider>
+               <EspacosProvider>
+                <ComunidadeProvider>
+                  <PlaylistsProvider>
+                    <FilaProvider><PlayerProvider>{children}</PlayerProvider></FilaProvider>
+                  </PlaylistsProvider>
+                </ComunidadeProvider>
+              </EspacosProvider>
             </MedleysProvider>
           </MusicasProvider>
         </PerfilProvider>
@@ -71,12 +86,15 @@ function Shell() {
   const { t } = useTranslation();
   return (
     <ErrorBoundary fallback={<div className="app-page">{t('common.error')}</div>}>
+      <div className="aurora-bg" aria-hidden="true" />
       <IndicadorOffline />
       <Suspense fallback={<div className="app-page grid place-items-center text-textoSecundario">{t('common.loading')}</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Inicio />} />
+            <Route path="/musica" element={<Musica />} />
+            <Route path="/cifra" element={<Cifra />} />
             <Route path="/biblioteca" element={<Biblioteca />} />
             <Route path="/musica/:id" element={<DetalheMusica />} />
             <Route path="/tocar/:id" element={<Tocar />} />
@@ -96,6 +114,10 @@ function Shell() {
             <Route path="/espaco/:id" element={<Espaco />} />
             <Route path="/entrar/:codigo" element={<EntrarEspaco />} />
             <Route path="/importar" element={<Importar />} />
+            <Route path="/comunidade" element={<Comunidade />} />
+            <Route path="/playlists" element={<Playlists />} />
+            <Route path="/playlist/:id" element={<DetalhePlaylist />} />
+            <Route path="/privado" element={<CamadaPrivada />} />
             <Route path="/adm" element={<AdminPanel />} />
           </Route>
         </Routes>

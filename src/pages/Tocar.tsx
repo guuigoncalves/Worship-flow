@@ -92,7 +92,8 @@ export default function Tocar() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [musica?.id, tomAtual]);
 
   const letra = useMemo(() => (musica ? transpor(musica.letra, musica.tom, tomAtual) : ''), [musica, tomAtual, transpor]);
   const resultados = useMemo(() => buscar(consulta).slice(0, 8), [buscar, consulta]);
@@ -144,7 +145,7 @@ export default function Tocar() {
         }
       }}
     >
-      <header className={`fixed left-0 right-0 top-0 z-30 flex items-center gap-2 border-b border-borda bg-fundo/95 px-2 py-2 backdrop-blur transition-opacity duration-150 ${chromeVisivel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+      <header className={`fixed left-0 right-0 top-0 z-30 flex items-center gap-2 border-b border-borda bg-superficie px-2 py-2 transition-opacity duration-150 ${chromeVisivel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
         <button type="button" className="btn-text h-11 w-11 p-0 text-texto" onClick={() => navigate(-1)} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></button>
         <strong className="min-w-0 flex-1 truncate text-center text-sm">{musica.titulo}</strong>
         <button type="button" className="btn-text h-11 w-11 p-0 text-texto" onClick={() => setControleAberto(true)} aria-label={t('common.options')}><SlidersHorizontal className="h-5 w-5" /></button>
@@ -152,11 +153,13 @@ export default function Tocar() {
 
       <section ref={scrollRef} className="absolute bottom-[76px] left-0 right-0 top-0 overflow-y-auto px-4 pb-8 pt-16 sm:px-8">
         <div className="mx-auto max-w-4xl">
-          <ExibicaoCifra letra={letra} acordesProibidos={perfil.acordesProibidos} modo={modo} tamanho={tamanho} />
+          <div className="card bg-superficie/95 p-4 sm:p-6">
+            <ExibicaoCifra letra={letra} acordesProibidos={perfil.acordesProibidos} modo={modo} tamanho={tamanho} />
+          </div>
         </div>
       </section>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-borda bg-fundo/95 px-2 py-2 pb-[max(8px,env(safe-area-inset-bottom))] backdrop-blur">
+      <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-borda bg-superficie px-2 py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-3xl items-center gap-2">
           <span className="grid h-11 min-w-11 place-items-center rounded-lg bg-elevada px-3 font-bold text-primaria">{tomAtual}</span>
           <button type="button" className="btn-ghost h-11 w-11 p-0" onClick={() => mudarSemitom(-1)} aria-label="-"><Minus className="h-5 w-5" /></button>

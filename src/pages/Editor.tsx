@@ -1,11 +1,13 @@
-import { Download, Save } from 'lucide-react';
+import { ArrowLeft, Download, Save } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { CapaMusica, SectionHeader } from '../components/aurora';
 import { EditorLetra } from '../components/editor/EditorLetra';
 import { PreviewCifra } from '../components/editor/PreviewCifra';
 import { SeletorAcorde } from '../components/editor/SeletorAcorde';
 import { useMusicas } from '../hooks/useMusicas';
+import { useToast } from '../hooks/useToast';
 import { useTransposicao } from '../hooks/useTransposicao';
 import { extrairAcordes } from '../utils/acordes';
 import type { TagMusica, Tom } from '../types';
@@ -17,6 +19,7 @@ export default function Editor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const { obterMusica, salvarMusica, salvarVersao } = useMusicas();
   const { transpor, sugerir } = useTransposicao();
   const musica = id ? obterMusica(id) : undefined;
@@ -50,6 +53,7 @@ export default function Editor() {
 
   function exportar() {
     void navigator.clipboard.writeText(letra);
+    showToast(t('toast.copied'), 'sucesso');
   }
 
   async function salvar() {
@@ -62,47 +66,112 @@ export default function Editor() {
     setTom(destino);
   }
 
+  function aplicarTomSugerido() {
+    if (tomSugerido === tom) {
+      showToast(t('toast.keyChanged'), 'info');
+      return;
+    }
+    transporTudo(tomSugerido);
+    showToast(t('toast.keyChanged'), 'sucesso');
+  }
+
   return (
     <main className="app-page fade-in space-y-5">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="m-0 text-2xl font-extrabold">{t('editor.title')}</h1>
+      <header className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button className="btn-ghost text-xs" type="button" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" />
+            <span>{t('common.back')}</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <CapaMusica tom={tom} titulo={titulo} tamanho="sm" />
+            <h1 className="m-0 text-2xl font-extrabold text-gradient">{t('editor.title')}</h1>
+          </div>
+        </div>
         <div className="flex gap-2">
-          <button className="btn-ghost" type="button" onClick={exportar}><Download className="h-4 w-4" />{t('editor.export')}</button>
-          <button className="btn-primary hidden lg:inline-flex" type="button" onClick={() => void salvar()}><Save className="h-4 w-4" />{t('editor.saveSong')}</button>
+          <button className="btn-ghost" type="button" onClick={exportar}>
+            <Download className="h-4 w-4" />
+            {t('editor.export')}
+          </button>
+          <button className="btn-primary hidden lg:inline-flex" type="button" onClick={() => void salvar()}>
+            <Save className="h-4 w-4" />
+            {t('editor.saveSong')}
+          </button>
         </div>
       </header>
 
       <div className="grid grid-cols-2 gap-2 lg:hidden">
-        <button className={`btn-ghost ${aba === 'editar' ? 'text-primaria' : ''}`} type="button" onClick={() => setAba('editar')}>Editar</button>
-        <button className={`btn-ghost ${aba === 'preview' ? 'text-primaria' : ''}`} type="button" onClick={() => setAba('preview')}>Prévia</button>
+        <button className={`btn-ghost ${aba === 'editar' ? 'text-primaria' : ''}`} type="button" onClick={() => setAba('editar')}>
+          {t('editor.lyrics')}
+        </button>
+        <button className={`btn-ghost ${aba === 'preview' ? 'text-primaria' : ''}`} type="button" onClick={() => setAba('preview')}>
+          {t('editor.preview')}
+        </button>
       </div>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
         <div className={`space-y-4 ${aba === 'preview' ? 'hidden lg:block' : ''}`}>
           <div className="fixed bottom-[76px] left-4 right-4 z-30 lg:hidden">
-            <button className="btn-primary w-full shadow-2xl" type="button" onClick={() => void salvar()}><Save className="h-4 w-4" />{t('editor.saveSong')}</button>
+            <button className="btn-primary w-full shadow-2xl" type="button" onClick={() => void salvar()}>
+              <Save className="h-4 w-4" />
+              {t('editor.saveSong')}
+            </button>
           </div>
+
+          <SectionHeader icone={<Save size={16} />} titulo={t('editor.metadata')} />
           <div className="card grid gap-3 p-4 sm:grid-cols-2">
             <input className="input" value={titulo} onChange={(event) => setTitulo(event.target.value)} placeholder="Título" />
             <input className="input" value={artista} onChange={(event) => setArtista(event.target.value)} placeholder={t('editor.artist')} />
-            <select className="input" value={tom} onChange={(event) => setTom(event.target.value as Tom)}>{tons.map((item) => <option key={item}>{item}</option>)}</select>
+            <select className="input" value={tom} onChange={(event) => setTom(event.target.value as Tom)}>
+              {tons.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
             <select className="input" value={dificuldade} onChange={(event) => setDificuldade(event.target.value as typeof dificuldade)}>
               <option value="iniciante">iniciante</option>
               <option value="intermediario">intermediario</option>
               <option value="avancado">avancado</option>
             </select>
           </div>
+
+          <SectionHeader icone={<span className="text-primaria">♪</span>} titulo={t('editor.lyrics')} />
           <SeletorAcorde onInsert={(acorde) => insertRef.current(acorde)} />
           <EditorLetra value={letra} onChange={setLetra} onInsertReady={registrarInsert} />
-          <div className="flex gap-2 overflow-x-auto pb-2">{tagsDisponiveis.map((tag) => <button key={tag} type="button" className={`chip ${tags.includes(tag) ? 'chip-active' : ''}`} onClick={() => toggleTag(tag)}>{tag}</button>)}</div>
-        </div>
-        <div className={`space-y-4 ${aba === 'editar' ? 'hidden lg:block' : ''}`}>
-          <div className="card flex flex-wrap items-center gap-2 p-3">
-            <span className="text-sm text-textoSecundario">{t('editor.transposeAll')}: {tomSugerido}</span>
-            {tons.map((item) => <button key={item} type="button" className={`chip ${item === tom ? 'chip-active' : ''}`} onClick={() => transporTudo(item)}>{item}</button>)}
+
+          <div className="flex flex-wrap gap-2">
+            {tagsDisponiveis.map((tag) => (
+              <button key={tag} type="button" className={`chip ${tags.includes(tag) ? 'chip-active' : ''}`} onClick={() => toggleTag(tag)}>
+                {tag}
+              </button>
+            ))}
           </div>
+        </div>
+
+        <div className={`space-y-4 ${aba === 'editar' ? 'hidden lg:block' : ''}`}>
+          <div className="card flex flex-wrap items-center justify-between gap-2 p-3">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-textoSecundario">
+                {t('editor.transposeAll')}: <strong className="text-primaria">{tomSugerido}</strong>
+              </span>
+              <button className="btn-ghost text-xs" type="button" onClick={aplicarTomSugerido}>
+                {t('editor.applySuggested')}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {tons.map((item) => (
+                <button key={item} type="button" className={`chip ${item === tom ? 'chip-active' : ''}`} onClick={() => transporTudo(item)}>
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <PreviewCifra letra={letra} />
-          {musica ? <button className="btn-ghost w-full" type="button" onClick={() => void salvarVersao(musica.id, { rotulo: `${t('editor.saveVersion')} ${musica.versoes.length + 1}`, tom, letra })}>{t('editor.saveVersion')}</button> : null}
+          {musica ? (
+            <button className="btn-ghost w-full" type="button" onClick={() => void salvarVersao(musica.id, { rotulo: `${t('editor.saveVersion')} ${musica.versoes.length + 1}`, tom, letra })}>
+              {t('editor.saveVersion')}
+            </button>
+          ) : null}
         </div>
       </section>
     </main>

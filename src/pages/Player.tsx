@@ -1,51 +1,189 @@
-import { Link } from 'react-router-dom';
-import { Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePlayer } from '../hooks/usePlayer';
-import { Metronomo } from '../components/metronomo/Metronomo';
+import { CapaMusica } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import {
+    Play,
+    Pause,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    VolumeX,
+    Music,
+    ArrowLeft,
+    List
+} from 'lucide-react';
 
-function tempo(segundos: number) {
-  const min = Math.floor(segundos / 60);
-  const sec = Math.floor(segundos % 60).toString().padStart(2, '0');
-  return `${min}:${sec}`;
-}
+export const Player: React.FC = () => {
+    const navigate = useNavigate();
+    const {
+        faixa,
+        fila,
+        tocando,
+        progresso,
+        duracao,
+        volume,
+        modo,
+        tocar,
+        pausar,
+        seek,
+        setVolume,
+        setModo
+    } = usePlayer();
 
-export default function Player() {
-  const { faixa, tocando, tocar, pausar, progresso, duracao, seek, volume, setVolume, modo, setModo } = usePlayer();
-  const atual = faixa ?? { id: 'demo', titulo: 'Player WorshipFlow', artista: 'Selecione ou adicione uma faixa', capaUrl: '' };
-  const pct = duracao ? (progresso / duracao) * 100 : 0;
-  return (
-    <main className="app-page">
-      <section className="mx-auto flex min-h-[calc(100vh-140px)] max-w-xl flex-col justify-center">
-        <div className="mx-auto grid aspect-square w-full max-w-[360px] place-items-center rounded-[28px] bg-elevada shadow-[0_0_80px_var(--primaria-dim)]">
-          {atual.capaUrl ? <img className="h-full w-full rounded-[28px] object-cover" src={atual.capaUrl} alt="" /> : <span className="font-display text-7xl text-primaria">WF</span>}
+    const formatarTempo = (segundos: number) => {
+        const min = Math.floor(segundos / 60);
+        const seg = Math.floor(segundos % 60);
+        return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+    };
+
+    if (!faixa) {
+        return (
+            <div className="app-page space-y-6 pb-24 fade-in">
+            <button
+            onClick={() => navigate(-1)}
+            className="btn-ghost text-xs flex items-center gap-2"
+            >
+            <ArrowLeft size={16} />
+            <span>Voltar</span>
+            </button>
+            <EstadoVazio
+            titulo="Nenhuma faixa selecionada"
+            texto="Selecione uma música da biblioteca para iniciar a reprodução."
+            />
+            </div>
+        );
+    }
+
+    const faixaTom = (faixa as any)?.tom;
+
+    return (
+        <div className="app-page space-y-6 pb-24 fade-in max-w-lg mx-auto">
+        <button
+        onClick={() => navigate(-1)}
+        className="btn-ghost text-xs flex items-center gap-2"
+        >
+        <ArrowLeft size={16} />
+        <span>Voltar</span>
+        </button>
+
+        <div className="flex flex-col items-center justify-center pt-4">
+        <div className="relative group">
+        <CapaMusica
+        tom={faixaTom}
+        titulo={faixa.titulo}
+        tamanho="lg"
+        className="w-48 h-48 text-4xl shadow-2xl rounded-3xl border border-white/20"
+        />
+        {tocando && (
+            <div className="absolute inset-0 bg-purple-500/20 rounded-3xl blur-xl -z-10 animate-pulse" />
+        )}
         </div>
-        <div className="mt-8 text-center">
-          <h1 className="font-display text-[22px] font-bold">{atual.titulo}</h1>
-          <p className="text-sm text-textoSecundario">{atual.artista}</p>
+
+        <div className="text-center mt-6 space-y-1 w-full px-4">
+        <h1 className="text-xl font-bold text-white truncate">
+        {faixa.titulo}
+        </h1>
+        <p className="text-xs text-white/60 truncate">
+        {faixa.artista || 'Artista não informado'}
+        </p>
+        {faixaTom && (
+            <span className="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            Tom: {faixaTom}
+            </span>
+        )}
         </div>
-        <div className="mt-7">
-          <div className="h-2 overflow-hidden rounded-full bg-elevada"><div className="h-full rounded-full bg-primaria" style={{ width: `${pct}%` }} /></div>
-          <div className="mt-2 flex justify-between font-mono text-xs text-textoSecundario"><span>{tempo(progresso)}</span><span>{tempo(duracao)}</span></div>
         </div>
-        <div className="mt-6 flex items-center justify-center gap-4">
-          <button className="btn-ghost h-12 w-12 p-0" type="button" onClick={() => seek(-15)} aria-label="Voltar 15 segundos"><SkipBack /></button>
-          <button className="btn-primary h-20 w-20 rounded-full p-0" type="button" onClick={() => (tocando ? pausar() : tocar())} aria-label={tocando ? 'Pausar' : 'Tocar'}>
-            {tocando ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
-          </button>
-          <button className="btn-ghost h-12 w-12 p-0" type="button" onClick={() => seek(15)} aria-label="Avançar 15 segundos"><SkipForward /></button>
+
+        <div className="space-y-1.5 px-2">
+        <input
+        type="range"
+        min={0}
+        max={duracao || 100}
+        value={progresso}
+        onChange={(e) => seek(Number(e.target.value))}
+        className="w-full accent-purple-500 bg-white/10 rounded-lg h-1.5 cursor-pointer"
+        />
+        <div className="flex justify-between text-[10px] text-white/40 font-mono">
+        <span>{formatarTempo(progresso)}</span>
+        <span>{formatarTempo(duracao)}</span>
         </div>
-        <div className="mt-5 grid grid-cols-4 gap-2">
-          <button className="btn-ghost px-2" type="button"><Shuffle className="h-4 w-4" />Aleatório</button>
-          <button className="btn-ghost px-2" type="button"><Repeat className="h-4 w-4" />Repetir</button>
-          <label className="btn-ghost px-2"><Volume2 className="h-4 w-4" /><input className="w-full accent-[var(--primaria)]" type="range" min={0} max={1} step={0.05} value={volume} onChange={(event) => setVolume(Number(event.target.value))} /></label>
-          <button className="btn-ghost px-2" type="button">Fila</button>
         </div>
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {(['normal', 'fundo', 'pad', 'metronomo'] as const).map((item) => <button key={item} className={`chip capitalize ${modo === item ? 'chip-active' : ''}`} type="button" onClick={() => setModo(item)}>{item}</button>)}
+
+        <div className="card p-4 flex items-center justify-around bg-white/5 border border-white/10">
+        <button
+        onClick={() => setModo(modo === 'pad' ? 'normal' : 'pad')}
+        className={`p-2 rounded-lg transition-colors text-xs font-semibold ${
+            modo === 'pad'
+            ? 'bg-purple-500 text-white'
+            : 'text-white/40 hover:text-white'
+        }`}
+        title="Modo Pad contínuo"
+        >
+        PAD
+        </button>
+
+        <button
+        onClick={() => {}}
+        className="p-3 text-white/70 hover:text-white transition-colors"
+        title="Anterior"
+        >
+        <SkipBack size={22} />
+        </button>
+
+        <button
+        onClick={() => (tocando ? pausar() : tocar(faixa))}
+        className="p-4 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 text-white shadow-lg hover:scale-105 active:scale-95 transition-all"
+        >
+        {tocando ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
+        </button>
+
+        <button
+        onClick={() => {}}
+        className="p-3 text-white/70 hover:text-white transition-colors"
+        title="Próxima"
+        >
+        <SkipForward size={22} />
+        </button>
+
+        <div className="flex items-center gap-1">
+        <button
+        onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+        className="p-2 text-white/60 hover:text-white"
+        >
+        {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
         </div>
-        {atual.musicaId ? <Link className="btn-text mt-3" to={`/musica/${atual.musicaId}`}>Ver Cifra</Link> : null}
-      </section>
-      <div className="mx-auto max-w-xl pb-8"><Metronomo /></div>
-    </main>
-  );
-}
+        </div>
+
+        {fila.length > 0 && (
+            <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-white/70 px-1">
+            <List size={14} className="text-purple-400" />
+            <span>Fila ({fila.length})</span>
+            </div>
+            <div className="card divide-y divide-white/5 max-h-48 overflow-y-auto">
+            {fila.map((item, idx) => (
+                <div
+                key={item.id + idx}
+                onClick={() => tocar(item)}
+                className="p-2.5 flex items-center justify-between text-xs hover:bg-white/5 cursor-pointer"
+                >
+                <div className="flex items-center gap-2 min-w-0">
+                <Music size={12} className="text-purple-400 shrink-0" />
+                <span className="text-white/90 truncate">{item.titulo}</span>
+                </div>
+                <span className="text-white/40 text-[10px] shrink-0">
+                {(item as any).tom || ''}
+                </span>
+                </div>
+            ))}
+            </div>
+            </div>
+        )}
+        </div>
+    );
+};
+
+export default Player;

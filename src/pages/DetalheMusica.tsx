@@ -1,55 +1,174 @@
-import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Download, FileText, Maximize2, Minus, Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
-import { usePerfil } from '../hooks/usePerfil';
-import { tomPorDeslocamento, transporLetra } from '../utils/transposicao';
-import type { Tom } from '../types';
-import { exportarChordPro, exportarPDF, exportarTXT } from '../utils/exportar';
+import { usePlayer } from '../hooks/usePlayer';
+import { useTransposicao } from '../hooks/useTransposicao';
+import { CapaMusica } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import {
+    ArrowLeft,
+    Play,
+    Edit,
+    Trash2,
+    Star,
+    Music
+} from 'lucide-react';
+import { Tom } from '../types';
 
-type Aba = 'cifra' | 'letra' | 'detalhes';
+export const DetalheMusica: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { musicas, loading, obterMusica, excluirMusica, alternarFavorita } = useMusicas();
+    const { tocar } = usePlayer();
+    const { deslocarTom } = useTransposicao();
+    const [musica, setMusica] = useState<any>(null);
+    const [tomAtual, setTomAtual] = useState<Tom>('C');
 
-function renderCifra(letra: string, proibidos: string[] = []) {
-  return letra.split('\n').map((linha, index) => {
-    if (/^\[[^\]]+]$/.test(linha.trim())) return <p key={index} className="mt-6 font-mono text-acento">{linha}</p>;
-    const partes = linha.split(/(\[[^\]]+])/g).filter(Boolean);
-    return <p key={index} className="min-h-7 font-mono leading-8">{partes.map((parte, i) => {
-      const acorde = parte.match(/^\[([^\]]+)]$/)?.[1];
-      if (!acorde) return <span key={i}>{parte}</span>;
-      const proibido = proibidos.includes(acorde);
-      return <button key={i} className={`mx-0.5 rounded px-1 font-bold text-primaria ${proibido ? 'border border-perigo bg-[rgba(224,64,64,0.2)] text-perigo' : ''}`} type="button" title={proibido ? 'Acorde proibido: veja alternativas' : acorde}>{acorde}</button>;
-    })}</p>;
-  });
-}
+    useEffect(() => {
+        if (id) {
+            const encontrada = obterMusica(id) || musicas.find((m) => m.id === id);
+            if (encontrada) {
+                setMusica(encontrada);
+                if (encontrada.tom) {
+                    setTomAtual(encontrada.tom as Tom);
+                }
+            }
+        }
+    }, [id, musicas, obterMusica]);
 
-export default function DetalheMusica() {
-  const { id } = useParams();
-  const { obterMusica } = useMusicas();
-  const { perfil } = usePerfil();
-  const musica = id ? obterMusica(id) : undefined;
-  const [aba, setAba] = useState<Aba>('cifra');
-  const [tom, setTom] = useState<Tom>(musica?.tom ?? 'G');
-  const letra = useMemo(() => musica ? transporLetra(musica.letra, musica.tom, tom) : '', [musica, tom]);
-  if (!musica) return <main className="app-page"><p>Música não encontrada.</p></main>;
-  const letraLimpa = letra.replace(/\[[^\]]+]/g, '');
-  return (
-    <main className="app-page">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="font-display text-3xl font-bold">{musica.titulo}</h1><p className="text-textoSecundario">{musica.artista}</p></div>
-        <Link className="btn-primary" to={`/tocar/${musica.id}`}><Maximize2 className="h-4 w-4" />Tocar em Tela Cheia</Link>
-      </header>
-      <div className="mt-5 flex gap-2">{(['cifra','letra','detalhes'] as Aba[]).map((item) => <button key={item} className={`chip capitalize ${aba === item ? 'chip-active' : ''}`} onClick={() => setAba(item)}>{item}</button>)}</div>
-      {aba === 'cifra' ? <section className="mt-5">
-        <div className="sticky top-3 z-10 mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-borda bg-superficie/90 p-2 backdrop-blur"><span className="chip">Tom: {tom}</span><button className="btn-ghost h-10 w-10 p-0" onClick={() => setTom(tomPorDeslocamento(tom, -1))}><Minus /></button><button className="btn-ghost h-10 w-10 p-0" onClick={() => setTom(tomPorDeslocamento(tom, 1))}><Plus /></button><span className="chip">{musica.versoes.length || 1} versões</span></div>
-        <article className="card p-5">{renderCifra(letra, perfil.acordesProibidos)}</article>
-      </section> : null}
-      {aba === 'letra' ? <article className="card mt-5 whitespace-pre-line p-5 text-xl leading-10">{letraLimpa}</article> : null}
-      {aba === 'detalhes' ? <section className="card mt-5 grid gap-4 p-5">
-        <div className="grid gap-3 sm:grid-cols-2"><p>Tom: <b>{tom}</b></p><p>BPM: <b>72</b></p><p>Capo: <b>0</b></p><p>Dificuldade: <b>{musica.dificuldade}</b></p><p>Tags: <b>{musica.tags.join(', ')}</b></p><p>Álbum: <b>Essenciais de {musica.artista}</b></p></div>
-        <label className="flex items-center gap-3"><input type="checkbox" /> Pública</label>
-        <div><h2 className="font-display text-xl font-bold">Versões salvas</h2>{musica.versoes.map((versao) => <button className="chip mr-2 mt-2" key={versao.id}>{versao.rotulo}</button>)}</div>
-        <div className="flex flex-wrap gap-2"><button className="btn-ghost" onClick={() => exportarPDF(musica)}><Download className="h-4 w-4" />PDF</button><button className="btn-ghost" onClick={() => exportarTXT(musica)}><FileText className="h-4 w-4" />TXT</button><button className="btn-ghost" onClick={() => exportarChordPro(musica)}>ChordPro</button><button className="btn-ghost">Excel</button></div>
-      </section> : null}
-    </main>
-  );
-}
+    const aumentarTom = () => {
+        setTomAtual((prev) => deslocarTom(prev, 1));
+    };
+
+    const diminuirTom = () => {
+        setTomAtual((prev) => deslocarTom(prev, -1));
+    };
+
+    if (loading) {
+        return (
+            <div className="app-page flex items-center justify-center min-h-[60vh]">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    if (!musica) {
+        return (
+            <div className="app-page space-y-6 pb-24 fade-in">
+            <button
+            onClick={() => navigate('/biblioteca')}
+            className="btn-ghost text-xs flex items-center gap-2"
+            >
+            <ArrowLeft size={16} />
+            <span>Voltar para Biblioteca</span>
+            </button>
+            <EstadoVazio
+            titulo="Música não encontrada"
+            texto="A cifra selecionada não foi encontrada na sua biblioteca."
+            />
+            </div>
+        );
+    }
+
+    const handleExcluir = async () => {
+        if (window.confirm('Tem certeza que deseja excluir esta música?')) {
+            await excluirMusica(musica.id);
+            navigate('/biblioteca');
+        }
+    };
+
+    return (
+        <div className="app-page space-y-6 pb-24 fade-in">
+        <button
+        onClick={() => navigate(-1)}
+        className="btn-ghost text-xs flex items-center gap-2"
+        >
+        <ArrowLeft size={16} />
+        <span>Voltar</span>
+        </button>
+
+        <div className="card p-5 bg-gradient-to-r from-purple-900/40 to-indigo-900/30 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+        <CapaMusica tom={tomAtual} titulo={musica.titulo} tamanho="lg" className="w-16 h-16 text-xl" />
+        <div className="min-w-0">
+        <h1 className="text-xl font-bold text-white truncate">{musica.titulo}</h1>
+        <p className="text-xs text-white/60 truncate">{musica.artista || 'Artista não informado'}</p>
+        <div className="flex items-center gap-2 mt-2">
+        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-300 border border-purple-500/40">
+        Tom: {tomAtual}
+        </span>
+        {musica.dificuldade && (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-white/10 text-white/70">
+            {musica.dificuldade}
+            </span>
+        )}
+        </div>
+        </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+        <button
+        onClick={() => tocar(musica)}
+        className="btn-primary text-xs py-2 px-3 flex items-center gap-1.5"
+        >
+        <Play size={14} />
+        <span>Tocar</span>
+        </button>
+        <button
+        onClick={() => navigate(`/tocar/${musica.id}`)}
+        className="btn-ghost text-xs py-2 px-3 border border-white/10 flex items-center gap-1.5"
+        >
+        <Music size={14} />
+        <span>Modo Palco</span>
+        </button>
+        <button
+        onClick={() => navigate(`/editor/${musica.id}`)}
+        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 transition-colors"
+        title="Editar"
+        >
+        <Edit size={16} />
+        </button>
+        <button
+        onClick={() => alternarFavorita(musica.id)}
+        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-amber-400 transition-colors"
+        title="Favoritar"
+        >
+        <Star size={16} fill={musica.eFavorita ? 'currentColor' : 'none'} />
+        </button>
+        <button
+        onClick={handleExcluir}
+        className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-red-400 transition-colors"
+        title="Excluir"
+        >
+        <Trash2 size={16} />
+        </button>
+        </div>
+        </div>
+
+        <div className="card p-3 flex items-center justify-between text-xs bg-white/5 border border-white/10">
+        <span className="font-semibold text-white/70">Transposição de Tom:</span>
+        <div className="flex items-center gap-2">
+        <button
+        onClick={diminuirTom}
+        className="btn-ghost py-1 px-3 border border-white/10 font-bold"
+        >
+        -1
+        </button>
+        <span className="font-bold text-purple-300 w-8 text-center">{tomAtual}</span>
+        <button
+        onClick={aumentarTom}
+        className="btn-ghost py-1 px-3 border border-white/10 font-bold"
+        >
+        +1
+        </button>
+        </div>
+        </div>
+
+        <div className="card p-5 bg-black/30 border border-white/10 font-mono text-sm leading-relaxed whitespace-pre-wrap text-white/90 overflow-x-auto">
+        {musica.letra || musica.cifra || 'Nenhuma cifra cadastrada para esta música.'}
+        </div>
+        </div>
+    );
+};
+
+export default DetalheMusica;

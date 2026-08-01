@@ -18,7 +18,7 @@ export function ExibicaoCifra({ letra, acordesProibidos, modo, tamanho }: Exibic
   const proibidos = acordesProibidos.map(normalizarAcorde);
   const linhas = letra.split(/\r?\n/);
   return (
-    <div className={`font-mono leading-[1.75] ${tamanhos[tamanho]}`}>
+    <div className={`font-mono leading-[1.75] text-texto ${tamanhos[tamanho]}`}>
       {linhas.map((linha, linhaIndex) => (
         <div key={`${linha}-${linhaIndex}`} className="min-h-[2.5em] whitespace-pre-wrap break-words">
           {renderLinha(linha, proibidos, modo)}
@@ -42,7 +42,7 @@ function renderLinha(linha: string, proibidos: string[], modo: ExibicaoCifraProp
             key={`${parte}-${index}`}
             type="button"
             title={proibido ? acordeAlternativoFacil(acorde) : acorde}
-            className={`mr-2 inline-flex rounded px-1 align-top text-[0.72em] font-semibold ${proibido ? 'bg-perigo/35 text-[#ffd6d6]' : 'text-primaria'}`}
+            className={`mr-2 inline-flex items-center justify-center rounded-lg bg-elevada px-2 py-0.5 align-top text-[0.72em] font-bold shadow-md ${proibido ? 'bg-perigo/40 text-[#ffd6d6]' : 'text-primaria'}`}
           >
             {acorde}
           </button>
@@ -61,7 +61,7 @@ function renderLinha(linha: string, proibidos: string[], modo: ExibicaoCifraProp
           <button
             type="button"
             title={proibido ? acordeAlternativoFacil(acordeAtual) : acordeAtual}
-            className={`absolute left-0 top-0 rounded px-1 text-[0.62em] font-semibold leading-none ${proibido ? 'bg-perigo/35 text-[#ffd6d6]' : 'text-primaria'}`}
+            className={`absolute left-0 top-0 inline-flex items-center justify-center rounded-lg bg-elevada px-1.5 py-0.5 text-[0.62em] font-bold leading-none shadow ${proibido ? 'bg-perigo/40 text-[#ffd6d6]' : 'text-primaria'}`}
           >
             {acordeAtual}
           </button>

@@ -92,6 +92,7 @@
   "editor.saveVersion": "Save version",
   "editor.artist": "Artist",
   "editor.tags": "Tags",
+  "editor.applySuggested": "Apply suggested key",
   "medleys.title": "Medleys",
   "medleys.new": "New medley",
   "medleys.blocks": "blocks",
