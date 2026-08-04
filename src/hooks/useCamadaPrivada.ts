@@ -23,6 +23,7 @@ export interface NavidromeTrack {
 export interface CamadaPrivadaState {
   autorizado: boolean;
   loading: boolean;
+  erro: string | null;
   albuns: NavidromeAlbum[];
   faixasPorAlbum: Record<string, NavidromeTrack[]>;
   buscarFaixas: (albumId: string) => Promise<NavidromeTrack[]>;
@@ -36,6 +37,7 @@ export function useCamadaPrivada(): CamadaPrivadaState {
   const [albuns, setAlbuns] = useState<NavidromeAlbum[]>([]);
   const [faixasPorAlbum, setFaixasPorAlbum] = useState<Record<string, NavidromeTrack[]>>({});
   const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   const proxyUrl = import.meta.env.VITE_PRIVADO_PROXY_URL || import.meta.env.VITE_PROXY_URL || '';
 
@@ -55,42 +57,83 @@ export function useCamadaPrivada(): CamadaPrivadaState {
   }
 
   async function buscarAlbuns(): Promise<NavidromeAlbum[]> {
-    if (!proxyUrl) return [];
-    const token = await buscarToken();
-    const response = await fetch(`${proxyUrl}/navidrome/rest/getAlbumList2.view?${subsonicParams}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) return [];
-    const data = await response.json();
-    const albums = data['subsonic-response']?.albumList2?.album ?? [];
-    return (albums as any[]).map((album) => ({
-      id: album.id,
-      titulo: album.title || 'Sem título',
-      artista: album.artist || 'Desconhecido',
-      ano: album.year,
-    }));
+    if (!proxyUrl) {
+      const mensagem = 'Proxy não configurado.';
+      console.error('[Navidrome]', mensagem);
+      setErro(mensagem);
+      return [];
+    }
+    try {
+      const token = await buscarToken();
+      const url = `${proxyUrl}/navidrome/rest/getAlbumList2.view?${subsonicParams}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        const texto = await response.text().catch(() => '');
+        const mensagem = `Erro HTTP ${response.status} ao buscar álbuns no Navidrome.`;
+        console.error('[Navidrome]', mensagem, response.status, texto);
+        setErro(mensagem);
+        return [];
+      }
+      const data = await response.json();
+      const albums = data['subsonic-response']?.albumList2?.album ?? [];
+      if (!albums.length) {
+        const mensagem = 'Navidrome retornou lista de álbuns vazia.';
+        console.error('[Navidrome]', mensagem, data);
+        setErro(mensagem);
+      } else {
+        setErro(null);
+      }
+      return (albums as any[]).map((album) => ({
+        id: album.id,
+        titulo: album.title || 'Sem título',
+        artista: album.artist || 'Desconhecido',
+        ano: album.year,
+      }));
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : 'Erro desconhecido ao buscar álbuns no Navidrome.';
+      console.error('[Navidrome]', mensagem, err);
+      setErro(mensagem);
+      return [];
+    }
   }
 
   async function buscarFaixas(albumId: string): Promise<NavidromeTrack[]> {
     if (faixasPorAlbum[albumId]) return faixasPorAlbum[albumId];
-    if (!proxyUrl) return [];
-    const token = await buscarToken();
-    const response = await fetch(`${proxyUrl}/navidrome/rest/getAlbum.view?${subsonicParams}&id=${albumId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) return [];
-    const data = await response.json();
-    const songs = data['subsonic-response']?.album?.song ?? [];
-    const tracks: NavidromeTrack[] = (songs as any[]).map((song) => ({
-      id: song.id,
-      titulo: song.title || 'Sem título',
-      artista: song.artist || '',
-      albumId,
-      duracao: song.duration,
-      streamUrl: `${proxyUrl}/navidrome/rest/stream.view?${subsonicParams}&id=${song.id}`,
-    }));
-    setFaixasPorAlbum((prev) => ({ ...prev, [albumId]: tracks }));
-    return tracks;
+    if (!proxyUrl) {
+      console.error('[Navidrome] Proxy não configurado ao buscar faixas.');
+      return [];
+    }
+    try {
+      const token = await buscarToken();
+      const url = `${proxyUrl}/navidrome/rest/getAlbum.view?${subsonicParams}&id=${albumId}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        const texto = await response.text().catch(() => '');
+        const mensagem = `Erro HTTP ${response.status} ao buscar faixas do álbum ${albumId}.`;
+        console.error('[Navidrome]', mensagem, response.status, texto);
+        return [];
+      }
+      const data = await response.json();
+      const songs = data['subsonic-response']?.album?.song ?? [];
+      const tracks: NavidromeTrack[] = (songs as any[]).map((song) => ({
+        id: song.id,
+        titulo: song.title || 'Sem título',
+        artista: song.artist || '',
+        albumId,
+        duracao: song.duration,
+        streamUrl: `${proxyUrl}/navidrome/rest/stream.view?${subsonicParams}&id=${song.id}`,
+      }));
+      setFaixasPorAlbum((prev) => ({ ...prev, [albumId]: tracks }));
+      return tracks;
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : `Erro desconhecido ao buscar faixas do álbum ${albumId}.`;
+      console.error('[Navidrome]', mensagem, err);
+      return [];
+    }
   }
 
   async function solicitarMusica(dados: { nomeMusica: string; artista: string; usuario: string }): Promise<{ sucesso: boolean; mensagem: string }> {
@@ -116,12 +159,19 @@ export function useCamadaPrivada(): CamadaPrivadaState {
   function recarregar() {
     if (!autorizado) return;
     setLoading(true);
+    setErro(null);
     buscarAlbuns()
       .then((albunsRes) => {
         setAlbuns(albunsRes);
+        if (!albunsRes.length) {
+          setErro('Nenhum álbum retornado pelo Navidrome. Verifique a configuração do proxy e as credenciais Subsonic.');
+        }
       })
-      .catch(() => {
-        showToast('Erro ao carregar dados da camada privada', 'erro');
+      .catch((err) => {
+        const mensagem = err instanceof Error ? err.message : 'Erro ao carregar dados da camada privada.';
+        console.error('[Navidrome] Falha ao recarregar álbuns.', err);
+        setErro(mensagem);
+        showToast(mensagem, 'erro');
       })
       .finally(() => setLoading(false));
   }
@@ -129,10 +179,11 @@ export function useCamadaPrivada(): CamadaPrivadaState {
   useEffect(() => {
     if (!autorizado) {
       setAlbuns([]);
+      setErro(null);
       return;
     }
     recarregar();
   }, [autorizado]);
 
-  return { autorizado, loading, albuns, faixasPorAlbum, buscarFaixas, recarregar, solicitarMusica };
+  return { autorizado, loading, erro, albuns, faixasPorAlbum, buscarFaixas, recarregar, solicitarMusica };
 }

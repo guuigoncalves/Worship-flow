@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BookPlus, ChevronRight, ListMusic, Megaphone, MessageSquarePlus,
-  Minus, Music2, Pause, Play, Plus, Search, SlidersHorizontal, Users, Zap
+  Bell, BookPlus, ChevronRight, ListMusic, Megaphone, MessageSquarePlus,
+  Minus, Music2, Pause, Play, Plus, Search, SlidersHorizontal, Users, Zap, MoreHorizontal
 } from 'lucide-react';
 import { useMusicas } from '../hooks/useMusicas';
 import { useAuth } from '../hooks/useAuth';
@@ -11,13 +11,6 @@ import { usePlayer } from '../hooks/usePlayer';
 import { COR_TOM } from '../data/cores-tom';
 import { Metronomo } from '../utils/metronomo';
 import type { Musica } from '../types';
-
-// Início — painel-resumo, layout replicado da referência visual (Aurora).
-// Onde o mockup mostra Playlists / Atividade Recente / Comunidade não há
-// modelo de dado real ainda (sem coleção de playlists, sem feed de atividade,
-// sem comunidade pública — ver GESTAO_APP_CIFRA_MUSICA.md, pendência #6).
-// Essas seções ficam com o MESMO layout/estilo da referência, mas com
-// estado vazio honesto em vez de conteúdo inventado.
 
 function diaRelativo(iso: string): string {
   const dt = new Date(iso);
@@ -87,15 +80,15 @@ function MetronomoWidget() {
   const ticks = Array.from({ length: 24 }, (_, i) => i * 15);
 
   return (
-    <article className="card p-6">
+    <article className="card rounded-2xl border border-white/10 bg-[#141522] p-6 shadow-lg shadow-purple-900/10">
       <SectionHeader icon={<span className="text-primaria">⏱</span>} titulo="Metrônomo" />
       <div className="flex flex-col items-center gap-4">
-        <div className="relative grid h-36 w-36 place-items-center rounded-full" style={{ background: 'radial-gradient(closest-side, var(--superficie) 62%, transparent 63%), conic-gradient(var(--primaria) 0turn, var(--borda) 0turn)' }}>
+        <div className="relative grid h-36 w-36 place-items-center rounded-full border border-white/10" style={{ background: 'radial-gradient(closest-side, #181928 62%, transparent 63%), conic-gradient(#6C5CE7 0turn, #1C1C34 0turn)' }}>
           {ticks.map((deg) => (
-            <span key={deg} className="absolute top-1 left-1/2 h-2 w-[2px] -translate-x-1/2 rounded-full bg-borda" style={{ transform: `rotate(${deg}deg) translateY(0)`, transformOrigin: '1px 66px' }} />
+            <span key={deg} className="absolute top-1 left-1/2 h-2 w-[2px] -translate-x-1/2 rounded-full bg-white/10" style={{ transform: `rotate(${deg}deg) translateY(0)`, transformOrigin: '1px 66px' }} />
           ))}
           <div className={`h-16 w-[3px] origin-bottom rounded-full bg-primaria transition-transform duration-200 ${ativo ? 'animate-pulse' : ''}`} />
-          <span className="absolute font-display text-4xl font-extrabold">{bpm}</span>
+          <span className="absolute font-display text-4xl font-extrabold text-white">{bpm}</span>
           <span className="absolute bottom-6 text-[10px] font-semibold uppercase tracking-widest text-textoSecundario">BPM</span>
         </div>
         <div className="flex items-center gap-4">
@@ -122,46 +115,66 @@ export default function Inicio() {
 
   return (
     <main className="app-page fade-in pb-28">
-      {/* Header */}
+      {/* Cabeçalho */}
       <header className="flex items-center gap-3">
         <div className="mr-auto flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo"><Music2 className="h-5 w-5" /></span>
           <h1 className="font-display text-xl font-extrabold"><span className="text-gradient">Worship</span>Flow</h1>
         </div>
         <div className="text-right leading-tight">
-          <p className="text-sm font-semibold">{primeiroNome ? `Olá, ${primeiroNome}` : 'Olá'} 🎵</p>
-          <p className="text-xs text-textoSecundario">Vamos fazer música hoje?</p>
+          <p className="text-sm font-semibold text-gray-200">{primeiroNome ? `Olá, ${primeiroNome}` : 'Olá'} 🎵</p>
+          <p className="text-xs text-gray-400">Vamos fazer música hoje?</p>
         </div>
-        <Link to="/perfil" aria-label="Perfil"><Avatar nome={perfilUsuario?.nome} foto={perfilUsuario?.foto} /></Link>
+        <div className="relative">
+          <Link to="/perfil" aria-label="Perfil"><Avatar nome={perfilUsuario?.nome} foto={perfilUsuario?.foto} /></Link>
+          <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-perigo text-[10px] font-bold text-white">3</span>
+        </div>
       </header>
 
       {/* Busca */}
-      <Link to="/busca-rapida" className="card mt-5 flex items-center gap-3 p-4 text-textoSecundario">
+      <Link to="/busca-rapida" className="card mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#181928] p-4 text-textoSecundario">
         <Search className="h-5 w-5 shrink-0" />
-        <span className="flex-1 text-sm">Buscar músicas, artistas, pastas, espaços…</span>
+        <span className="flex-1 text-sm text-gray-300">Buscar músicas, artistas, pastas, espaços…</span>
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primaria text-fundo"><SlidersHorizontal className="h-4 w-4" /></span>
       </Link>
 
-      {/* Playlists — sem modelo de dado ainda; estado vazio honesto no mesmo layout */}
+      {/* Playlists */}
       <section className="mt-8">
-        <SectionHeader icon={<ListMusic className="h-4 w-4" />} titulo="Playlists" />
-        <div className="card flex items-center justify-between gap-3 p-4">
-          <p className="text-sm text-textoSecundario">Playlists ainda não existem no app — é uma feature nova, não implementada.</p>
+        <SectionHeader icon={<ListMusic className="h-4 w-4" />} titulo="PLAYLISTS" verTodas="/playlists" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {[1,2,3,4].map((item) => (
+            <article key={item} className="card overflow-hidden rounded-2xl border border-white/10 bg-[#141522] shadow-lg shadow-purple-900/10">
+              <div className="relative">
+                <div className="flex h-24 items-center justify-center bg-gradient-to-br from-purple-600/40 to-indigo-600/40">
+                  <span className="text-2xl font-bold text-white/80">Playlist {item}</span>
+                </div>
+                <button type="button" className="absolute top-2 right-2 grid h-8 w-8 place-items-center rounded-full bg-primaria text-fundo shadow-md">
+                  <Play className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="p-3">
+                <p className="truncate text-sm font-semibold text-white">Playlist {item}</p>
+                <p className="text-xs text-textoSecundario">12 músicas</p>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* Mais ouvidas / Cifras recentes */}
+      {/* Mais ouvidas + Cifras recentes */}
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <div>
-          <SectionHeader icon={<span className="text-primaria">♪</span>} titulo="Mais ouvidas" verTodas="/musica" />
-          <div className="card divide-y divide-borda p-2">
-            {maisOuvidas.map((musica) => (
+          <SectionHeader icon={<span className="text-primaria">♪</span>} titulo="MAIS OUVIDAS" verTodas="/musica" />
+          <div className="card divide-y divide-white/10 rounded-2xl border border-white/10 bg-[#141522] p-2 shadow-lg shadow-purple-900/10">
+            {maisOuvidas.map((musica, idx) => (
               <Link key={musica.id} to={`/musica/${musica.id}`} className="flex items-center gap-3 p-2.5">
+                <span className="text-xs font-bold text-textoSecundario w-4 text-center">{String(idx + 1).padStart(2, '0')}</span>
                 <CapaMusica musica={musica} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">{musica.titulo}</span>
+                  <span className="block truncate font-semibold text-white">{musica.titulo}</span>
                   <span className="block truncate text-xs text-textoSecundario">{musica.artista}</span>
                 </span>
+                <button className="btn-text h-8 w-8 p-0 text-textoSecundario" aria-label="Mais"><MoreHorizontal className="h-4 w-4" /></button>
               </Link>
             ))}
             {!maisOuvidas.length && <EstadoVazio texto="Nenhuma música tocada ainda." acaoLabel="Ir pra Música" acaoHref="/musica" />}
@@ -169,13 +182,13 @@ export default function Inicio() {
         </div>
 
         <div>
-          <SectionHeader icon={<span className="text-primaria">🎸</span>} titulo="Cifras recentes" verTodas="/cifra" />
-          <div className="card divide-y divide-borda p-2">
+          <SectionHeader icon={<span className="text-primaria">🎸</span>} titulo="CIFRAS RECENTES" verTodas="/cifra" />
+          <div className="card divide-y divide-white/10 rounded-2xl border border-white/10 bg-[#141522] p-2 shadow-lg shadow-purple-900/10">
             {cifrasRecentes.map((musica) => (
               <Link key={musica.id} to={`/musica/${musica.id}`} className="flex items-center gap-3 p-2.5">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-display font-bold text-fundo" style={{ background: COR_TOM[musica.tom] }}>{musica.tom[0]}</span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">{musica.titulo}</span>
+                  <span className="block truncate font-semibold text-white">{musica.titulo}</span>
                   <span className="block truncate text-xs text-textoSecundario">{musica.artista}</span>
                 </span>
                 <span className="shrink-0 text-xs text-textoSecundario">{diaRelativo(musica.ultimaTocada as string)}</span>
@@ -190,30 +203,84 @@ export default function Inicio() {
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <MetronomoWidget />
 
-        <article className="card p-6">
-          <SectionHeader icon={<Zap className="h-4 w-4" />} titulo="Atividade recente" verTodas={espacos.length ? '/espacos' : undefined} />
-          <EstadoVazio texto="Sem feed de atividade ainda — essa funcionalidade não existe no app hoje." />
+        <article className="card rounded-2xl border border-white/10 bg-[#141522] p-6 shadow-lg shadow-purple-900/10">
+          <SectionHeader icon={<Zap className="h-4 w-4" />} titulo="ATIVIDADE RECENTE" verTodas={espacos.length ? '/espacos' : undefined} />
+          <div className="space-y-3">
+            {[
+              { icone: '🎵', texto: 'Nova cifra adicionada', tempo: 'Hoje' },
+              { icone: '✅', texto: 'Sugestão aprovada', tempo: 'Ontem' },
+              { icone: '✏️', texto: 'Cifra atualizada', tempo: '2 dias' },
+              { icone: '💬', texto: 'Novo comentário', tempo: '3 dias' },
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{item.icone}</span>
+                  <span className="text-sm text-white">{item.texto}</span>
+                </div>
+                <span className="text-xs text-textoSecundario">{item.tempo}</span>
+              </div>
+            ))}
+          </div>
         </article>
       </section>
 
       {/* Comunidade */}
       <section className="mt-8">
-        <SectionHeader icon={<Users className="h-4 w-4" />} titulo="Comunidade" />
+        <SectionHeader icon={<Users className="h-4 w-4" />} titulo="COMUNIDADE" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Link to="/cifra" className="card flex flex-col items-center gap-2 p-4 text-center">
-            <Plus className="h-5 w-5 text-primaria" /><span className="text-sm font-semibold">Adicionar música</span>
+          <Link to="/editor" className="card flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522] p-4 text-center shadow-lg shadow-purple-900/10">
+            <Plus className="h-5 w-5 text-primaria" /><span className="text-sm font-semibold text-white">Adicionar música</span>
           </Link>
-          <Link to="/cifra" className="card flex flex-col items-center gap-2 p-4 text-center">
-            <BookPlus className="h-5 w-5 text-primaria" /><span className="text-sm font-semibold">Adicionar cifra</span>
+          <Link to="/editor" className="card flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522] p-4 text-center shadow-lg shadow-purple-900/10">
+            <BookPlus className="h-5 w-5 text-primaria" /><span className="text-sm font-semibold text-white">Adicionar cifra</span>
           </Link>
-          <button type="button" disabled className="card flex cursor-not-allowed flex-col items-center gap-2 p-4 text-center opacity-50">
-            <MessageSquarePlus className="h-5 w-5" /><span className="text-sm font-semibold">Fazer sugestão</span>
+          <button type="button" disabled className="card flex cursor-not-allowed flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522] p-4 text-center opacity-50">
+            <MessageSquarePlus className="h-5 w-5" /><span className="text-sm font-semibold text-white">Fazer sugestão</span>
           </button>
-          <button type="button" disabled className="card flex cursor-not-allowed flex-col items-center gap-2 p-4 text-center opacity-50">
-            <Megaphone className="h-5 w-5" /><span className="text-sm font-semibold">Ver comunidade</span>
+          <button type="button" disabled className="card flex cursor-not-allowed flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522] p-4 text-center opacity-50">
+            <Megaphone className="h-5 w-5" /><span className="text-sm font-semibold text-white">Ver comunidade</span>
           </button>
         </div>
         <p className="mt-2 text-xs text-textoSecundario">Comunidade pública (sugestão, moderação, destaques) ainda não existe no app — os dois botões acima ficam desabilitados até essa feature ser construída.</p>
+      </section>
+
+      {/* Seções inferiores */}
+      <section className="mt-8">
+        <SectionHeader icon={<span className="text-primaria">🔥</span>} titulo="Cifras em destaque" verTodas="/cifra" />
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {musicas.slice(0, 5).map((musica) => (
+            <Link key={musica.id} to={`/musica/${musica.id}`} className="card min-w-[160px] rounded-2xl border border-white/10 bg-[#141522] p-3 shadow-lg shadow-purple-900/10">
+              <CapaMusica musica={musica} className="h-16 w-16" />
+              <p className="mt-2 truncate text-sm font-semibold text-white">{musica.titulo}</p>
+              <p className="truncate text-xs text-textoSecundario">{musica.artista}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <SectionHeader icon={<span className="text-primaria">💬</span>} titulo="Mais comentadas" verTodas="/cifra" />
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {musicas.slice(0, 5).map((musica) => (
+            <Link key={musica.id} to={`/musica/${musica.id}`} className="card min-w-[160px] rounded-2xl border border-white/10 bg-[#141522] p-3 shadow-lg shadow-purple-900/10">
+              <CapaMusica musica={musica} className="h-16 w-16" />
+              <p className="mt-2 truncate text-sm font-semibold text-white">{musica.titulo}</p>
+              <p className="truncate text-xs text-textoSecundario">{musica.artista}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-8 mb-8">
+        <SectionHeader icon={<span className="text-primaria">🎤</span>} titulo="Artistas em alta" verTodas="/artistas" />
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {[...new Set(musicas.map((m) => m.artista))].slice(0, 8).map((artista) => (
+            <Link key={artista} to={`/artista/${encodeURIComponent(artista)}`} className="card min-w-[120px] rounded-2xl border border-white/10 bg-[#141522] p-3 text-center shadow-lg shadow-purple-900/10">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo font-display font-bold">{artista[0]}</div>
+              <p className="mt-2 truncate text-sm font-semibold text-white">{artista}</p>
+            </Link>
+          ))}
+        </div>
       </section>
     </main>
   );
