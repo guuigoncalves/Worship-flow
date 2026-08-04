@@ -1,5 +1,5 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, deleteField, doc, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { useAuth } from './useAuth';
 import { useToast } from './useToast';
 import { db } from '../utils/firebase';
@@ -8,13 +8,17 @@ import type { Musica, MusicaComunidade, StatusMusica } from '../types';
 interface ComunidadeContextValue {
   musicas: MusicaComunidade[];
   pendentes: MusicaComunidade[];
+  solicitacoesExclusao: MusicaComunidade[];
   loading: boolean;
   error: string | null;
   obterMusicasComunidade: () => MusicaComunidade[];
-  enviarParaComunidade: (musica: Musica) => Promise<MusicaComunidade>;
   obterMusicasPendentes: () => MusicaComunidade[];
+  obterSolicitacoesExclusao: () => MusicaComunidade[];
+  enviarParaComunidade: (musica: Musica) => Promise<MusicaComunidade>;
   aprovarMusica: (id: string) => Promise<void>;
   rejeitarMusica: (id: string) => Promise<void>;
+  aprovarExclusaoPermanente: (id: string) => Promise<void>;
+  rejeitarExclusaoRestaurar: (id: string) => Promise<void>;
 }
 
 const ComunidadeContext = createContext<ComunidadeContextValue | null>(null);
@@ -24,6 +28,7 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
   const { showToast } = useToast();
   const [musicas, setMusicas] = useState<MusicaComunidade[]>([]);
   const [pendentes, setPendentes] = useState<MusicaComunidade[]>([]);
+  const [solicitacoesExclusao, setSolicitacoesExclusao] = useState<MusicaComunidade[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +36,7 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
     if (!user || user.isAnonymous) {
       setMusicas([]);
       setPendentes([]);
+      setSolicitacoesExclusao([]);
       setLoading(false);
       return undefined;
     }
@@ -40,7 +46,7 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
     const unsubAprovadas = onSnapshot(
       query(collection(db, 'comunidade'), where('status', '==', 'aprovada')),
       (snapshot) => {
-        setMusicas(snapshot.docs.map((doc) => doc.data() as MusicaComunidade));
+        setMusicas(snapshot.docs.map((doc) => doc.data() as MusicaComunidade).filter((musica) => !musica.solicitacaoExclusao));
         setLoading(false);
       },
       (err) => {
@@ -51,12 +57,23 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
 
     const isAdmin = Boolean(user.uid && import.meta.env.VITE_ADM_UID && user.uid === import.meta.env.VITE_ADM_UID);
     let unsubPendentes: (() => void) | undefined;
+    let unsubSolicitacoesExclusao: (() => void) | undefined;
 
     if (isAdmin) {
       unsubPendentes = onSnapshot(
         query(collection(db, 'comunidade'), where('status', '==', 'pendente')),
         (snapshot) => {
-          setPendentes(snapshot.docs.map((doc) => doc.data() as MusicaComunidade));
+          setPendentes(snapshot.docs.map((doc) => doc.data() as MusicaComunidade).filter((musica) => !musica.solicitacaoExclusao));
+        },
+        (err) => {
+          setError(err.message);
+        }
+      );
+
+      unsubSolicitacoesExclusao = onSnapshot(
+        query(collection(db, 'comunidade'), where('solicitacaoExclusao', '==', true)),
+        (snapshot) => {
+          setSolicitacoesExclusao(snapshot.docs.map((doc) => doc.data() as MusicaComunidade));
         },
         (err) => {
           setError(err.message);
@@ -67,12 +84,15 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
     return () => {
       unsubAprovadas();
       unsubPendentes?.();
+      unsubSolicitacoesExclusao?.();
     };
   }, [user]);
 
   const obterMusicasComunidade = useCallback(() => musicas, [musicas]);
 
   const obterMusicasPendentes = useCallback(() => pendentes, [pendentes]);
+
+  const obterSolicitacoesExclusao = useCallback(() => solicitacoesExclusao, [solicitacoesExclusao]);
 
   const enviarParaComunidade = useCallback(
     async (musica: Musica) => {
@@ -115,7 +135,37 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
     [showToast]
   );
 
-  const value = useMemo(() => ({ musicas, pendentes, loading, error, obterMusicasComunidade, enviarParaComunidade, obterMusicasPendentes, aprovarMusica, rejeitarMusica }), [aprovarMusica, enviarParaComunidade, error, loading, musicas, obterMusicasComunidade, obterMusicasPendentes, pendentes, rejeitarMusica]);
+  const aprovarExclusaoPermanente = useCallback(
+    async (id: string) => {
+      await deleteDoc(doc(db, 'comunidade', id));
+      showToast('Exclusão aprovada e conteúdo removido permanentemente.', 'sucesso');
+    },
+    [showToast]
+  );
+
+  const rejeitarExclusaoRestaurar = useCallback(
+    async (id: string) => {
+      await updateDoc(doc(db, 'comunidade', id), { solicitacaoExclusao: false, dataSolicitacaoExclusao: deleteField() });
+      showToast('Conteúdo restaurado.', 'sucesso');
+    },
+    [showToast]
+  );
+
+  const value = useMemo(() => ({
+    musicas,
+    pendentes,
+    solicitacoesExclusao,
+    loading,
+    error,
+    obterMusicasComunidade,
+    obterMusicasPendentes,
+    obterSolicitacoesExclusao,
+    enviarParaComunidade,
+    aprovarMusica,
+    rejeitarMusica,
+    aprovarExclusaoPermanente,
+    rejeitarExclusaoRestaurar,
+  }), [aprovarMusica, aprovarExclusaoPermanente, enviarParaComunidade, error, loading, musicas, obterMusicasComunidade, obterMusicasPendentes, obterSolicitacoesExclusao, pendentes, rejeitarExclusaoRestaurar, rejeitarMusica, solicitacoesExclusao]);
 
   return <ComunidadeContext.Provider value={value}>{children}</ComunidadeContext.Provider>;
 }

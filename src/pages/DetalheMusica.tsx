@@ -5,6 +5,7 @@ import { usePlayer } from '../hooks/usePlayer';
 import { useTransposicao } from '../hooks/useTransposicao';
 import { CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import { ExibicaoCifra } from '../components/apresentacao/ExibicaoCifra';
 import {
     ArrowLeft,
     Play,
@@ -102,6 +103,11 @@ export const DetalheMusica: React.FC = () => {
             {musica.dificuldade}
             </span>
         )}
+        {musica.possuiCifra === false && (
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+            Só Letra
+            </span>
+        )}
         </div>
         </div>
         </div>
@@ -164,8 +170,8 @@ export const DetalheMusica: React.FC = () => {
         </div>
         </div>
 
-        <div className="card p-5 bg-black/30 border border-white/10 font-mono text-sm leading-relaxed whitespace-pre-wrap text-white/90 overflow-x-auto">
-        {musica.letra || musica.cifra || 'Nenhuma cifra cadastrada para esta música.'}
+        <div className="card p-5 bg-black/30 border border-white/10">
+        <ExibicaoCifra letra={musica.letra} acordesProibidos={[]} modo="ambos" tamanho="medio" possuiCifra={musica.possuiCifra ?? true} formato="acima" />
         </div>
         </div>
     );

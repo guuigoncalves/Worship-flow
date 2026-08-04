@@ -1,11 +1,16 @@
 # ARQUITETURA.md — WorshipFlow
-> Gerado por Claude Gestão a partir de inspeção direta do código real (`Worship-flow.zip`, 31/07/2026).
-> Este documento existe porque o projeto nunca teve uma ARQUITETURA.md técnica formal — só documentos de decisão/visão. Toda IDE/agente deve ler este arquivo e confirmar antes de agir.
-> Build verificado nesta sessão: `tsc -b` e `vite build` limpos, node_modules reinstalado do zero.
+> Gerado por Claude Gestão a partir de inspeção direta do código real (`Worship-flow.zip`).
+> v1.1 atualiza v1.0 (31/07/2026) com achados confirmados por leitura direta do zip em 03/08/2026:
+> race condition de anotações de ensaio corrigida, dependência `chordsheetjs` removida, campos de
+> exclusão segura confirmados, e um problema real e urgente na integração de câmera (código
+> desatualizado em relação a uma decisão de infraestrutura mais recente). Toda IDE/agente deve ler
+> este arquivo e confirmar antes de agir.
+> Build verificado: `tsc -b` e `vite build` limpos (confirmado em sessão anterior); build desta
+> sessão não foi reexecutado, apenas leitura de código.
 
 ---
 
-## 1. Stack real (confirmado no `package.json`, não em relatório antigo)
+## 1. Stack real (confirmado no `package.json`)
 
 | Camada | Tecnologia | Versão |
 |---|---|---|
@@ -13,19 +18,22 @@
 | Estilo | Tailwind CSS 3 + CSS Variables | — |
 | Roteamento | React Router DOM | 6.28 |
 | Backend | Firebase (Auth + Firestore) | firebase 11.1 |
-| Player de áudio | **Howler.js** (real, tocando `faixa.audioUrl` via `Howl`) | 2.2.4 |
+| Player de áudio | Howler.js (real, tocando `faixa.audioUrl` via `Howl`) | 2.2.4 |
 | Metrônomo | Web Audio API própria (`utils/metronomo.ts`) | — |
 | PWA | vite-plugin-pwa (Workbox, `generateSW`) | 0.21 |
 | Export PDF | jsPDF | 4.2 |
 | Export planilha | xlsx (SheetJS) | 0.18 |
-| i18n | i18next + react-i18next, **app inteiro**, não só o Editor | 24.2 / 15.4 |
+| i18n | i18next + react-i18next, app inteiro | 24.2 / 15.4 |
 | Ícones | lucide-react | 0.469 |
 
-**Dependência instalada mas não usada em lugar nenhum do código: `chordsheetjs` (14.6.1).** O parser de cifra real é uma implementação própria em `src/utils/acordes.ts` (regex sobre `[Acorde]texto`), não a biblioteca. Ou remover a dependência morta, ou decidir migrar o parser pra ela — não fazer nada com isso sem decisão explícita.
+**`chordsheetjs` foi REMOVIDA do `package.json`** (confirmado por inspeção direta do zip,
+03/08/2026 — pendência #10 do GESTAO_APP_CIFRA_MUSICA fechada). O parser de cifra real continua
+sendo a implementação própria em `src/utils/acordes.ts`.
 
-**Não existe `@dnd-kit` no projeto.** O componente `BlocoArrastavel.tsx` (medley) tem um ícone de grip (`GripVertical`) sugerindo arraste, mas a reordenação real é por botões ↑/↓ em `ConstrutorBlocos.tsx` (`mover(index, direcao)`). Funciona, só o ícone é enganoso — considerar trocar o ícone ou implementar drag de verdade, decisão de produto, não bug.
+**Não existe `@dnd-kit` no projeto.** Sem mudança — reordenação de medley continua por botões
+↑/↓ em `ConstrutorBlocos.tsx`.
 
-## 2. Firebase — estrutura real do Firestore (confirmada em `useMusicas.tsx` e afins)
+## 2. Firebase — estrutura real do Firestore
 
 ```
 users/{uid}                                — perfil (useAuth/usePerfil)
@@ -34,19 +42,22 @@ users/{uid}/favoritos/{musicaId}
 users/{uid}/historico/{entradaId}
 users/{uid}/estatisticas/geral
 users/{uid}/medleys/{medleyId}              — (useMedleys)
+users/{uid}/playlists/{playlistId}          — (Fase 10)
 espacos/{espacoId}                          — useEspacos
+                                               NOVO campo: observacoesEnsaio?: Record<string,string>
 espacos/{espacoId}/membros/{uid}            — papel: dono/admin/editor/leitor
 espacos/{espacoId}/musicas/{musicaId}
+comunidade/{musicaComunidadeId}             — coleção FLAT (confirmado, não é subcoleção)
 codigos/{codigo}                            — lookup de convite (get-only, sem list)
 ```
 
-**Não existe** `users/{uid}/albuns` como coleção real — `Albuns.tsx` deriva álbuns virtualmente agrupando por `Musica.artista`, com aviso explícito na tela ("Os álbuns são agrupamentos derivados automaticamente do artista"). Isso é intencional e correto, não um bug a corrigir.
+**Não existe** `users/{uid}/albuns` como coleção real — segue derivado virtualmente por artista.
 
-**Não existe** coleção `comunidade/musicas` nem rota `/comunidade` no código atual — é trabalho novo, ainda não iniciado (ver Fase 8 no SI do Dev).
+Config Firebase em `src/utils/firebase.ts`, chaves hardcoded (projeto `worshipflow-ef662`).
+`VITE_ADM_UID` e `VITE_PRIVADO_ALLOWLIST` lidas via `import.meta.env` — precisam estar nas
+Environment Variables da Vercel.
 
-Config Firebase em `src/utils/firebase.ts`, chaves hardcoded (projeto `worshipflow-ef662`), sem `.env` necessário pra isso. **Exceção:** `VITE_ADM_UID` é lido via `import.meta.env` em `NavegacaoInferior.tsx` e `AdminPanel.tsx` pra decidir se o usuário é admin — essa variável precisa ser configurada nas Environment Variables da Vercel (não commitada), senão o Admin nunca aparece pra ninguém.
-
-## 3. Modelo de dado — `Musica` (tipo real, `src/types/index.ts`)
+## 3. Modelo de dado — `Musica` (tipo real, `src/types/index.ts`) — ATUALIZADO
 
 ```ts
 interface Musica {
@@ -63,33 +74,97 @@ interface Musica {
   ultimaTocada: string | null;
   criadaEm: string;
   versoes: VersaoMusica[];
+  possuiCifra?: boolean;                    // default true (Fase 13)
+  solicitacaoExclusao?: boolean;            // NOVO — Fase 16, confirmado por leitura direta
+  dataSolicitacaoExclusao?: string;         // NOVO — Fase 16, confirmado por leitura direta
 }
 ```
-**Não tem** `capaUrl`, `bpm`, `capo` nem `visibilidade`. Qualquer feature que precise desses campos (ex: capa de álbum de verdade, BPM automático) exige migração de schema — não existe hoje, apesar de ter sido mencionado como existente em um relatório de outra fonte.
+**Ainda não tem** `capaUrl`, `bpm`, `capo` nem `visibilidade`.
+
+`MusicaComunidade` (coleção `comunidade/{id}`) ganhou os mesmos dois campos de exclusão. Segue
+**sem** `'removida'` como status possível, e sem `denuncias`/`visualizacoes`/`downloads`.
+
+`Espaco` (tipo real, `src/types/index.ts`) — NOVO campo confirmado:
+```ts
+interface Espaco {
+  id: string;
+  nome: string;
+  tipo: 'ministerio' | 'banda' | 'estudo' | 'outro';
+  donoUid: string;
+  codigo: string;
+  criadoEm: string;
+  observacoesEnsaio?: Record<string, string>;   // NOVO — Fase 17, musicaId -> texto
+}
+```
+Escrita confirmada como `updateDoc` com dot notation (`observacoesEnsaio.${musicaId}`) em
+`useEspacos.tsx` — atômica por música, corrigido corretamente (era `setDoc` do objeto inteiro
+antes, com risco de sobrescrita entre edições simultâneas; correção verificada por leitura direta
+do código, não apenas relatório).
 
 ## 4. Player — estado real de funcionamento
 
-`usePlayer()` usa Howler de verdade: se `faixa.audioUrl` existir, cria um `Howl` e toca. **Mas:** `modo` (`'normal' | 'fundo' | 'pad' | 'metronomo'`) é armazenado e exposto, só isso — **não existe nenhum branch de lógica que mude o comportamento de playback por modo**. É hoje um seletor visual sem efeito real. Além disso, o Firebase Storage não está ativado no projeto e não há fluxo de upload de áudio em nenhuma tela — ou seja, na prática, dificilmente algo tem `audioUrl` preenchido hoje. Isso resolve a pendência antiga sobre "os modos tocam áudio real?": a resposta é **o player em si é real, mas os modos são placeholder, e a fonte de áudio em si ainda não tem de onde vir**.
+Sem mudança desde v1.0: Howler real, mas `modo` (`'normal'|'fundo'|'pad'|'metronomo'`) continua
+placeholder visual sem branch de lógica real. Firebase Storage ainda não ativado, sem fluxo de
+upload de áudio em nenhuma tela.
 
-## 5. Rotas (`src/App.tsx`) — lista completa e real
+## 5. Rotas (`src/App.tsx`) — ATUALIZADO
 
 ```
 /login, /, /musica, /cifra, /biblioteca, /musica/:id, /tocar/:id, /busca-rapida,
 /medleys, /medley/:id, /editor, /editor/:id, /perfil, /configuracoes, /player,
 /albuns, /album/:id, /artistas, /artista/:id, /espacos, /espaco/:id,
-/entrar/:codigo, /importar, /adm
+/entrar/:codigo, /importar, /adm, /comunidade, /playlists, /playlist/:id, /privado,
+/espaco/:id/preparacao   ← NOVO (Fase 17, Modo de Preparação)
 ```
-Todas em Aurora (Fases 0-7 concluídas). Não existe `/comunidade`, `/playlists` nem qualquer rota de camada privada.
+Total 27 rotas. `/adm` protegida por `VITE_ADM_UID`, `/privado` por `VITE_PRIVADO_ALLOWLIST`.
 
-## 6. Componentes e hooks — ver `SYSTEM_INSTRUCTION_CHAT_DEV.md` (Parte 2) pro mapa completo por pasta; este documento cobre só o que diverge do que estava documentado antes.
+## 6. Camada Privada — Proxy — ⚠️ DIVERGÊNCIA CONFIRMADA ENTRE CÓDIGO E INFRA REAL (NOVO)
 
-## 7. Convenções obrigatórias (herdadas do projeto, confirmadas no código)
-- Nomes em português (variáveis, tipos, rotas, componentes).
-- `export default NomeDaPagina` em toda página (exigido pelo `React.lazy()`).
+**Decisão de infraestrutura fechada em 03/08/2026 (fora deste chat, no chat responsável pelo
+servidor):** a rota `/frigate/*` foi **removida do proxy público** (`worshipflow-proxy`). Câmera
+passou a ser acessível **somente via Tailscale direto** (`100.102.180.104:5000`), nunca mais pelo
+proxy público, nem autenticada. Motivo: câmera é o dado mais sensível do produto — isolamento
+total é mais seguro que o desenho original (URL assinada via proxy). Testado pela infra: `/frigate/*`
+no proxy retorna 404 fixo; Tailscale direto retorna 200 OK.
+
+**O código do app NUNCA foi atualizado pra essa decisão — confirmado por leitura direta do zip:**
+- `src/hooks/useCamadaPrivada.ts`, função `buscarCameras()`, ainda chama
+  `${proxyUrl}/frigate/api/config`.
+- `server/proxy.js` ainda tem a rota `app.all('/frigate/*', verifyToken, checkAllowlist, ...)`
+  ativa e funcional no código-fonte (mesmo que a instância real do servidor já a tenha removido).
+
+**Efeito, se testado sem correção:** a chamada bate 404, o código tem `if (!response.ok) return []`,
+e a tela mostra "Nenhuma câmera encontrada" como se fosse falta de dado — mascarando erro de
+arquitetura como ausência de conteúdo. Terceira vez que esse padrão aparece neste projeto (as
+outras duas foram variável de ambiente do proxy e caminho da API do Navidrome).
+
+**Correção necessária, documentada como tarefa urgente no SI do Dev v13.0 Parte 3** — não testar a
+aba de câmera até isso ser corrigido.
+
+**Música (Navidrome) segue via proxy público normalmente** — confirmado funcional: versão real do
+Navidrome é 0.63.2 (be10f89c), protocolo Subsonic v1.16.1 respondendo corretamente, autenticação
+validada via `worshipflow-proxy`. Essa parte está OK, sem pendência.
+
+## 7. Fila de Exclusão Segura (R15) — NOVO, confirmado por leitura direta
+
+`useComunidade.tsx` tem `aprovarExclusaoPermanente()` (delete real do doc em `comunidade`) e
+`rejeitarExclusaoRestaurar()` (`solicitacaoExclusao: false`, limpa `dataSolicitacaoExclusao` via
+`deleteField()`). `useMusicas.tsx` tem `excluirMusica()` fazendo `updateDoc` com
+`solicitacaoExclusao: true` em vez de deletar direto. `AdminPanel.tsx` tem aba de moderação
+listando essas solicitações. Código confirmado correto por leitura direta; **validação manual real
+(clicar, aprovar, restaurar) ainda não foi feita** — ver pendência no GESTAO_APP_CIFRA_MUSICA.
+
+## 8. Convenções obrigatórias (sem mudança)
+- Nomes em português.
+- `export default NomeDaPagina` em toda página.
 - `EstadoVazio` usa prop `texto`, não `descricao`.
-- `useTransposicao()` só tem funções puras — estado de tom fica no componente.
-- Sistema visual Aurora em `src/index.css` — não criar classe/paleta paralela.
-- Ambiente do Guilherme: CachyOS, Fish Shell, Kate. Fish não aceita `>` encadeado — usar `touch`/`truncate -s 0`/`kate`.
+- `useTransposicao()` só tem funções puras.
+- Sistema visual Aurora em `src/index.css`.
+- Ambiente: CachyOS, Fish Shell, Kate. `touch`/`truncate -s 0`/`kate`, não redirecionamento
+  encadeado.
+- **NOVO:** erro de infraestrutura/configuração nunca deve renderizar como "nenhum dado
+  encontrado" — terceira ocorrência confirmada deste padrão neste projeto (ver Seção 6).
 
 ---
-*ARQUITETURA.md v1.0 | Claude (Gestão) | 31/Jul/2026 — gerado por inspeção direta do código, não por relatório de terceiros.*
+*ARQUITETURA.md v1.1 | Claude (Gestão) | 03/Ago/2026 — atualizado por inspeção direta do código
+real do zip, não por relatório de terceiros.*

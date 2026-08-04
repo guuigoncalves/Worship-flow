@@ -14,6 +14,7 @@ import { Metronomo } from '../components/metronomo/Metronomo';
 import type { ResultadoBusca, Tom } from '../types';
 
 type Modo = 'cifra' | 'letra' | 'ambos';
+type Formato = 'acima' | 'inline';
 type Tamanho = 'pequeno' | 'medio' | 'grande' | 'extra';
 type Velocidade = 'lenta' | 'media' | 'rapida';
 
@@ -35,6 +36,7 @@ export default function Tocar() {
   const { showToast } = useToast();
   const [tomAtual, setTomAtual] = useState<Tom>('G');
   const [modo, setModo] = useState<Modo>('ambos');
+  const [formato, setFormato] = useState<Formato>('acima');
   const [tamanhoIndex, setTamanhoIndex] = useState(1);
   const [velocidadeIndex, setVelocidadeIndex] = useState(1);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -154,7 +156,7 @@ export default function Tocar() {
       <section ref={scrollRef} className="absolute bottom-[76px] left-0 right-0 top-0 overflow-y-auto px-4 pb-8 pt-16 sm:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="card bg-superficie/95 p-4 sm:p-6">
-            <ExibicaoCifra letra={letra} acordesProibidos={perfil.acordesProibidos} modo={modo} tamanho={tamanho} />
+            <ExibicaoCifra letra={letra} acordesProibidos={perfil.acordesProibidos} modo={modo} tamanho={tamanho} possuiCifra={musica.possuiCifra ?? true} formato={formato} />
           </div>
         </div>
       </section>
@@ -184,6 +186,13 @@ export default function Tocar() {
             {(['ambos', 'letra', 'cifra'] as Modo[]).map((item) => (
               <button key={item} className={`btn-ghost text-sm ${modo === item ? 'text-primaria' : ''}`} type="button" onClick={() => setModo(item)}>
                 {item === 'ambos' ? 'Cifra+Letra' : item === 'letra' ? 'Só Letra' : 'Só Cifra'}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {(['acima', 'inline'] as Formato[]).map((item) => (
+              <button key={item} className={`btn-ghost text-sm ${formato === item ? 'text-primaria' : ''}`} type="button" onClick={() => setFormato(item)}>
+                {item === 'acima' ? 'Acima' : 'Inline'}
               </button>
             ))}
           </div>

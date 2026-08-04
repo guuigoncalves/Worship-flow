@@ -1,4 +1,4 @@
-import { LogOut, Palette, Layout, Settings } from 'lucide-react';
+import { LogOut, Palette, Layout, Settings, MicOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { SectionHeader } from '../components/aurora';
@@ -65,6 +65,19 @@ export default function Configuracoes() {
           <input className="w-full accent-[var(--primaria)]" type="range" min={0} max={3} defaultValue={1} />
           <p className="rounded-xl bg-elevada p-4 text-lg">Prévia ao vivo da cifra e da interface.</p>
         </label>
+      </section>
+
+      <section className="card space-y-4 p-4 opacity-70">
+        <SectionHeader icone={<MicOff size={16} />} titulo="Modo de Escuta" />
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="flex items-center justify-between text-sm font-semibold">
+            <span>Reconhecimento de áudio e sugestão de cifra</span>
+            <span className="text-[10px] uppercase tracking-wide text-textoSecundario">Em breve</span>
+          </div>
+          <p className="mt-2 text-xs text-textoSecundario">
+            Funcionalidade em desenvolvimento. Em breve será possível usar o microfone para sugerir acordes em tempo real.
+          </p>
+        </div>
       </section>
 
       <section className="card space-y-4 p-4">

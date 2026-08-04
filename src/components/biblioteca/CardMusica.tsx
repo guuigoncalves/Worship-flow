@@ -32,6 +32,7 @@ export function CardMusica({ musica, compacto, temAcordeProibido, onFavorite, on
         <span className="rounded px-2 py-1 font-bold text-black" style={{ backgroundColor: cor }}>{musica.tom}</span>
         <span className="rounded bg-elevada px-2 py-1">{musica.dificuldade}</span>
         <span className="rounded bg-elevada px-2 py-1">{musica.vezesTocada} {t('song.plays')}</span>
+        {musica.possuiCifra === false && <span className="rounded bg-amber-500/20 px-2 py-1 text-amber-300 border border-amber-500/40">Só Letra</span>}
         {temAcordeProibido ? <span className="rounded bg-perigo/20 px-2 py-1 text-perigo">{t('library.forbidden')}</span> : null}
       </div>
       <div className="flex flex-wrap gap-2">

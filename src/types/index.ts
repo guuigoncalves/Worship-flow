@@ -35,6 +35,9 @@ export interface Musica {
   ultimaTocada: string | null;
   criadaEm: string;
   versoes: VersaoMusica[];
+  possuiCifra?: boolean;
+  solicitacaoExclusao?: boolean;
+  dataSolicitacaoExclusao?: string;
 }
 
 export interface BlocoMedley {
@@ -121,6 +124,7 @@ export interface Espaco {
   donoUid: string;
   codigo: string;
   criadoEm: string;
+  observacoesEnsaio?: Record<string, string>;
 }
 
 export interface MembroEspaco {
@@ -159,6 +163,8 @@ export interface MusicaComunidade {
   enviadaEm: string;
   aprovadaEm?: string;
   rejeitadaEm?: string;
+  solicitacaoExclusao?: boolean;
+  dataSolicitacaoExclusao?: string;
 }
 
 export interface Playlist {

@@ -39,6 +39,7 @@ const Artistas = lazy(() => import('./pages/Artistas'));
 const Artista = lazy(() => import('./pages/Artista'));
 const Espacos = lazy(() => import('./pages/Espacos'));
 const Espaco = lazy(() => import('./pages/Espaco'));
+const ModoPreparacao = lazy(() => import('./pages/ModoPreparacao'));
 const EntrarEspaco = lazy(() => import('./pages/EntrarEspaco'));
 const Importar = lazy(() => import('./pages/Importar'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
@@ -112,6 +113,7 @@ function Shell() {
             <Route path="/artista/:id" element={<Artista />} />
             <Route path="/espacos" element={<Espacos />} />
             <Route path="/espaco/:id" element={<Espaco />} />
+            <Route path="/espaco/:id/preparacao" element={<ModoPreparacao />} />
             <Route path="/entrar/:codigo" element={<EntrarEspaco />} />
             <Route path="/importar" element={<Importar />} />
             <Route path="/comunidade" element={<Comunidade />} />

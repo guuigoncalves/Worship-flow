@@ -29,6 +29,7 @@ export default function Editor() {
   const [letra, setLetra] = useState(musica?.letra ?? '[G]Digite a letra [C]aqui');
   const [dificuldade, setDificuldade] = useState<'iniciante' | 'intermediario' | 'avancado'>(musica?.dificuldade ?? 'intermediario');
   const [tags, setTags] = useState<TagMusica[]>(musica?.tags ?? ['louvor']);
+  const [possuiCifra, setPossuiCifra] = useState<boolean>(musica?.possuiCifra ?? true);
   const [aba, setAba] = useState<'editar' | 'preview'>('editar');
   const insertRef = useRef<(texto: string) => void>(() => undefined);
   const registrarInsert = useCallback((insert: (texto: string) => void) => {
@@ -43,6 +44,7 @@ export default function Editor() {
     setLetra(musica.letra);
     setDificuldade(musica.dificuldade);
     setTags(musica.tags);
+    setPossuiCifra(musica.possuiCifra ?? true);
   }, [musica]);
 
   const tomSugerido = useMemo(() => sugerir(extrairAcordes(letra)), [letra, sugerir]);
@@ -57,7 +59,7 @@ export default function Editor() {
   }
 
   async function salvar() {
-    const salva = await salvarMusica({ titulo: titulo || 'Nova música', artista: artista || 'WorshipFlow', tom, letra, tags, dificuldade }, id);
+    const salva = await salvarMusica({ titulo: titulo || 'Nova música', artista: artista || 'WorshipFlow', tom, letra, tags, dificuldade, possuiCifra }, id);
     navigate(`/musica/${salva.id}`);
   }
 
@@ -132,10 +134,14 @@ export default function Editor() {
               <option value="intermediario">intermediario</option>
               <option value="avancado">avancado</option>
             </select>
+            <label className="flex items-center gap-2 text-sm text-textoSecundario sm:col-span-2">
+              <input type="checkbox" checked={possuiCifra} onChange={(event) => setPossuiCifra(event.target.checked)} className="accent-[var(--cor-primaria)]" />
+              Contém Cifra
+            </label>
           </div>
 
           <SectionHeader icone={<span className="text-primaria">♪</span>} titulo={t('editor.lyrics')} />
-          <SeletorAcorde onInsert={(acorde) => insertRef.current(acorde)} />
+          {possuiCifra ? <SeletorAcorde onInsert={(acorde) => insertRef.current(acorde)} /> : null}
           <EditorLetra value={letra} onChange={setLetra} onInsertReady={registrarInsert} />
 
           <div className="flex flex-wrap gap-2">
@@ -166,7 +172,7 @@ export default function Editor() {
             </div>
           </div>
 
-          <PreviewCifra letra={letra} />
+          <PreviewCifra letra={letra} possuiCifra={possuiCifra} formato="acima" />
           {musica ? (
             <button className="btn-ghost w-full" type="button" onClick={() => void salvarVersao(musica.id, { rotulo: `${t('editor.saveVersion')} ${musica.versoes.length + 1}`, tom, letra })}>
               {t('editor.saveVersion')}

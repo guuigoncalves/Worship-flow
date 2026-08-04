@@ -6,7 +6,8 @@ import {
   getDoc,
   onSnapshot,
   serverTimestamp,
-  setDoc
+  setDoc,
+  updateDoc
 } from 'firebase/firestore';
 import type { Espaco, Musica, MusicaEspaco, PapelEspaco } from '../types';
 import { db } from '../utils/firebase';
@@ -134,6 +135,7 @@ export function useEspacoDetalhe(espacoId: string | undefined) {
   const [musicas, setMusicas] = useState<MusicaEspaco[]>([]);
   const [meuPapel, setMeuPapel] = useState<PapelEspaco | null>(null);
   const [loading, setLoading] = useState(true);
+  const [observacoesEnsaio, setObservacoesEnsaio] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!espacoId || !user) return undefined;
@@ -147,9 +149,16 @@ export function useEspacoDetalhe(espacoId: string | undefined) {
     const unsubMusicas = onSnapshot(collection(db, 'espacos', espacoId, 'musicas'), (snapshot) => {
       setMusicas(snapshot.docs.map((item) => item.data() as MusicaEspaco));
     });
+    const unsubEspaco = onSnapshot(doc(db, 'espacos', espacoId), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as import('../types').Espaco & { observacoesEnsaio?: Record<string, string> };
+        setObservacoesEnsaio(data.observacoesEnsaio ?? {});
+      }
+    });
     return () => {
       unsubMembros();
       unsubMusicas();
+      unsubEspaco();
     };
   }, [espacoId, user]);
 
@@ -200,5 +209,16 @@ export function useEspacoDetalhe(espacoId: string | undefined) {
     [espacoId, podeGerenciarMembros]
   );
 
-  return { membros, musicas, meuPapel, podeEditar, podeGerenciarMembros, loading, compartilharMusica, removerMusica, alterarPapel, removerMembro };
+  const salvarObservacaoEnsaio = useCallback(
+    async (musicaId: string, texto: string) => {
+      if (!espacoId || !podeEditar) return;
+      await updateDoc(doc(db, 'espacos', espacoId), {
+        [`observacoesEnsaio.${musicaId}`]: texto
+      });
+      setObservacoesEnsaio((prev) => ({ ...prev, [musicaId]: texto }));
+    },
+    [espacoId, podeEditar]
+  );
+
+  return { membros, musicas, meuPapel, podeEditar, podeGerenciarMembros, loading, compartilharMusica, removerMusica, alterarPapel, removerMembro, observacoesEnsaio, salvarObservacaoEnsaio };
 }

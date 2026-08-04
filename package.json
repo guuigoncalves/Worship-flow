@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "chordsheetjs": "^14.6.1",
     "firebase": "^11.1.0",
     "howler": "^2.2.4",
     "i18next": "^24.2.0",

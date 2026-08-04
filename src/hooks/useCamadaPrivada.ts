@@ -20,33 +20,28 @@ export interface NavidromeTrack {
   streamUrl: string;
 }
 
-export interface FrigateCamera {
-  id: string;
-  nome: string;
-  streamUrl: string;
-  snapshotUrl: string;
-  online: boolean;
-}
-
 export interface CamadaPrivadaState {
   autorizado: boolean;
   loading: boolean;
   albuns: NavidromeAlbum[];
-  cameras: FrigateCamera[];
   faixasPorAlbum: Record<string, NavidromeTrack[]>;
   buscarFaixas: (albumId: string) => Promise<NavidromeTrack[]>;
   recarregar: () => void;
+  solicitarMusica: (dados: { nomeMusica: string; artista: string; usuario: string }) => Promise<{ sucesso: boolean; mensagem: string }>;
 }
 
 export function useCamadaPrivada(): CamadaPrivadaState {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [albuns, setAlbuns] = useState<NavidromeAlbum[]>([]);
-  const [cameras, setCameras] = useState<FrigateCamera[]>([]);
   const [faixasPorAlbum, setFaixasPorAlbum] = useState<Record<string, NavidromeTrack[]>>({});
   const [loading, setLoading] = useState(false);
 
-  const proxyUrl = import.meta.env.VITE_PRIVADO_PROXY_URL || '';
+  const proxyUrl = import.meta.env.VITE_PRIVADO_PROXY_URL || import.meta.env.VITE_PROXY_URL || '';
+
+  const navidromeUser = import.meta.env.VITE_NAVIDROME_USER || '';
+  const navidromePass = import.meta.env.VITE_NAVIDROME_PASS || '';
+  const subsonicParams = `u=${encodeURIComponent(navidromeUser)}&p=${encodeURIComponent(navidromePass)}&v=1.16.1&c=WorshipFlow&f=json`;
 
   const autorizado = useMemo(() => {
     if (!user || user.isAnonymous) return false;
@@ -62,7 +57,7 @@ export function useCamadaPrivada(): CamadaPrivadaState {
   async function buscarAlbuns(): Promise<NavidromeAlbum[]> {
     if (!proxyUrl) return [];
     const token = await buscarToken();
-    const response = await fetch(`${proxyUrl}/navidrome/soundi?method=getAlbumList2&f=json`, {
+    const response = await fetch(`${proxyUrl}/navidrome/rest/getAlbumList2.view?${subsonicParams}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) return [];
@@ -80,7 +75,7 @@ export function useCamadaPrivada(): CamadaPrivadaState {
     if (faixasPorAlbum[albumId]) return faixasPorAlbum[albumId];
     if (!proxyUrl) return [];
     const token = await buscarToken();
-    const response = await fetch(`${proxyUrl}/navidrome/soundi?method=getAlbum&f=json&id=${albumId}`, {
+    const response = await fetch(`${proxyUrl}/navidrome/rest/getAlbum.view?${subsonicParams}&id=${albumId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) return [];
@@ -92,37 +87,38 @@ export function useCamadaPrivada(): CamadaPrivadaState {
       artista: song.artist || '',
       albumId,
       duracao: song.duration,
-      streamUrl: `${proxyUrl}/navidrome/soundi?method=stream&id=${song.id}`,
+      streamUrl: `${proxyUrl}/navidrome/rest/stream.view?${subsonicParams}&id=${song.id}`,
     }));
     setFaixasPorAlbum((prev) => ({ ...prev, [albumId]: tracks }));
     return tracks;
   }
 
-  async function buscarCameras(): Promise<FrigateCamera[]> {
-    if (!proxyUrl) return [];
+  async function solicitarMusica(dados: { nomeMusica: string; artista: string; usuario: string }): Promise<{ sucesso: boolean; mensagem: string }> {
+    if (!proxyUrl) {
+      return { sucesso: false, mensagem: 'Proxy não configurado' };
+    }
     const token = await buscarToken();
-    const response = await fetch(`${proxyUrl}/frigate/api/config`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await fetch(`${proxyUrl}/n8n/pedido-musica`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
     });
-    if (!response.ok) return [];
-    const data = await response.json();
-    const cams = data.cameras || {};
-    return Object.entries(cams).map(([id, cam]: [string, any]) => ({
-      id,
-      nome: cam.display_name || id,
-      streamUrl: `${proxyUrl}/frigate/${id}/hls/master.m3u8`,
-      snapshotUrl: `${proxyUrl}/frigate/${id}/latest.jpg`,
-      online: cam.enabled === true,
-    }));
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { sucesso: false, mensagem: data?.mensagem || 'Erro ao enviar pedido' };
+    }
+    return { sucesso: true, mensagem: data?.mensagem || 'Pedido enviado' };
   }
 
   function recarregar() {
     if (!autorizado) return;
     setLoading(true);
-    Promise.all([buscarAlbuns(), buscarCameras()])
-      .then(([albunsRes, camerasRes]) => {
+    buscarAlbuns()
+      .then((albunsRes) => {
         setAlbuns(albunsRes);
-        setCameras(camerasRes);
       })
       .catch(() => {
         showToast('Erro ao carregar dados da camada privada', 'erro');
@@ -133,11 +129,10 @@ export function useCamadaPrivada(): CamadaPrivadaState {
   useEffect(() => {
     if (!autorizado) {
       setAlbuns([]);
-      setCameras([]);
       return;
     }
     recarregar();
   }, [autorizado]);
 
-  return { autorizado, loading, albuns, cameras, faixasPorAlbum, buscarFaixas, recarregar };
+  return { autorizado, loading, albuns, faixasPorAlbum, buscarFaixas, recarregar, solicitarMusica };
 }

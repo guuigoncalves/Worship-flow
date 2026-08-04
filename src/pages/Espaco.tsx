@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Copy, LogOut, Share2, Trash2, User } from 'lucide-react';
+import { Copy, LogOut, Share2, Trash2, User, Play } from 'lucide-react';
 import { SectionHeader, CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { PainelDeslizante } from '../components/compartilhado/PainelDeslizante';
@@ -73,6 +73,12 @@ export default function Espaco() {
 
       {aba === 'musicas' ? (
         <section className="mt-6 space-y-4">
+          {musicas.length > 0 && (
+            <button className="btn-primary w-full" type="button" onClick={() => navigate(`/espaco/${id}/preparacao`)}>
+              <Play className="h-4 w-4" />
+              Iniciar Modo de Preparação
+            </button>
+          )}
           {podeEditar ? (
             <button className="btn-primary" type="button" onClick={() => setCompartilharAberto(true)}>
               <Share2 className="h-4 w-4" />

@@ -61,3 +61,28 @@ export function importarTextoLivre(texto: string): string {
     })
     .join('\n');
 }
+
+export function formatarBlocoCifra(linha: string): { acordes: string; texto: string } {
+  const acordesEncontrados: Array<{ inicio: number; texto: string }> = [];
+  const regex = /\[([^\]]+)]/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(linha)) !== null) {
+    acordesEncontrados.push({ inicio: match.index, texto: match[1] });
+  }
+
+  const textoSemAcordes = linha.replace(/\[[^\]]+]/g, '');
+  if (!acordesEncontrados.length) {
+    return { acordes: '', texto: textoSemAcordes };
+  }
+
+  const linhaAcordes = new Array(textoSemAcordes.length).fill(' ');
+  for (let i = 0; i < acordesEncontrados.length; i++) {
+    const acorde = acordesEncontrados[i];
+    const posicao = Math.max(0, Math.min(acorde.inicio - 3 * i, linhaAcordes.length - 1));
+    for (let j = 0; j < acorde.texto.length && posicao + j < linhaAcordes.length; j++) {
+      linhaAcordes[posicao + j] = acorde.texto[j];
+    }
+  }
+
+  return { acordes: linhaAcordes.join(''), texto: textoSemAcordes };
+}

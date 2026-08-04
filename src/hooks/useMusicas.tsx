@@ -1,5 +1,5 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { arrayUnion, collection, deleteDoc, doc, increment, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { arrayUnion, collection, deleteDoc, doc, increment, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import type { Musica, ResultadoBusca, TagMusica, Tom, VersaoMusica } from '../types';
 import { musicasExemplo } from '../data/musicas-exemplo';
@@ -17,6 +17,7 @@ interface NovaMusicaInput {
   letra: string;
   tags: TagMusica[];
   dificuldade: Musica['dificuldade'];
+  possuiCifra?: boolean;
 }
 
 interface MusicasContextValue {
@@ -39,7 +40,7 @@ const localKey = 'worshipflow:musicas';
 
 function lerMusicasLocais(): Musica[] {
   const locais = lerLocalStorage<Musica[]>(localKey, []);
-  if (locais.length && !locais.some((musica) => musica.id === 'bondade-de-deus')) return locais;
+  if (locais.length && !locais.some((musica) => musica.id === 'bondade-de-deus')) return locais.filter((musica) => !musica.solicitacaoExclusao);
   salvarLocalStorage(localKey, musicasExemplo);
   return musicasExemplo;
 }
@@ -73,9 +74,9 @@ export function MusicasProvider({ children }: { children: ReactNode }) {
       async (snapshot) => {
         if (snapshot.empty) {
           await Promise.all(musicasExemplo.map((musica) => setDoc(doc(db, 'users', user.uid, 'musicas', musica.id), { ...musica, criadaEmServidor: serverTimestamp() }, { merge: true })));
-          setMusicas(musicasExemplo);
+          setMusicas(ordenar(musicasExemplo));
         } else {
-          setMusicas(ordenar(snapshot.docs.map((item) => item.data() as Musica)));
+          setMusicas(ordenar(snapshot.docs.map((item) => item.data() as Musica).filter((musica) => !musica.solicitacaoExclusao)));
         }
         setLoading(false);
       },
@@ -145,7 +146,8 @@ export function MusicasProvider({ children }: { children: ReactNode }) {
         vezesTocada: musicaExistente?.vezesTocada ?? 0,
         ultimaTocada: musicaExistente?.ultimaTocada ?? null,
         criadaEm: musicaExistente?.criadaEm ?? new Date().toISOString(),
-        versoes: musicaExistente?.versoes ?? []
+        versoes: musicaExistente?.versoes ?? [],
+        possuiCifra: input.possuiCifra ?? musicaExistente?.possuiCifra ?? true
       };
       await atualizarLista((atuais) => [musica, ...atuais.filter((item) => item.id !== musica.id)], [musica], t('toast.saved'));
       return musica;
@@ -169,16 +171,18 @@ export function MusicasProvider({ children }: { children: ReactNode }) {
 
   const excluirMusica = useCallback(
     async (id: string) => {
+      const agora = new Date().toISOString();
       persistirLocal(musicas.filter((musica) => musica.id !== id));
       if (user && !user.isAnonymous) {
-        await Promise.all([
-          deleteDoc(doc(db, 'users', user.uid, 'musicas', id)),
-          deleteDoc(doc(db, 'users', user.uid, 'favoritos', id)).catch(() => undefined)
-        ]);
+        await updateDoc(doc(db, 'users', user.uid, 'musicas', id), {
+          solicitacaoExclusao: true,
+          dataSolicitacaoExclusao: agora
+        });
+        await deleteDoc(doc(db, 'users', user.uid, 'favoritos', id)).catch(() => undefined);
       }
-      showToast(t('toast.deleted'), 'sucesso');
+      showToast('Conteúdo removido com sucesso.', 'sucesso');
     },
-    [musicas, persistirLocal, showToast, t, user]
+    [musicas, persistirLocal, showToast, user]
   );
 
   const duplicarMusica = useCallback(

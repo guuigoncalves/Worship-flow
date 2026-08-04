@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Check, LogOut, Shield, Trash2, Users } from 'lucide-react';
+import { Check, LogOut, Shield, Trash2, Users, RotateCcw } from 'lucide-react';
 import { SectionHeader, CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useAuth } from '../hooks/useAuth';
 import { useComunidade } from '../hooks/useComunidade';
 
-const adminTabs = ['pendentes', 'comunidade'] as const;
+const adminTabs = ['pendentes', 'comunidade', 'exclusoes'] as const;
 
 export default function AdminPanel() {
   const { user } = useAuth();
-  const { pendentes, aprovarMusica, rejeitarMusica } = useComunidade();
+  const { pendentes, solicitacoesExclusao, aprovarMusica, rejeitarMusica, aprovarExclusaoPermanente, rejeitarExclusaoRestaurar } = useComunidade();
   const isAdmin = Boolean(user?.uid && import.meta.env.VITE_ADM_UID && user.uid === import.meta.env.VITE_ADM_UID);
   const [tab, setTab] = useState<(typeof adminTabs)[number]>('pendentes');
 
@@ -37,6 +37,13 @@ export default function AdminPanel() {
           onClick={() => setTab('comunidade')}
         >
           Comunidade
+        </button>
+        <button
+          type="button"
+          className={`rounded-lg px-2 py-1.5 transition-all ${tab === 'exclusoes' ? 'bg-primaria text-fundo' : 'text-textoSecundario hover:text-texto'}`}
+          onClick={() => setTab('exclusoes')}
+        >
+          Exclusões ({solicitacoesExclusao.length})
         </button>
       </div>
 
@@ -74,6 +81,50 @@ export default function AdminPanel() {
                       title="Rejeitar"
                     >
                       <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      ) : tab === 'exclusoes' ? (
+        <section className="mt-6">
+          <SectionHeader icone={<Trash2 size={16} />} titulo="Solicitações de Exclusão" />
+          {solicitacoesExclusao.length === 0 ? (
+            <EstadoVazio titulo="Nenhuma solicitação de exclusão pendente" texto="Quando usuários solicitarem exclusão de conteúdo, elas aparecerão aqui." />
+          ) : (
+            <div className="card divide-y divide-borda">
+              {solicitacoesExclusao.map((musica) => (
+                <div key={musica.id} className="flex items-center justify-between gap-3 p-4">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
+                    <div className="min-w-0 flex-1">
+                      <h2 className="truncate font-semibold">{musica.titulo}</h2>
+                      <p className="truncate text-sm text-textoSecundario">{musica.artista} · {musica.tom}</p>
+                      <p className="truncate text-xs text-textoSecundario">
+                        Solicitado por {musica.enviadaPor} em {musica.dataSolicitacaoExclusao ? new Date(musica.dataSolicitacaoExclusao).toLocaleString() : 'data desconhecida'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="btn-ghost h-9 w-9 p-0 text-perigo"
+                      onClick={() => void aprovarExclusaoPermanente(musica.id)}
+                      aria-label="Aprovar exclusão permanente"
+                      title="Aprovar Exclusão (Deletar do Banco)"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-ghost h-9 w-9 p-0 text-sucesso"
+                      onClick={() => void rejeitarExclusaoRestaurar(musica.id)}
+                      aria-label="Restaurar conteúdo"
+                      title="Restaurar Conteúdo"
+                    >
+                      <RotateCcw className="h-4 w-4" />
                     </button>
                   </div>
                 </div>

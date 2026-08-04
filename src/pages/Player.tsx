@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayer } from '../hooks/usePlayer';
+import { useMusicas } from '../hooks/useMusicas';
 import { CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import {
@@ -12,7 +13,8 @@ import {
     VolumeX,
     Music,
     ArrowLeft,
-    List
+    List,
+    FileText
 } from 'lucide-react';
 
 export const Player: React.FC = () => {
@@ -31,6 +33,8 @@ export const Player: React.FC = () => {
         setVolume,
         setModo
     } = usePlayer();
+    const { obterMusica } = useMusicas();
+    const [mostrarLetra, setMostrarLetra] = React.useState(false);
 
     const formatarTempo = (segundos: number) => {
         const min = Math.floor(segundos / 60);
@@ -57,6 +61,8 @@ export const Player: React.FC = () => {
     }
 
     const faixaTom = (faixa as any)?.tom;
+    const musica = faixa.musicaId ? obterMusica(faixa.musicaId) : null;
+    const temLetra = Boolean(musica?.letra);
 
     return (
         <div className="app-page space-y-6 pb-24 fade-in max-w-lg mx-auto">
@@ -154,8 +160,25 @@ export const Player: React.FC = () => {
         >
         {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
+        {temLetra && (
+            <button
+            onClick={() => setMostrarLetra((valor) => !valor)}
+            className={`p-2 transition-colors ${mostrarLetra ? 'text-primaria' : 'text-white/60 hover:text-white'}`}
+            title={mostrarLetra ? 'Ocultar letra' : 'Exibir letra'}
+            >
+            <FileText size={18} />
+            </button>
+        )}
         </div>
         </div>
+
+        {mostrarLetra && temLetra && (
+            <div className="card p-5 bg-black/30 border border-white/10 max-h-[50vh] overflow-y-auto">
+            <div className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-texto">
+            {musica?.letra}
+            </div>
+            </div>
+        )}
 
         {fila.length > 0 && (
             <div className="space-y-2">
