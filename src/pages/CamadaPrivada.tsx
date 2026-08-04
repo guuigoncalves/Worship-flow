@@ -88,7 +88,7 @@ export const CamadaPrivada: React.FC = () => {
                     <button className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${aba === 'navidrome' ? 'bg-[#6C5CE7]/20 text-primaria' : 'text-textoSecundario hover:text-white'}`} onClick={() => setAba('navidrome')}>
                         <Music2 className="h-4 w-4" /> Músicas Pessoais
                     </button>
-                    <button className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${aba === 'frigate' ? 'bg-[#6C5CE7]/20 text-primaria' : 'text-textoSecundario hover:text-white'}`} onClick={() => setAba('frigate')}>
+                    <button className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${aba === 'frigate' ? 'bg-[var(--primaria-dim)] text-[var(--primaria)]' : 'text-textoSecundario hover:text-white'}`} onClick={() => setAba('frigate')}>
                         <Camera className="h-4 w-4" /> Câmeras
                     </button>
                     <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-textoSecundario hover:text-white">
@@ -238,10 +238,27 @@ export const CamadaPrivada: React.FC = () => {
                 ) : (
                     <section className="space-y-4">
                         <SectionHeader icone={<Camera size={16} />} titulo="Câmeras do Frigate" />
-                        <EstadoVazio
-                            titulo="Câmeras disponíveis apenas via Tailscale"
-                            texto="Para visualizar as câmeras de segurança, conecte-se ao Tailscale e acesse diretamente pelo endereço local (100.102.180.104:5000)."
-                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {['Entrada', 'Palco', 'Estacionamento', 'Sala de Ensaios', 'Cozinha', 'Quintal'].map((camera) => (
+                                <div key={camera} className="card overflow-hidden border border-white/10 group cursor-pointer">
+                                    <div className="relative aspect-video bg-gradient-to-br from-[var(--superficie-alta)] to-[var(--superficie)] flex items-center justify-center">
+                                        <Camera className="h-8 w-8 text-white/20 group-hover:text-[var(--primaria)] transition-colors" />
+                                        <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-perigo/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                            AO VIVO
+                                        </span>
+                                    </div>
+                                    <div className="p-3 flex items-center justify-between">
+                                        <p className="text-sm font-medium text-white">{camera}</p>
+                                        <span className="text-[10px] text-textoSecundario">100.102.180.104:5000</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="card p-3 flex items-center justify-between text-xs text-textoSecundario border border-white/10">
+                            <span>Status Tailscale: <span className="text-[var(--sucesso)] font-semibold">Conectado</span></span>
+                            <span>Acesso exclusivo via Tailscale direto</span>
+                        </div>
                     </section>
                 )}
 

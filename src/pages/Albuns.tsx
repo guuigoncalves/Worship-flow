@@ -44,8 +44,8 @@ export const Albuns: React.FC = () => {
         </p>
         </div>
 
-        <div className="card p-3 bg-purple-500/10 border border-purple-500/20 text-xs text-white/70 flex items-start gap-2.5">
-        <Info size={16} className="text-purple-400 shrink-0 mt-0.5" />
+        <div className="card p-3 bg-[var(--primaria-dim)] border border-[var(--primaria)]/20 text-xs text-textoSecundario flex items-start gap-2.5">
+        <Info size={16} className="text-[var(--primaria)] shrink-0 mt-0.5" />
         <p>
         Os álbuns são agrupamentos derivados automaticamente do artista das suas músicas cadastradas.
         </p>

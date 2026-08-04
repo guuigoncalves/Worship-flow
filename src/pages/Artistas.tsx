@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
-import { SectionHeader } from '../components/aurora';
+import { SectionHeader, Avatar } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { User, ChevronRight } from 'lucide-react';
 
@@ -54,9 +54,7 @@ export const Artistas: React.FC = () => {
                 className="card p-3.5 cursor-pointer hover:bg-white/10 transition-all border border-white/10 flex items-center justify-between gap-3 group"
                 >
                 <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white text-base shrink-0 border border-white/20 shadow-sm group-hover:scale-105 transition-transform">
-                {art.nome.charAt(0).toUpperCase()}
-                </div>
+                <Avatar nome={art.nome} tamanho="md" />
                 <div className="min-w-0">
                 <p className="text-sm font-semibold text-white truncate">
                 {art.nome}

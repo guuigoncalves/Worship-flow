@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Howl } from 'howler';
+import { useToast } from './useToast';
 
 export interface FaixaAudio {
   id: string;
@@ -44,6 +45,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [volume, setVolumeState] = useState(restaurado.volume ?? 0.8);
   const [modo, setModo] = useState<ModoPlayer>(restaurado.modo ?? 'normal');
   const howlRef = useRef<Howl | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify({ faixa, progresso, volume, modo }));
@@ -65,6 +67,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       setDuracao(0);
       setProgresso(0);
       setTocando(false);
+      showToast('Esta música ainda não tem áudio disponível', 'erro');
       return null;
     }
     const howl = new Howl({
@@ -77,7 +80,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     howlRef.current = howl;
     setFaixa(proxima);
     return howl;
-  }, [volume]);
+  }, [volume, showToast]);
 
   const tocar = useCallback((proxima?: FaixaAudio) => {
     const alvo = proxima ?? faixa;
@@ -86,8 +89,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (howl) {
       howl.play();
       setTocando(true);
-    } else {
-      setTocando((valor) => !valor);
     }
   }, [faixa, preparar]);
 

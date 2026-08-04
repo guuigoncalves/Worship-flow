@@ -56,7 +56,7 @@ export const Album: React.FC = () => {
         <span>Voltar para Álbuns</span>
         </button>
 
-        <div className="card p-5 bg-gradient-to-b from-purple-900/30 to-indigo-900/20 border border-white/10 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <div className="card p-5 bg-[var(--primaria-dim)] border border-[var(--borda)] flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
         <CapaMusica
         tom={primeira.tom}
         titulo={`Coletânea ${nomeArtista}`}
@@ -64,7 +64,7 @@ export const Album: React.FC = () => {
         className="w-20 h-20 text-xl"
         />
         <div className="min-w-0 flex-1 space-y-1">
-        <p className="text-[10px] uppercase font-bold text-purple-400 tracking-wider">
+        <p className="text-[10px] uppercase font-bold text-[var(--primaria)] tracking-wider">
         Álbum Virtual
         </p>
         <h1 className="text-xl font-bold text-white truncate">

@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
 import { usePlayer } from '../hooks/usePlayer';
-import { SectionHeader, CapaMusica, LinhaLista } from '../components/aurora';
+import { SectionHeader, CapaMusica, LinhaLista, Avatar } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { User, Play, ArrowLeft } from 'lucide-react';
 
@@ -54,12 +54,10 @@ export const Artista: React.FC = () => {
         <span>Voltar para Artistas</span>
         </button>
 
-        <div className="card p-5 bg-gradient-to-r from-purple-900/30 to-pink-900/20 border border-white/10 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-white text-2xl border border-white/20 shadow-md">
-        {nomeArtista.charAt(0).toUpperCase()}
-        </div>
+        <div className="card p-5 bg-[var(--primaria-dim)] border border-[var(--borda)] flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <Avatar nome={nomeArtista} tamanho="lg" />
         <div className="min-w-0 flex-1 space-y-1">
-        <p className="text-[10px] uppercase font-bold text-pink-400 tracking-wider">
+        <p className="text-[10px] uppercase font-bold text-[var(--primaria)] tracking-wider">
         Artista
         </p>
         <h1 className="text-xl font-bold text-white truncate">{nomeArtista}</h1>

@@ -71,13 +71,8 @@ export function MusicasProvider({ children }: { children: ReactNode }) {
     const ref = collection(db, 'users', user.uid, 'musicas');
     const unsubscribe = onSnapshot(
       query(ref, orderBy('criadaEm', 'desc')),
-      async (snapshot) => {
-        if (snapshot.empty) {
-          await Promise.all(musicasExemplo.map((musica) => setDoc(doc(db, 'users', user.uid, 'musicas', musica.id), { ...musica, criadaEmServidor: serverTimestamp() }, { merge: true })));
-          setMusicas(ordenar(musicasExemplo));
-        } else {
-          setMusicas(ordenar(snapshot.docs.map((item) => item.data() as Musica).filter((musica) => !musica.solicitacaoExclusao)));
-        }
+      (snapshot) => {
+        setMusicas(ordenar(snapshot.docs.map((item) => item.data() as Musica).filter((musica) => !musica.solicitacaoExclusao)));
         setLoading(false);
       },
       (err) => {

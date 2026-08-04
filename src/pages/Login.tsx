@@ -36,8 +36,8 @@ export default function Login() {
         <section className="fade-in w-full max-w-sm">
           <div className="card mx-auto p-8">
             <div className="flex flex-col items-center gap-4">
-              <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo shadow-[0_18px_50px_var(--primaria-dim)]">
-                <Guitar className="h-10 w-10" aria-hidden="true" />
+              <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo shadow-[0_0_40px_var(--primaria-dim)]">
+                 <Guitar className="h-10 w-10" aria-hidden="true" />
               </div>
               <h1 className="m-0 text-3xl font-extrabold tracking-tight text-gradient">{t('app.name')}</h1>
               <p className="text-center text-sm text-textoSecundario">Seu assistente de louvor ao vivo</p>

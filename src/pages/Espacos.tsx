@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Copy, LogIn, Plus, Users } from 'lucide-react';
-import { SectionHeader } from '../components/aurora';
+import { Copy, LogIn, Plus, Users, ChevronRight } from 'lucide-react';
 import { PainelDeslizante } from '../components/compartilhado/PainelDeslizante';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useEspacos } from '../hooks/useEspacos';
@@ -9,6 +8,19 @@ import { useToast } from '../hooks/useToast';
 import type { Espaco } from '../types';
 
 const nomesPapel: Record<string, string> = { dono: 'Dono', admin: 'Admin', editor: 'Editor', leitor: 'Leitor' };
+
+const corPapel: Record<string, string> = {
+  dono: 'rgba(228,180,41,0.2)',
+  admin: 'rgba(162,89,255,0.2)',
+  editor: 'rgba(91,141,239,0.2)',
+  leitor: 'rgba(255,255,255,0.08)',
+};
+const textoPapel: Record<string, string> = {
+  dono: '#E4B429',
+  admin: '#A259FF',
+  editor: '#5B8DEF',
+  leitor: 'rgba(255,255,255,0.5)',
+};
 
 export default function Espacos() {
   const { espacos, loading, criarEspaco, entrarComCodigo } = useEspacos();
@@ -49,65 +61,94 @@ export default function Espacos() {
   }
 
   return (
-    <main className="app-page fade-in">
+    <main className="app-page fade-in space-y-5">
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="m-0 font-display text-3xl font-bold text-gradient">Meus Espaços</h1>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A259FF' }}>Colaboração</p>
+          <h1 className="m-0 font-display text-3xl font-bold text-gradient">Meus Espaços</h1>
+        </div>
         <div className="flex gap-2">
-          <button className="btn-ghost" type="button" onClick={() => setEntrarAberto(true)}>
+          <button
+            className="btn-ghost text-sm flex items-center gap-2"
+            type="button"
+            onClick={() => setEntrarAberto(true)}
+          >
             <LogIn className="h-4 w-4" />
-            Entrar com código
+            Entrar em um espaço
           </button>
-          <button className="btn-primary" type="button" onClick={() => setCriarAberto(true)}>
+          <button className="btn-primary text-sm" type="button" onClick={() => setCriarAberto(true)}>
             <Plus className="h-4 w-4" />
             Criar
           </button>
         </div>
       </div>
 
-      <SectionHeader icone={<Users size={16} />} titulo="Seus espaços" />
-
+      {/* Lista de espaços */}
       {loading ? (
-        <p className="mt-6 text-textoSecundario">Carregando…</p>
-      ) : espacos.length ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex items-center justify-center py-12">
+          <div className="h-8 w-8 rounded-full border-2 animate-spin" style={{ borderColor: '#A259FF', borderTopColor: 'transparent' }} />
+        </div>
+      ) : espacos.length > 0 ? (
+        <div className="space-y-3">
           {espacos.map((espaco) => (
-            <Link key={espaco.id} className="card p-5" to={`/espaco/${espaco.id}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primaria/15 text-primaria">
-                  <Users className="h-6 w-6" aria-hidden="true" />
-                </div>
-                <div className="min-w-0 flex-1 text-right">
-                  <button
-                    className="btn-text text-xs"
-                    type="button"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      void navigator.clipboard?.writeText(espaco.codigo);
-                      showToast('Código copiado', 'sucesso');
-                    }}
-                    aria-label={`Copiar código ${espaco.codigo}`}
-                    title={`Copiar código ${espaco.codigo}`}
+            <Link
+              key={espaco.id}
+              className="card group flex items-center gap-4 p-4 no-underline"
+              to={`/espaco/${espaco.id}`}
+            >
+              {/* Ícone */}
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+                style={{ background: 'rgba(162,89,255,0.15)', border: '1px solid rgba(162,89,255,0.25)' }}
+              >
+                <Users className="h-6 w-6" style={{ color: '#A259FF' }} aria-hidden="true" />
+              </div>
+
+              {/* Info */}
+              <div className="min-w-0 flex-1">
+                <h2 className="font-display text-lg font-bold truncate">{espaco.nome}</h2>
+                <p className="text-sm capitalize" style={{ color: 'rgba(255,255,255,0.45)' }}>{espaco.tipo}</p>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span
+                    className="rounded-full px-2.5 py-0.5 text-xs font-bold"
+                    style={{ background: corPapel[espaco.papel] || 'rgba(255,255,255,0.08)', color: textoPapel[espaco.papel] || 'rgba(255,255,255,0.5)' }}
                   >
-                    <Copy className="h-4 w-4" />
-                    <span className="font-mono uppercase tracking-widest">{espaco.codigo}</span>
-                  </button>
+                    {nomesPapel[espaco.papel] || espaco.papel}
+                  </span>
                 </div>
               </div>
-              <h2 className="mt-3 font-display text-xl font-bold">{espaco.nome}</h2>
-              <p className="text-sm text-textoSecundario capitalize">{espaco.tipo}</p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="chip chip-active">{nomesPapel[espaco.papel]}</span>
+
+              {/* Código + seta */}
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <button
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-mono uppercase tracking-widest transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    void navigator.clipboard?.writeText(espaco.codigo);
+                    showToast('Código copiado', 'sucesso');
+                  }}
+                  aria-label={`Copiar código ${espaco.codigo}`}
+                >
+                  <Copy className="h-3 w-3" />
+                  {espaco.codigo}
+                </button>
+                <ChevronRight size={16} style={{ color: 'rgba(255,255,255,0.25)' }} className="group-hover:text-white transition-colors" />
               </div>
             </Link>
           ))}
         </div>
       ) : (
-        <div className="mt-6">
-          <EstadoVazio titulo="Nenhum espaço ainda" texto="Crie um espaço pra colaborar com sua equipe, ou entre com um código de convite." />
-        </div>
+        <EstadoVazio
+          titulo="Nenhum espaço ainda"
+          texto="Crie um espaço pra colaborar com sua equipe, ou entre com um código de convite."
+        />
       )}
 
+      {/* Painel criar */}
       <PainelDeslizante aberto={criarAberto} titulo="Criar espaço" onClose={() => setCriarAberto(false)}>
         <div className="space-y-3">
           <input className="input" placeholder="Nome do espaço" value={nome} onChange={(event) => setNome(event.target.value)} autoFocus />
@@ -123,10 +164,14 @@ export default function Espacos() {
         </div>
       </PainelDeslizante>
 
+      {/* Painel entrar */}
       <PainelDeslizante aberto={entrarAberto} titulo="Entrar com código" onClose={() => setEntrarAberto(false)}>
         <div className="space-y-3">
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Digite o código de 6 caracteres fornecido pelo administrador do espaço.
+          </p>
           <input
-            className="input font-mono uppercase tracking-widest"
+            className="input font-mono text-center text-lg uppercase tracking-widest"
             placeholder="XXXXXX"
             maxLength={6}
             value={codigo}

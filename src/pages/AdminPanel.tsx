@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Check, LogOut, Shield, Trash2, Users, RotateCcw } from 'lucide-react';
+import { Check, X, LogOut, Shield, Trash2, Users, RotateCcw } from 'lucide-react';
 import { SectionHeader, CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useAuth } from '../hooks/useAuth';
@@ -66,21 +66,19 @@ export default function AdminPanel() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      className="btn-ghost h-9 w-9 p-0 text-sucesso"
+                      className="btn-ghost h-9 px-3 text-xs text-sucesso border-sucesso/30 hover:border-sucesso hover:text-sucesso"
                       onClick={() => void aprovarMusica(musica.id)}
-                      aria-label="Aprovar"
-                      title="Aprovar"
                     >
                       <Check className="h-4 w-4" />
+                      Aprovar
                     </button>
                     <button
                       type="button"
-                      className="btn-ghost h-9 w-9 p-0 text-perigo"
+                      className="btn-ghost h-9 px-3 text-xs text-perigo border-perigo/30 hover:border-perigo hover:text-perigo"
                       onClick={() => void rejeitarMusica(musica.id)}
-                      aria-label="Rejeitar"
-                      title="Rejeitar"
                     >
                       <Trash2 className="h-4 w-4" />
+                      Rejeitar
                     </button>
                   </div>
                 </div>
@@ -110,21 +108,21 @@ export default function AdminPanel() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      className="btn-ghost h-9 w-9 p-0 text-perigo"
+                      className="btn-ghost h-9 px-3 text-xs text-perigo border-perigo/30 hover:border-perigo hover:text-perigo"
                       onClick={() => void aprovarExclusaoPermanente(musica.id)}
-                      aria-label="Aprovar exclusão permanente"
                       title="Aprovar Exclusão (Deletar do Banco)"
                     >
                       <Trash2 className="h-4 w-4" />
+                      Excluir
                     </button>
                     <button
                       type="button"
-                      className="btn-ghost h-9 w-9 p-0 text-sucesso"
+                      className="btn-ghost h-9 px-3 text-xs text-sucesso border-sucesso/30 hover:border-sucesso hover:text-sucesso"
                       onClick={() => void rejeitarExclusaoRestaurar(musica.id)}
-                      aria-label="Restaurar conteúdo"
                       title="Restaurar Conteúdo"
                     >
                       <RotateCcw className="h-4 w-4" />
+                      Restaurar
                     </button>
                   </div>
                 </div>

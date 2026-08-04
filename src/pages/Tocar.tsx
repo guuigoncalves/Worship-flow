@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, ListMusic, Minus, Plus, Search, Settings, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart, ListMusic, LogOut, Minus, Plus, Search, SlidersHorizontal } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -100,7 +100,10 @@ export default function Tocar() {
   const letra = useMemo(() => (musica ? transpor(musica.letra, musica.tom, tomAtual) : ''), [musica, tomAtual, transpor]);
   const resultados = useMemo(() => buscar(consulta).slice(0, 8), [buscar, consulta]);
   const tamanho = tamanhoPorSlider[tamanhoIndex] ?? 'medio';
-  const proximas = fila.proximas.map(obterMusica).filter(Boolean);
+  const proximasMusicas = fila.proximas.map(obterMusica).filter(Boolean);
+  const musicaAnteriorId = fila.anteriores[fila.anteriores.length - 1];
+  const musicaAnterior = musicaAnteriorId ? obterMusica(musicaAnteriorId) : undefined;
+  const proximaMusica = proximasMusicas[0];
 
   const irProxima = useCallback(() => {
     const proximo = proxima();
@@ -124,12 +127,17 @@ export default function Tocar() {
   }
 
   if (!musica) {
-    return <main className="grid min-h-screen place-items-center bg-fundo p-5 text-textoSecundario">{t('common.empty')}</main>;
+    return (
+      <main className="grid min-h-screen place-items-center bg-black p-5" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        {t('common.empty')}
+      </main>
+    );
   }
 
   return (
     <main
-      className="fixed inset-0 overflow-hidden bg-fundo text-texto"
+      className="fixed inset-0 overflow-hidden"
+      style={{ background: '#000000', color: '#ffffff' }}
       onClick={() => setChromeVisivel(true)}
       onTouchStart={(event) => {
         toqueX.current = event.touches[0]?.clientX ?? null;
@@ -147,31 +155,234 @@ export default function Tocar() {
         }
       }}
     >
-      <header className={`fixed left-0 right-0 top-0 z-30 flex items-center gap-2 border-b border-borda bg-superficie px-2 py-2 transition-opacity duration-150 ${chromeVisivel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
-        <button type="button" className="btn-text h-11 w-11 p-0 text-texto" onClick={() => navigate(-1)} aria-label={t('common.back')}><ArrowLeft className="h-5 w-5" /></button>
-        <strong className="min-w-0 flex-1 truncate text-center text-sm">{musica.titulo}</strong>
-        <button type="button" className="btn-text h-11 w-11 p-0 text-texto" onClick={() => setControleAberto(true)} aria-label={t('common.options')}><SlidersHorizontal className="h-5 w-5" /></button>
+      {/* ── CABEÇALHO MODO PALCO ── */}
+      <header
+        className={`fixed left-0 right-0 top-0 z-30 flex items-center gap-2 px-3 py-2 transition-opacity duration-200 ${chromeVisivel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(162,89,255,0.25)' }}
+      >
+        {/* Tom atual (badge roxa) */}
+        <div className="flex items-center gap-1.5">
+          <span
+            className="flex h-9 min-w-9 items-center justify-center rounded-xl px-3 text-sm font-bold"
+            style={{ background: 'rgba(162,89,255,0.25)', border: '1px solid rgba(162,89,255,0.5)', color: '#A259FF' }}
+          >
+            {tomAtual}
+          </span>
+          <button
+            type="button"
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)' }}
+            onClick={() => mudarSemitom(-1)}
+            aria-label="-"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)' }}
+            onClick={() => mudarSemitom(1)}
+            aria-label="+"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Centro: título + status */}
+        <div className="flex flex-1 flex-col items-center">
+          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A259FF' }}>
+            MODO PALCO
+          </span>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: autoScroll ? '#36B876' : 'rgba(255,255,255,0.3)' }}
+            />
+            <span className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              {autoScroll ? 'Rolagem automática' : 'Rolagem pausada'}
+            </span>
+          </div>
+        </div>
+
+        {/* Direita: botões */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)' }}
+            onClick={() => setControleAberto(true)}
+            aria-label={t('common.options')}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors"
+            style={{ background: 'rgba(224,64,64,0.18)', border: '1px solid rgba(224,64,64,0.4)', color: '#E04040' }}
+            onClick={() => navigate(-1)}
+            aria-label={t('common.back')}
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="hidden sm:block">Sair do palco</span>
+          </button>
+        </div>
       </header>
 
-      <section ref={scrollRef} className="absolute bottom-[76px] left-0 right-0 top-0 overflow-y-auto px-4 pb-8 pt-16 sm:px-8">
-        <div className="mx-auto max-w-4xl">
-          <div className="card bg-superficie/95 p-4 sm:p-6">
-            <ExibicaoCifra letra={letra} acordesProibidos={perfil.acordesProibidos} modo={modo} tamanho={tamanho} possuiCifra={musica.possuiCifra ?? true} formato={formato} />
+      {/* ── ÁREA DA CIFRA ── */}
+      <section
+        ref={scrollRef}
+        className="absolute bottom-[140px] left-0 right-0 top-0 overflow-y-auto px-4 pb-8 pt-16 sm:px-8"
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        <div className="mx-auto max-w-3xl">
+          {/* Título da música */}
+          <div className={`mb-6 text-center transition-opacity duration-200 ${chromeVisivel ? 'opacity-100' : 'opacity-0'}`}>
+            <h1 className="text-lg font-bold" style={{ color: 'rgba(255,255,255,0.9)' }}>{musica.titulo}</h1>
+            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>{musica.artista}</p>
+          </div>
+
+          {/* Cifra com acordes em roxo neon */}
+          <div
+            className="rounded-2xl p-4 sm:p-8"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <style>{`
+              .modo-palco .cifra-acorde { color: #A259FF !important; font-weight: 700; text-shadow: 0 0 12px rgba(162,89,255,0.5); }
+              .modo-palco .cifra-letra { color: #ffffff !important; }
+              .modo-palco .performance-text { font-size: clamp(18px, 4.5vw, 28px) !important; line-height: 1.7 !important; }
+            `}</style>
+            <div className="modo-palco">
+              <ExibicaoCifra
+                letra={letra}
+                acordesProibidos={perfil.acordesProibidos}
+                modo={modo}
+                tamanho={tamanho}
+                possuiCifra={musica.possuiCifra ?? true}
+                formato={formato}
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-30 border-t border-borda bg-superficie px-2 py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
-        <div className="mx-auto flex max-w-3xl items-center gap-2">
-          <span className="grid h-11 min-w-11 place-items-center rounded-lg bg-elevada px-3 font-bold text-primaria">{tomAtual}</span>
-          <button type="button" className="btn-ghost h-11 w-11 p-0" onClick={() => mudarSemitom(-1)} aria-label="-"><Minus className="h-5 w-5" /></button>
-          <button type="button" className="btn-ghost h-11 w-11 p-0" onClick={() => mudarSemitom(1)} aria-label="+"><Plus className="h-5 w-5" /></button>
-          <button type="button" className={`btn-ghost h-11 min-w-11 px-3 ${autoScroll ? 'text-primaria' : ''}`} onClick={() => setAutoScroll((valor) => !valor)}>Auto</button>
-          <button type="button" className="btn-ghost h-11 w-11 p-0" onClick={() => setFilaAberta(true)} aria-label="Fila"><ListMusic className="h-5 w-5" /></button>
-          <button type="button" className="btn-primary h-11 w-11 p-0" onClick={() => setBuscaAberta(true)} aria-label={t('common.addQueue')}><Plus className="h-5 w-5" /></button>
+      {/* ── RODAPÉ FIXO: NAVEGAÇÃO DE REPERTÓRIO ── */}
+      <footer
+        className={`fixed bottom-0 left-0 right-0 z-30 transition-opacity duration-200 ${chromeVisivel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(162,89,255,0.2)' }}
+      >
+        {/* Linha superior: navegação anterior/atual/próxima */}
+        <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 py-2">
+          {/* Anterior */}
+          <button
+            type="button"
+            className="flex flex-1 items-center gap-2 rounded-xl p-2 transition-colors disabled:opacity-30"
+            style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)' }}
+            onClick={irAnterior}
+            disabled={!musicaAnterior}
+            aria-label="Música anterior"
+          >
+            <ChevronLeft className="h-4 w-4 shrink-0" />
+            <div className="min-w-0 text-left">
+              <p className="text-[9px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>ANTERIOR</p>
+              <p className="truncate text-xs font-medium">{musicaAnterior?.titulo ?? '—'}</p>
+            </div>
+          </button>
+
+          {/* Atual (destaque) */}
+          <div
+            className="flex min-w-0 flex-[1.4] flex-col items-center rounded-xl px-3 py-2"
+            style={{ background: 'rgba(162,89,255,0.15)', border: '1px solid rgba(162,89,255,0.35)' }}
+          >
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: '#A259FF' }}>ATUAL</p>
+            <p className="max-w-full truncate text-sm font-bold" style={{ color: '#ffffff' }}>{musica.titulo}</p>
+          </div>
+
+          {/* Próxima */}
+          <button
+            type="button"
+            className="flex flex-1 items-center justify-end gap-2 rounded-xl p-2 text-right transition-colors disabled:opacity-30"
+            style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)' }}
+            onClick={irProxima}
+            disabled={!proximaMusica}
+            aria-label="Próxima música"
+          >
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>PRÓXIMA</p>
+              <p className="truncate text-xs font-medium">{proximaMusica?.titulo ?? '—'}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0" />
+          </button>
         </div>
+
+        {/* Linha inferior: carrossel de capas do repertório */}
+        {proximasMusicas.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto px-3 pb-[max(8px,env(safe-area-inset-bottom))] pt-0 scrollbar-none">
+            {proximasMusicas.slice(0, 10).map((item, index) =>
+              item ? (
+                <button
+                  key={`${item.id}-${index}`}
+                  type="button"
+                  className="flex shrink-0 flex-col items-center gap-1 rounded-xl p-1.5 transition-colors"
+                  style={{
+                    background: index === 0 ? 'rgba(162,89,255,0.2)' : 'rgba(255,255,255,0.04)',
+                    border: index === 0 ? '1px solid rgba(162,89,255,0.4)' : '1px solid rgba(255,255,255,0.07)',
+                  }}
+                  onClick={() => navigate(`/tocar/${item.id}`)}
+                  aria-label={item.titulo}
+                >
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-xs font-bold"
+                    style={{
+                      background: `hsl(${(item.titulo.charCodeAt(0) * 17) % 360}, 60%, 25%)`,
+                      color: `hsl(${(item.titulo.charCodeAt(0) * 17) % 360}, 80%, 80%)`,
+                    }}
+                  >
+                    {item.tom}
+                  </div>
+                  <span className="w-12 truncate text-center text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    {item.titulo}
+                  </span>
+                </button>
+              ) : null
+            )}
+
+            {/* Botão adicionar à fila */}
+            <button
+              type="button"
+              className="flex shrink-0 flex-col items-center gap-1 rounded-xl p-1.5 transition-colors"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+              onClick={() => setFilaAberta(true)}
+              aria-label={t('common.addQueue')}
+            >
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ background: 'rgba(162,89,255,0.15)', border: '1px solid rgba(162,89,255,0.3)' }}
+              >
+                <ListMusic className="h-4 w-4" style={{ color: '#A259FF' }} />
+              </div>
+              <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Fila</span>
+            </button>
+          </div>
+        )}
+
+        {/* Linha inferior alternativa quando não há fila */}
+        {proximasMusicas.length === 0 && (
+          <div className="flex items-center justify-center gap-3 px-3 pb-[max(8px,env(safe-area-inset-bottom))] pt-0">
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
+              style={{ background: 'rgba(162,89,255,0.15)', border: '1px solid rgba(162,89,255,0.3)', color: '#A259FF' }}
+              onClick={() => setBuscaAberta(true)}
+              aria-label={t('common.addQueue')}
+            >
+              <Plus className="h-4 w-4" />
+              Adicionar à fila
+            </button>
+          </div>
+        )}
       </footer>
 
+      {/* ── PAINEL DE CONTROLES ── */}
       <PainelDeslizante aberto={controleAberto} titulo="Controle" onClose={() => setControleAberto(false)}>
         <div className="space-y-5">
           <label className="block">
@@ -200,25 +411,34 @@ export default function Tocar() {
             {['Refrão', 'Ponte', 'Verso', 'Loop livre'].map((item) => <button key={item} className="btn-ghost justify-start" type="button">{item}</button>)}
           </div>
           <Metronomo />
-          <button type="button" className="btn-ghost w-full" onClick={() => void alternarFavorita(musica.id)}><Heart className={`h-5 w-5 ${musica.eFavorita ? 'fill-primaria text-primaria' : ''}`} />{t('common.favorite')}</button>
+          <button type="button" className="btn-ghost w-full" onClick={() => void alternarFavorita(musica.id)}>
+            <Heart className={`h-5 w-5 ${musica.eFavorita ? 'fill-primaria text-primaria' : ''}`} />
+            {t('common.favorite')}
+          </button>
+          <button type="button" className="btn-ghost w-full" onClick={() => { setControleAberto(false); setBuscaAberta(true); }}>
+            <Search className="h-4 w-4" />
+            Adicionar à fila
+          </button>
         </div>
       </PainelDeslizante>
 
+      {/* ── PAINEL DE FILA ── */}
       <PainelDeslizante aberto={filaAberta} titulo="Fila" onClose={() => setFilaAberta(false)}>
         <BuscaInline consulta={consulta} setConsulta={setConsulta} resultados={resultados} onAdd={addQueue} placeholder={t('search.placeholder')} />
         <div className="mt-4 space-y-2">
-          {proximas.map((item, index) => item ? (
-            <div key={`${item.id}-${index}`} className="card flex items-center justify-between gap-3 p-3">
-              <span className="min-w-0 truncate">{index + 1}. {item.titulo}</span>
-              <span className="text-sm text-primaria">{item.tom}</span>
+          {proximasMusicas.map((item, index) => item ? (
+            <div key={`${item.id}-${index}`} className="flex items-center justify-between gap-3 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <span className="min-w-0 truncate text-sm">{index + 1}. {item.titulo}</span>
+              <span className="rounded-lg px-2 py-0.5 text-xs font-bold" style={{ background: 'rgba(162,89,255,0.2)', color: '#A259FF' }}>{item.tom}</span>
             </div>
           ) : null)}
         </div>
       </PainelDeslizante>
 
+      {/* ── BUSCA MODAL ── */}
       {buscaAberta ? (
-        <div className="fixed inset-0 z-40 bg-black/55 p-4 pt-20 backdrop-blur-sm" onClick={() => setBuscaAberta(false)}>
-          <section className="card mx-auto max-w-lg p-4" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-40 p-4 pt-20" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)' }} onClick={() => setBuscaAberta(false)}>
+          <section className="mx-auto max-w-lg rounded-2xl p-4" style={{ background: 'rgba(20,21,34,0.95)', border: '1px solid rgba(162,89,255,0.2)' }} onClick={(event) => event.stopPropagation()}>
             <BuscaInline consulta={consulta} setConsulta={setConsulta} resultados={resultados} onAdd={(musicaId) => { addQueue(musicaId); setBuscaAberta(false); }} placeholder={t('search.placeholder')} />
           </section>
         </div>
@@ -232,13 +452,25 @@ function BuscaInline({ consulta, setConsulta, resultados, onAdd, placeholder }: 
     <div>
       <label className="relative block">
         <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-textoSecundario" aria-hidden="true" />
-        <input className="input pl-10" autoFocus value={consulta} onChange={(event) => setConsulta(event.target.value)} placeholder={placeholder} />
+        <input
+          className="input pl-10"
+          autoFocus
+          value={consulta}
+          onChange={(event) => setConsulta(event.target.value)}
+          placeholder={placeholder}
+        />
       </label>
       <div className="mt-3 space-y-2">
         {resultados.map(({ musica }) => (
-          <button key={musica.id} type="button" className="w-full rounded-lg bg-elevada p-3 text-left" onClick={() => onAdd(musica.id)}>
-            <strong>{musica.titulo}</strong>
-            <span className="ml-2 text-sm text-primaria">{musica.tom}</span>
+          <button
+            key={musica.id}
+            type="button"
+            className="flex w-full items-center justify-between gap-3 rounded-xl p-3 text-left transition-colors"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
+            onClick={() => onAdd(musica.id)}
+          >
+            <strong className="truncate text-sm">{musica.titulo}</strong>
+            <span className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-bold" style={{ background: 'rgba(162,89,255,0.2)', color: '#A259FF' }}>{musica.tom}</span>
           </button>
         ))}
       </div>

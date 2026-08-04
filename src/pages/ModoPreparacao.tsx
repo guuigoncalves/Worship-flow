@@ -101,7 +101,7 @@ export default function ModoPreparacao() {
         </span>
       </div>
 
-      <div className="mt-4 card p-3 bg-black/30 border border-white/10">
+      <div className="mt-4 card p-3 bg-[var(--superficie-alta)] border border-[var(--borda)]">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={voltar} disabled={indice === 0}>
@@ -111,7 +111,10 @@ export default function ModoPreparacao() {
               <ChevronRight size={18} />
             </button>
             <div className="min-w-0">
-              <p className="truncate font-semibold text-sm">{musicaAtual.titulo}</p>
+              <div className="flex items-center gap-2">
+                <p className="truncate font-semibold text-sm">{musicaAtual.titulo}</p>
+                <span className="chip text-[10px] px-1.5 py-0.5 border-[var(--borda)]">{musicaAtual.tom}</span>
+              </div>
               <p className="truncate text-xs text-textoSecundario">{musicaAtual.artista}</p>
             </div>
           </div>
