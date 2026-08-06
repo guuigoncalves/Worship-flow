@@ -1,236 +1,162 @@
-import { Settings, Pencil, Award } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Avatar, CapaMusica } from '../components/aurora';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Settings, Music, Palette, BookOpen, Clock, Play, ChevronRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useHistorico } from '../hooks/useHistorico';
 import { usePerfil } from '../hooks/usePerfil';
-import type { Nivel, Tom } from '../types';
-
-const instrumentos = ['violao', 'guitarra', 'teclado', 'baixo', 'bateria', 'voz'];
-const niveis: Nivel[] = ['iniciante', 'intermediario', 'avancado'];
-const acordes = ['F', 'Bm', 'C#m', 'Bb', 'Eb', 'Ab', 'F#m', 'G#m', 'B/F#'];
-const tons: Tom[] = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
-
-const corNivel: Record<string, { bg: string; text: string }> = {
-  iniciante: { bg: 'rgba(54,184,118,0.2)', text: '#36B876' },
-  intermediario: { bg: 'rgba(162,89,255,0.2)', text: '#A259FF' },
-  avancado: { bg: 'rgba(228,180,41,0.2)', text: '#E4B429' },
-};
+import { useMusicas } from '../hooks/useMusicas';
+import { useHistorico } from '../hooks/useHistorico';
+import { Avatar, CapaMusica } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 
 export default function Perfil() {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { perfilUsuario } = useAuth();
-  const { perfil, updatePerfil, toggleAcordeProibido, toggleTomPreferido } = usePerfil();
-  const { maisTocadas, recentes, totalReproducoes } = useHistorico();
+  const { perfil } = usePerfil();
+  const { musicas } = useMusicas();
+  const { totalReproducoes, maisTocadas, recentes } = useHistorico();
+  const [aba, setAba] = useState<'instrumentos' | 'cifras' | 'historico'>('instrumentos');
 
-  const nivelInfo = corNivel[perfil.nivel] ?? corNivel.intermediario;
+  const instrumentos = perfil.instrumento ? [perfil.instrumento] : [];
+
+  const estatisticas = [
+    { label: 'Músicas Tocadas', valor: totalReproducoes, icone: <Play size={16} /> },
+    { label: 'Escalas', valor: perfil.tonsPreferidos.length, icone: <Palette size={16} /> },
+    { label: 'Cifras Criadas', valor: musicas.length, icone: <BookOpen size={16} /> },
+  ];
 
   return (
-    <main className="app-page fade-in space-y-5">
-      {/* Header com Avatar e métricas */}
-      <div
-        className="card relative overflow-hidden p-6"
-        style={{ background: 'linear-gradient(135deg, rgba(162,89,255,0.12) 0%, rgba(91,141,239,0.06) 100%)' }}
-      >
-        {/* Decoração de fundo */}
-        <div
-          className="absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, #A259FF 0%, transparent 70%)' }}
-        />
-
-        <div className="relative flex items-start gap-4">
-          <div className="shrink-0">
-            <Avatar nome={perfilUsuario?.nome ?? perfil.instrumento} fotoUrl={perfilUsuario?.foto} tamanho="lg" />
-          </div>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+      <header className="flex items-center gap-3 pt-1">
+        <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+          <ArrowLeft size={18} />
+        </button>
+        <div className="flex items-center gap-3 flex-1">
+          <Avatar nome={perfilUsuario?.nome ?? perfil.instrumento} fotoUrl={perfilUsuario?.foto} tamanho="lg" />
           <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h1 className="m-0 text-2xl font-bold text-gradient">
-                  {perfilUsuario?.nome ?? t('profile.title')}
-                </h1>
-                <p className="text-sm capitalize" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {perfil.instrumento}
-                </p>
-              </div>
-              <Link to="/configuracoes" className="btn-ghost h-9 w-9 p-0 shrink-0">
-                <Settings className="h-4 w-4" />
-              </Link>
-            </div>
-
-            {/* Badge de nível */}
-            <div className="mt-3 flex items-center gap-2">
-              <span
-                className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
-                style={{ background: nivelInfo.bg, color: nivelInfo.text }}
-              >
-                <Award size={12} />
-                Nível {perfil.nivel === 'iniciante' ? 'Iniciante' : perfil.nivel === 'intermediario' ? 'Intermediário' : 'Avançado'}
-              </span>
-            </div>
+            <h1 className="text-xl font-bold text-white truncate">{perfilUsuario?.nome ?? perfil.instrumento}</h1>
+            <p className="text-xs text-white/50 capitalize">{perfil.instrumento}</p>
           </div>
+          <button className="btn-ghost h-9 w-9 p-0 shrink-0" type="button" onClick={() => navigate('/configuracoes')} aria-label="Configurações">
+            <Settings size={18} />
+          </button>
         </div>
+      </header>
 
-        {/* Cards de métricas */}
-        <div className="relative mt-5 grid grid-cols-3 gap-3">
-          {[
-            { label: 'Cifras', valor: maisTocadas.length },
-            { label: 'Reproduções', valor: totalReproducoes },
-            { label: 'Recentes', valor: recentes.length },
-          ].map((m) => (
-            <div
-              key={m.label}
-              className="rounded-xl p-3 text-center"
-              style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.07)' }}
-            >
-              <p className="text-xl font-bold" style={{ color: '#A259FF' }}>{m.valor}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{m.label}</p>
+      <div className="grid grid-cols-3 gap-3">
+        {estatisticas.map((stat) => (
+          <div key={stat.label} className="card p-4 text-center border border-white/10">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              {stat.icone}
+              <span className="text-xl font-bold" style={{ color: 'var(--primaria)' }}>{stat.valor}</span>
             </div>
-          ))}
-        </div>
+            <p className="text-[10px] text-white/40">{stat.label}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Configurações do instrumento/nível */}
-      <section className="card p-4 space-y-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Pencil size={14} style={{ color: '#A259FF' }} />
-          <span className="text-sm font-semibold">Preferências</span>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('profile.instrument')}</span>
-            <select className="input text-sm" value={perfil.instrumento} onChange={(event) => void updatePerfil({ instrumento: event.target.value })}>
-              {instrumentos.map((item) => <option key={item}>{item}</option>)}
-            </select>
-          </label>
-          <label className="space-y-2">
-            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('profile.level')}</span>
-            <select className="input text-sm" value={perfil.nivel} onChange={(event) => void updatePerfil({ nivel: event.target.value as Nivel })}>
-              {niveis.map((item) => <option key={item}>{item}</option>)}
-            </select>
-          </label>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm">{t('profile.simple')}</span>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              className="sr-only"
-              checked={perfil.usarVersaoSimplificada}
-              onChange={(event) => void updatePerfil({ usarVersaoSimplificada: event.target.checked })}
-            />
-            <div
-              className="relative h-6 w-11 rounded-full transition-colors duration-200 cursor-pointer"
-              style={{ background: perfil.usarVersaoSimplificada ? 'linear-gradient(120deg, #A259FF, #5B8DEF)' : 'rgba(255,255,255,0.12)' }}
-              onClick={() => void updatePerfil({ usarVersaoSimplificada: !perfil.usarVersaoSimplificada })}
-            >
-              <div
-                className="absolute top-0.5 h-5 w-5 rounded-full transition-transform duration-200"
-                style={{ background: 'white', transform: perfil.usarVersaoSimplificada ? 'translateX(20px)' : 'translateX(2px)' }}
-              />
-            </div>
-          </label>
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm">{t('profile.capo')}</span>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              className="sr-only"
-              checked={perfil.preferirCapo}
-              onChange={(event) => void updatePerfil({ preferirCapo: event.target.checked })}
-            />
-            <div
-              className="relative h-6 w-11 rounded-full transition-colors duration-200 cursor-pointer"
-              style={{ background: perfil.preferirCapo ? 'linear-gradient(120deg, #A259FF, #5B8DEF)' : 'rgba(255,255,255,0.12)' }}
-              onClick={() => void updatePerfil({ preferirCapo: !perfil.preferirCapo })}
-            >
-              <div
-                className="absolute top-0.5 h-5 w-5 rounded-full transition-transform duration-200"
-                style={{ background: 'white', transform: perfil.preferirCapo ? 'translateX(20px)' : 'translateX(2px)' }}
-              />
-            </div>
-          </label>
-        </div>
-      </section>
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {[
+          { id: 'instrumentos', label: 'Meus Instrumentos' },
+          { id: 'cifras', label: 'Minhas Cifras' },
+          { id: 'historico', label: 'Histórico de Cultos' },
+        ].map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            className={`chip shrink-0 text-xs px-4 py-2 transition-all font-medium ${
+              aba === s.id
+                ? 'bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-fundo border-transparent font-bold'
+                : 'bg-[#141522]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
+            }`}
+            onClick={() => setAba(s.id as typeof aba)}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Acordes preferidos */}
-      <section className="card p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sucesso">✓</span>
-            <span className="text-sm font-semibold">{t('profile.preferredKeys')}</span>
-          </div>
-          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>Toque para alternar</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {tons.map((tom) => (
-            <button
-              key={tom}
-              type="button"
-              className={`chip text-sm ${perfil.tonsPreferidos.includes(tom) ? '' : ''}`}
-              style={perfil.tonsPreferidos.includes(tom) ? {
-                background: 'rgba(54,184,118,0.2)',
-                borderColor: 'rgba(54,184,118,0.5)',
-                color: '#36B876',
-              } : {}}
-              onClick={() => void toggleTomPreferido(tom)}
-            >
-              {tom}
-            </button>
-          ))}
-        </div>
-      </section>
+      {aba === 'instrumentos' && (
+        <section className="space-y-3">
+          {instrumentos.length === 0 ? (
+            <EstadoVazio titulo="Nenhum instrumento" texto="Adicione seus instrumentos nas configurações." />
+          ) : (
+            instrumentos.map((instr) => (
+              <div key={instr} className="card p-4 flex items-center gap-3 border border-white/10">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <Music size={18} style={{ color: 'var(--primaria)' }} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-white capitalize">{instr}</p>
+                  <p className="text-xs text-white/40">Instrumento principal</p>
+                </div>
+                <ChevronRight size={16} className="text-white/20 shrink-0" />
+              </div>
+            ))
+          )}
+        </section>
+      )}
 
-      {/* Acordes evitados */}
-      <section className="card p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-perigo">⚠</span>
-            <span className="text-sm font-semibold">{t('profile.forbiddenChords')}</span>
-          </div>
-          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>Toque para alternar</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {acordes.map((acorde) => (
-            <button
-              key={acorde}
-              type="button"
-              className="chip text-sm"
-              style={perfil.acordesProibidos.includes(acorde) ? {
-                background: 'rgba(224,64,64,0.2)',
-                borderColor: 'rgba(224,64,64,0.5)',
-                color: '#E04040',
-              } : {}}
-              onClick={() => void toggleAcordeProibido(acorde)}
-            >
-              {acorde}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Histórico recente */}
-      {(maisTocadas.length > 0 || recentes.length > 0) && (
-        <section className="card p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <span>📊</span>
-            <span className="text-sm font-semibold">{t('profile.history')}</span>
-            <span className="ml-auto text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              {totalReproducoes} reprodução{totalReproducoes !== 1 ? 'ões' : ''}
-            </span>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {[...maisTocadas.slice(0, 2), ...recentes.slice(0, 2)].map((musica, i) => (
-              <div key={`${musica.id}-${i}`} className="flex items-center gap-3 rounded-xl p-2.5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      {aba === 'cifras' && (
+        <section className="space-y-3">
+          {musicas.length === 0 ? (
+            <EstadoVazio titulo="Nenhuma cifra" texto="Crie ou importe cifras para vê-las aqui." />
+          ) : (
+            musicas.map((musica) => (
+              <div key={musica.id} className="card p-3 flex items-center gap-3 border border-white/10">
                 <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">{musica.titulo}</span>
-                  <span className="text-xs" style={{ color: '#A259FF' }}>{musica.tom}</span>
+                  <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
+                  <p className="text-xs text-white/50">{musica.artista} · {musica.tom}</p>
                 </div>
+                <ChevronRight size={16} className="text-white/20 shrink-0" />
               </div>
-            ))}
-          </div>
+            ))
+          )}
+        </section>
+      )}
+
+      {aba === 'historico' && (
+        <section className="space-y-3">
+          {maisTocadas.length === 0 && recentes.length === 0 ? (
+            <EstadoVazio titulo="Nenhum histórico" texto="Suas cifras mais tocadas e recentes aparecerão aqui." />
+          ) : (
+            <>
+              {maisTocadas.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Mais Tocadas</p>
+                  <div className="space-y-2">
+                    {maisTocadas.slice(0, 5).map((musica) => (
+                      <div key={musica.id} className="card p-3 flex items-center gap-3 border border-white/10">
+                        <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
+                          <p className="text-xs text-white/50">{musica.artista}</p>
+                        </div>
+                        <span className="text-xs text-white/30 shrink-0">{musica.vezesTocada}x</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {recentes.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Recentes</p>
+                  <div className="space-y-2">
+                    {recentes.slice(0, 5).map((musica) => (
+                      <div key={musica.id} className="card p-3 flex items-center gap-3 border border-white/10">
+                        <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
+                          <p className="text-xs text-white/50">{musica.artista}</p>
+                        </div>
+                        <span className="text-xs text-white/30 shrink-0">{musica.ultimaTocada ? new Date(musica.ultimaTocada).toLocaleDateString('pt-BR') : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </section>
       )}
     </main>

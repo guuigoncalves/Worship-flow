@@ -1,235 +1,222 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Globe, Loader2, Music, Plus, Search } from 'lucide-react';
-import { CapaMusica } from '../components/aurora';
-import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import { ArrowLeft, Heart, MessageCircle, Plus, Search, Bell, Globe, User } from 'lucide-react';
 import { useComunidade } from '../hooks/useComunidade';
-import { useMusicas } from '../hooks/useMusicas';
+import { useAuth } from '../hooks/useAuth';
+import { SectionHeader, Avatar } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useToast } from '../hooks/useToast';
 
-type AbaAtiva = 'para-voce' | 'recentes';
+type AbaAtiva = 'feed' | 'equipe' | 'avisos';
 
-export const Comunidade: React.FC = () => {
+function tempoRelativo(iso: string): string {
+  if (!iso) return 'Recentemente';
+  const dt = new Date(iso);
+  const agora = new Date();
+  const diffMs = agora.getTime() - dt.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'Agora';
+  if (diffMin < 60) return `${diffMin} min`;
+  const diffHrs = Math.floor(diffMin / 60);
+  if (diffHrs < 24) return `${diffHrs}h`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays < 7) return `${diffDays}d`;
+  return dt.toLocaleDateString('pt-BR');
+}
+
+export default function Comunidade() {
   const navigate = useNavigate();
-  const { musicas, loading: loadingComunidade } = useComunidade();
-  const { salvarMusica } = useMusicas();
+  const { musicas } = useComunidade();
+  const { user } = useAuth();
   const { showToast } = useToast();
+  const [aba, setAba] = useState<AbaAtiva>('feed');
   const [consulta, setConsulta] = useState('');
-  const [salvandoIds, setSalvandoIds] = useState<Set<string>>(new Set());
-  const [aba, setAba] = useState<AbaAtiva>('para-voce');
+  const [curtindoIds, setCurtindoIds] = useState<Set<string>>(new Set());
 
-  const resultados = useMemo(() => {
-    const q = consulta.trim().toLowerCase();
-    let lista = q
-      ? musicas.filter(
-          (musica) =>
-            musica.titulo.toLowerCase().includes(q) ||
-            musica.artista.toLowerCase().includes(q) ||
-            musica.tags.some((tag) => tag.includes(q as never))
-        )
-      : musicas;
-
-    if (aba === 'recentes') {
-      lista = [...lista].sort((a, b) => (b as any).enviadaEm?.localeCompare?.((a as any).enviadaEm ?? '') ?? 0);
+  const feedMusicas = useMemo(() => {
+    let lista = [...musicas];
+    if (consulta.trim()) {
+      const q = consulta.trim().toLowerCase();
+      lista = lista.filter(m =>
+        m.titulo.toLowerCase().includes(q) ||
+        (m.artista && m.artista.toLowerCase().includes(q))
+      );
     }
-
     return lista;
-  }, [musicas, consulta, aba]);
+  }, [musicas, consulta]);
 
-  async function adicionarBiblioteca(musicaId: string) {
-    const musica = musicas.find((m) => m.id === musicaId);
-    if (!musica) return;
-    setSalvandoIds((prev) => new Set([...prev, musicaId]));
-    try {
-      await salvarMusica({
-        titulo: musica.titulo,
-        artista: musica.artista,
-        tom: musica.tom,
-        letra: musica.letra,
-        tags: musica.tags,
-        dificuldade: musica.dificuldade,
-      });
-      showToast('Adicionada à sua biblioteca!', 'sucesso');
-    } catch {
-      showToast('Não foi possível adicionar. Tente novamente.', 'erro');
-    } finally {
-      setSalvandoIds((prev) => {
-        const copy = new Set(prev);
-        copy.delete(musicaId);
-        return copy;
-      });
-    }
+  function toggleCurtir(id: string) {
+    setCurtindoIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }
 
-  function baixarCifra(musica: { titulo: string; letra: string }) {
-    const link = document.createElement('a');
-    link.href = `data:text/plain;charset=utf-8,${encodeURIComponent(musica.letra)}`;
-    link.download = `${musica.titulo}.txt`;
-    link.click();
+  if (!user) {
+    return (
+      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+        <EstadoVazio titulo="Faça login" texto="Você precisa estar logado para acessar a comunidade." />
+      </main>
+    );
   }
-
-  const loading = loadingComunidade;
 
   return (
-    <div className="app-page space-y-5 pb-24 fade-in">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="btn-ghost h-9 w-9 p-0">
-          <ArrowLeft size={16} />
-        </button>
-        <div className="flex items-center gap-2">
-          <Globe size={20} style={{ color: '#A259FF' }} />
-          <h1 className="text-2xl font-bold text-gradient">Comunidade</h1>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+      <header className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-3">
+          <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+            <ArrowLeft size={18} />
+          </button>
+          <div className="flex items-center gap-2">
+            <Globe size={20} className="text-[var(--primaria)]" />
+            <h1 className="text-xl font-bold text-gradient">Comunidade</h1>
+          </div>
         </div>
-      </div>
+        <div className="flex items-center gap-2">
+          <button className="btn-ghost h-9 w-9 p-0" type="button" aria-label="Notificações">
+            <Bell size={18} />
+          </button>
+          <button className="btn-ghost h-9 w-9 p-0" type="button" aria-label="Buscar">
+            <Search size={18} />
+          </button>
+        </div>
+      </header>
 
-      <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
-        Cifras aprovadas pela comunidade — adicione à sua biblioteca e leve ao vivo.
-      </p>
-
-      {/* Abas */}
-      <div className="flex gap-2">
-        {(['para-voce', 'recentes'] as AbaAtiva[]).map((a) => (
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {[
+          { id: 'feed', label: 'Feed / Pedidos' },
+          { id: 'equipe', label: 'Equipe / Músicos' },
+          { id: 'avisos', label: 'Avisos' },
+        ].map((a) => (
           <button
-            key={a}
+            key={a.id}
             type="button"
-            className={`chip text-sm ${aba === a ? 'chip-active' : ''}`}
-            onClick={() => setAba(a)}
+            className={`chip shrink-0 text-xs px-4 py-2 transition-all font-medium ${
+              aba === a.id
+                ? 'bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-fundo border-transparent font-bold'
+                : 'bg-[#141522]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
+            }`}
+            onClick={() => setAba(a.id as AbaAtiva)}
           >
-            {a === 'para-voce' ? 'Para você' : 'Recentes'}
+            {a.label}
           </button>
         ))}
       </div>
 
-      {/* Busca */}
       <div className="relative">
-        <Search
-          className="absolute left-4 top-1/2 -translate-y-1/2"
-          size={16}
-          style={{ color: 'rgba(162,89,255,0.7)' }}
-        />
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
         <input
-          className="input pl-11 text-sm"
+          type="text"
           value={consulta}
           onChange={(e) => setConsulta(e.target.value)}
-          placeholder="Buscar por título, artista ou tag…"
-          style={{ background: 'rgba(162,89,255,0.05)', borderColor: 'rgba(162,89,255,0.2)' }}
+          placeholder="Buscar no feed..."
+          className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
         />
       </div>
 
-      {/* Conteúdo */}
-      {loading ? (
-        <div className="card p-8 flex flex-col items-center gap-3">
-          <Loader2 size={32} className="animate-spin" style={{ color: '#A259FF' }} />
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>Carregando cifras da comunidade…</p>
-        </div>
-      ) : resultados.length === 0 ? (
-        <EstadoVazio
-          titulo="Nenhuma cifra na comunidade"
-          texto="Compartilhe suas cifras aprovadas na comunidade. Quando houver músicas aprovadas, aparecerão aqui."
-        />
-      ) : (
-        <div className="space-y-4">
-          {/* Cifras públicas em destaque */}
+      {aba === 'feed' && (
+        <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Music size={14} style={{ color: '#A259FF' }} />
-              <span className="text-sm font-semibold">Cifras públicas em destaque</span>
-            </div>
-            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              {resultados.length} disponível{resultados.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {resultados.map((musica) => (
-              <article key={musica.id} className="card flex items-center gap-3 p-3">
-                <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
-
-                <div className="min-w-0 flex-1">
-                  <h2 className="truncate font-semibold text-sm">{musica.titulo}</h2>
-                  <p className="truncate text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                    {musica.artista}
-                  </p>
-                  {musica.tags.length > 0 && (
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {musica.tags.slice(0, 2).map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full px-2 py-0.5 text-[10px]"
-                          style={{ background: 'rgba(162,89,255,0.12)', color: 'rgba(162,89,255,0.9)' }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Badge tom */}
-                <span
-                  className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-bold"
-                  style={{ background: 'rgba(162,89,255,0.15)', color: '#A259FF', border: '1px solid rgba(162,89,255,0.3)' }}
-                >
-                  {musica.tom}
-                </span>
-
-                {/* Ações */}
-                <div className="flex shrink-0 gap-1">
-                  <button
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
-                    onClick={() => baixarCifra(musica)}
-                    aria-label="Baixar cifra"
-                    title="Baixar cifra"
-                  >
-                    <Download className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.5)' }} />
-                  </button>
-                  <button
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-                    style={{
-                      background: salvandoIds.has(musica.id) ? 'rgba(162,89,255,0.08)' : 'rgba(162,89,255,0.18)',
-                      border: '1px solid rgba(162,89,255,0.3)',
-                      color: '#A259FF',
-                    }}
-                    disabled={salvandoIds.has(musica.id)}
-                    onClick={() => void adicionarBiblioteca(musica.id)}
-                    aria-label="Adicionar à biblioteca"
-                    title="Adicionar à biblioteca"
-                  >
-                    {salvandoIds.has(musica.id) ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {/* Banner de convite */}
-          <div
-            className="rounded-2xl p-4 text-center"
-            style={{ background: 'rgba(162,89,255,0.06)', border: '1px solid rgba(162,89,255,0.15)' }}
-          >
-            <p className="text-sm font-semibold">Compartilhe sua música!</p>
-            <p className="mt-1 text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              Envie suas cifras e playlists para alcançar outros músicos e ministérios.
-            </p>
+            <SectionHeader icone={<Globe size={16} />} titulo="Feed da Comunidade" />
             <button
-              className="btn-ghost mt-3 py-2 px-4 text-xs"
+              className="btn-primary py-2 px-4 text-xs flex items-center gap-1.5"
+              type="button"
               onClick={() => navigate('/editor')}
             >
-              Enviar agora
+              <Plus size={14} />
+              Novo Pedido
             </button>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
-export default Comunidade;
+          {feedMusicas.length === 0 ? (
+            <EstadoVazio titulo="Nenhuma mensagem no feed" texto="Nenhuma cifra ou pedido foi compartilhado ainda." />
+          ) : (
+            <div className="space-y-3">
+              {feedMusicas.map((musica) => (
+                <article key={musica.id} className="card p-4 border border-white/10">
+                  <div className="flex items-start gap-3">
+                    <Avatar nome={musica.artista || 'Usuário'} tamanho="sm" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-white">{musica.titulo}</p>
+                        <span className="text-[10px] text-white/40">{tempoRelativo(musica.enviadaEm)}</span>
+                      </div>
+                      <p className="text-xs text-white/50">{musica.artista} · {musica.tom}</p>
+                      {musica.letra && (
+                        <p className="mt-2 text-xs text-white/60 font-mono" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {musica.letra.slice(0, 200)}
+                        </p>
+                      )}
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          type="button"
+                          className="flex items-center gap-1 text-xs text-white/40 hover:text-red-400 transition-colors"
+                          onClick={() => toggleCurtir(musica.id)}
+                        >
+                          <Heart size={14} fill={curtindoIds.has(musica.id) ? 'currentColor' : 'none'} className={curtindoIds.has(musica.id) ? 'text-red-400' : ''} />
+                          {curtindoIds.has(musica.id) ? 'Curtido' : 'Curtir'}
+                        </button>
+                        <button type="button" className="flex items-center gap-1 text-xs text-white/40 hover:text-[var(--primaria)] transition-colors">
+                          <MessageCircle size={14} />
+                          Comentar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {aba === 'equipe' && (
+        <section className="space-y-4">
+          <SectionHeader icone={<User size={16} />} titulo="Equipe / Músicos" />
+          <div className="space-y-3">
+            {[
+              { nome: 'Guilherme', cargo: 'Administrador', instrumento: 'Violão' },
+              { nome: 'Maria', cargo: 'Música', instrumento: 'Teclado' },
+              { nome: 'João', cargo: 'Músico', instrumento: 'Guitarra' },
+            ].map((membro) => (
+              <div key={membro.nome} className="card p-4 flex items-center gap-3 border border-white/10">
+                <Avatar nome={membro.nome} tamanho="md" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-white">{membro.nome}</p>
+                  <p className="text-xs text-white/50">{membro.cargo} · {membro.instrumento}</p>
+                </div>
+                <span className="chip text-[10px] shrink-0">{membro.cargo}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {aba === 'avisos' && (
+        <section className="space-y-4">
+          <SectionHeader icone={<Bell size={16} />} titulo="Avisos" />
+          <div className="space-y-3">
+            {[
+              { titulo: 'Culto de Domingo', texto: 'Culto de Domingo - Noite às 19h30. Traga sua cifra e instrumento.', tempo: '2h atrás' },
+              { titulo: 'Nova Playlist', texto: 'Playlist "Louvor e Adoração" atualizada com 5 novas cifras.', tempo: '1d atrás' },
+              { titulo: 'Manutenção', texto: 'Sistema em manutenção programada para sábado às 3h.', tempo: '3d atrás' },
+            ].map((aviso, idx) => (
+              <div key={idx} className="card p-4 border border-white/10">
+                <div className="flex items-start gap-3">
+                  <Bell size={16} className="text-[var(--primaria)] shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-white">{aviso.titulo}</p>
+                    <p className="text-xs text-white/60 mt-1">{aviso.texto}</p>
+                    <p className="text-[10px] text-white/40 mt-2">{aviso.tempo}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </main>
+  );
+}
