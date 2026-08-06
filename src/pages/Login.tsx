@@ -1,125 +1,108 @@
-import { Guitar, Mail, Phone, UserRound } from 'lucide-react';
-import { FormEvent, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Globe } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
-type LoginTab = 'email' | 'phone' | 'anonymous';
-
 export default function Login() {
-  const { t } = useTranslation();
-  const location = useLocation();
-  const { user, error, signInGoogle, signInEmail, signUpEmail, signInAnon, startPhoneSignIn, confirmPhoneCode } = useAuth();
-  const [nome, setNome] = useState('');
+  const navigate = useNavigate();
+  const { signInGoogle, signInEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [instrumento, setInstrumento] = useState('violao');
-  const [telefone, setTelefone] = useState('');
-  const [codigo, setCodigo] = useState('');
-  const [cadastro, setCadastro] = useState(false);
-  const [tab, setTab] = useState<LoginTab>('email');
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  if (user) return <Navigate to={from} replace />;
-
-  function submit(event: FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    void (cadastro ? signUpEmail(nome, email, senha, instrumento) : signInEmail(email, senha));
+    setLoading(true);
+    try {
+      await signInEmail(email, senha);
+      navigate('/');
+    } catch {
+      setLoading(false);
+    }
   }
 
   return (
-    <main className="fixed inset-0 overflow-hidden">
-      <div className="aurora-bg" aria-hidden="true" />
-      <div className="absolute inset-0 bg-fundo/80" aria-hidden="true" />
-
-      <div className="relative z-10 grid min-h-screen place-items-center p-5">
-        <section className="fade-in w-full max-w-sm">
-          <div className="card mx-auto p-8">
-            <div className="flex flex-col items-center gap-4">
-              <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo shadow-[0_0_40px_var(--primaria-dim)]">
-                 <Guitar className="h-10 w-10" aria-hidden="true" />
-              </div>
-              <h1 className="m-0 text-3xl font-extrabold tracking-tight text-gradient">{t('app.name')}</h1>
-              <p className="text-center text-sm text-textoSecundario">Seu assistente de louvor ao vivo</p>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              <button className="btn-primary w-full" type="button" onClick={() => void signInGoogle()}>
-                <UserRound className="h-5 w-5" aria-hidden="true" />
-                {t('login.google')}
-              </button>
-
-              <div className="mt-5 grid grid-cols-3 gap-1.5 rounded-xl bg-elevada p-1.5 text-xs font-medium">
-                <button
-                  type="button"
-                  className={`rounded-lg px-2 py-1.5 transition-all ${tab === 'email' ? 'bg-primaria text-fundo' : 'text-textoSecundario hover:text-texto'}`}
-                  onClick={() => setTab('email')}
-                >
-                  E-mail
-                </button>
-                <button
-                  type="button"
-                  className={`rounded-lg px-2 py-1.5 transition-all ${tab === 'phone' ? 'bg-primaria text-fundo' : 'text-textoSecundario hover:text-texto'}`}
-                  onClick={() => setTab('phone')}
-                >
-                  Telefone
-                </button>
-                <button
-                  type="button"
-                  className={`rounded-lg px-2 py-1.5 transition-all ${tab === 'anonymous' ? 'bg-primaria text-fundo' : 'text-textoSecundario hover:text-texto'}`}
-                  onClick={() => setTab('anonymous')}
-                >
-                  Anônimo
-                </button>
-              </div>
-
-              <div className="pt-2">
-                {tab === 'email' ? (
-                  <form className="space-y-3" onSubmit={submit}>
-                    {cadastro ? (
-                      <>
-                        <input className="input" value={nome} onChange={(event) => setNome(event.target.value)} placeholder={t('login.name')} required />
-                        <input className="input" value={instrumento} onChange={(event) => setInstrumento(event.target.value)} placeholder={t('login.instrument')} required />
-                      </>
-                    ) : null}
-                    <input className="input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t('login.email')} required />
-                    <input className="input" type="password" value={senha} onChange={(event) => setSenha(event.target.value)} placeholder={t('login.password')} required />
-                    <button className="btn-primary w-full" type="submit">{cadastro ? t('login.create') : t('login.enter')}</button>
-                    <button className="btn-text w-full" type="button" onClick={() => setCadastro((valor) => !valor)}>{cadastro ? t('login.enter') : t('login.create')}</button>
-                  </form>
-                ) : null}
-
-                {tab === 'phone' ? (
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-textoSecundario" aria-hidden="true" />
-                      <input className="input pl-10" value={telefone} onChange={(event) => setTelefone(event.target.value)} placeholder={t('login.phone')} />
-                    </div>
-                    <button className="btn-ghost w-full" type="button" onClick={() => void startPhoneSignIn(telefone)}>
-                      <Mail className="h-4 w-4" />
-                      {t('login.sendCode')}
-                    </button>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-textoSecundario" aria-hidden="true" />
-                      <input className="input pl-10" value={codigo} onChange={(event) => setCodigo(event.target.value)} placeholder={t('login.phoneCode')} />
-                    </div>
-                    <button className="btn-primary w-full" type="button" onClick={() => void confirmPhoneCode(codigo)}>{t('login.confirmCode')}</button>
-                    <div id="recaptcha-container" />
-                  </div>
-                ) : null}
-
-                {tab === 'anonymous' ? (
-                  <button className="btn-ghost w-full" type="button" onClick={() => void signInAnon()}>
-                    <UserRound className="h-5 w-5" aria-hidden="true" />
-                    {t('login.anonymous')}
-                  </button>
-                ) : null}
-              </div>
-            </div>
-
-            {error ? <p className="mt-4 rounded-xl bg-perigo/10 p-3 text-sm text-perigo">{error}</p> : null}
+    <main className="fixed inset-0 flex items-center justify-center p-4" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="w-full max-w-sm space-y-6">
+        <div className="flex flex-col items-center gap-4">
+          <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] shadow-[0_0_30px_rgba(108,92,231,0.3)]">
+            <span className="text-2xl font-bold text-fundo">W</span>
           </div>
-        </section>
+          <h1 className="m-0 text-2xl font-extrabold tracking-tight text-gradient text-center">WorshipFlow</h1>
+          <p className="text-center text-xs text-white/40">Sua música. Seu ministério. Em qualquer lugar.</p>
+        </div>
+
+        <form className="card p-6 space-y-4 border border-white/10" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-xs font-medium text-white/60 block mb-1.5" htmlFor="email">E-mail</label>
+            <div className="relative">
+              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                className="w-full bg-[#141522]/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 transition-all"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-white/60 block mb-1.5" htmlFor="senha">Senha</label>
+            <div className="relative">
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+              <input
+                id="senha"
+                type={mostrarSenha ? 'text' : 'password'}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-[#141522]/80 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 transition-all"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
+                onClick={() => setMostrarSenha((v) => !v)}
+                aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {mostrarSenha ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="btn-primary w-full py-3 text-sm font-bold"
+            disabled={loading}
+          >
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+
+          <div className="flex items-center justify-between text-xs">
+            <Link to="/" className="text-white/40 hover:text-white/60 transition-colors">Esqueceu a senha?</Link>
+            <Link to="/" className="text-[var(--primaria)] hover:text-[var(--acento)] transition-colors">Criar conta</Link>
+          </div>
+        </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+          <div className="relative flex justify-center">
+            <span className="bg-[#0B0C10] px-3 text-[10px] text-white/30 uppercase tracking-wider">ou</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="btn-ghost w-full py-3 text-sm font-medium flex items-center justify-center gap-2 border border-white/10"
+          onClick={() => void signInGoogle()}
+        >
+          <Globe size={18} />
+          Continuar com Google
+        </button>
       </div>
     </main>
   );
