@@ -78,24 +78,24 @@ export default function Editor() {
   }
 
   return (
-    <main className="app-page fade-in space-y-5">
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+    <main className="app-page fade-in space-y-5 w-full max-w-full overflow-x-hidden" style={{ backgroundColor: '#0B0C10' }}>
+      <header className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3 min-w-0">
           <button className="btn-ghost text-xs" type="button" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
             <span>{t('common.back')}</span>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <CapaMusica tom={tom} titulo={titulo} tamanho="sm" />
-            <h1 className="m-0 text-2xl font-extrabold text-gradient">{t('editor.title')}</h1>
+            <h1 className="m-0 text-xl font-extrabold text-gradient truncate">{t('editor.title')}</h1>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <button className="btn-ghost" type="button" onClick={exportar}>
             <Download className="h-4 w-4" />
             {t('editor.export')}
           </button>
-          <button className="btn-primary hidden lg:inline-flex" type="button" onClick={() => void salvar()}>
+          <button className="btn-primary" type="button" onClick={() => void salvar()}>
             <Save className="h-4 w-4" />
             {t('editor.saveSong')}
           </button>
@@ -103,16 +103,16 @@ export default function Editor() {
       </header>
 
       <div className="grid grid-cols-2 gap-2 lg:hidden">
-        <button className={`btn-ghost ${aba === 'editar' ? 'text-primaria' : ''}`} type="button" onClick={() => setAba('editar')}>
+        <button className={`btn-ghost ${aba === 'editar' ? 'text-[var(--primaria)]' : ''}`} type="button" onClick={() => setAba('editar')}>
           {t('editor.lyrics')}
         </button>
-        <button className={`btn-ghost ${aba === 'preview' ? 'text-primaria' : ''}`} type="button" onClick={() => setAba('preview')}>
+        <button className={`btn-ghost ${aba === 'preview' ? 'text-[var(--primaria)]' : ''}`} type="button" onClick={() => setAba('preview')}>
           {t('editor.preview')}
         </button>
       </div>
 
-      <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <div className={`space-y-4 ${aba === 'preview' ? 'hidden lg:block' : ''}`}>
+      <section className="grid gap-4 lg:grid-cols-[1fr_1fr] w-full max-w-full overflow-x-hidden">
+        <div className={`space-y-4 ${aba === 'preview' ? 'hidden lg:block' : ''} w-full max-w-full overflow-x-hidden`}>
           <div className="fixed bottom-[76px] left-4 right-4 z-30 lg:hidden">
             <button className="btn-primary w-full shadow-2xl" type="button" onClick={() => void salvar()}>
               <Save className="h-4 w-4" />
@@ -121,15 +121,15 @@ export default function Editor() {
           </div>
 
           <SectionHeader icone={<Save size={16} />} titulo={t('editor.metadata')} />
-          <div className="card grid gap-3 p-4 sm:grid-cols-2">
-            <input className="input" value={titulo} onChange={(event) => setTitulo(event.target.value)} placeholder="Título" />
-            <input className="input" value={artista} onChange={(event) => setArtista(event.target.value)} placeholder={t('editor.artist')} />
-            <select className="input" value={tom} onChange={(event) => setTom(event.target.value as Tom)}>
+          <div className="card grid gap-3 p-4 sm:grid-cols-2 w-full max-w-full overflow-x-hidden">
+            <input className="input w-full" value={titulo} onChange={(event) => setTitulo(event.target.value)} placeholder="Título" />
+            <input className="input w-full" value={artista} onChange={(event) => setArtista(event.target.value)} placeholder={t('editor.artist')} />
+            <select className="input w-full" value={tom} onChange={(event) => setTom(event.target.value as Tom)}>
               {tons.map((item) => (
-                <option key={item}>{item}</option>
+                <option key={item} value={item}>{item}</option>
               ))}
             </select>
-            <select className="input" value={dificuldade} onChange={(event) => setDificuldade(event.target.value as typeof dificuldade)}>
+            <select className="input w-full" value={dificuldade} onChange={(event) => setDificuldade(event.target.value as typeof dificuldade)}>
               <option value="iniciante">iniciante</option>
               <option value="intermediario">intermediario</option>
               <option value="avancado">avancado</option>
@@ -140,11 +140,11 @@ export default function Editor() {
             </label>
           </div>
 
-          <SectionHeader icone={<span className="text-primaria">♪</span>} titulo={t('editor.lyrics')} />
+          <SectionHeader icone={<span className="text-[var(--primaria)]">♪</span>} titulo={t('editor.lyrics')} />
           {possuiCifra ? <SeletorAcorde onInsert={(acorde) => insertRef.current(acorde)} /> : null}
           <EditorLetra value={letra} onChange={setLetra} onInsertReady={registrarInsert} />
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 w-full max-w-full overflow-x-hidden">
             {tagsDisponiveis.map((tag) => (
               <button key={tag} type="button" className={`chip ${tags.includes(tag) ? 'chip-active' : ''}`} onClick={() => toggleTag(tag)}>
                 {tag}
@@ -153,11 +153,11 @@ export default function Editor() {
           </div>
         </div>
 
-        <div className={`space-y-4 ${aba === 'editar' ? 'hidden lg:block' : ''}`}>
-          <div className="card flex flex-wrap items-center justify-between gap-2 p-3">
-            <div className="flex items-center gap-3">
+        <div className={`space-y-4 ${aba === 'editar' ? 'hidden lg:block' : ''} w-full max-w-full overflow-x-hidden`}>
+          <div className="card flex flex-wrap items-center justify-between gap-2 p-3 w-full max-w-full overflow-x-hidden">
+            <div className="flex items-center gap-3 flex-wrap">
               <span className="text-sm text-textoSecundario">
-                {t('editor.transposeAll')}: <strong className="text-primaria">{tomSugerido}</strong>
+                {t('editor.transposeAll')}: <strong className="text-[var(--primaria)]">{tomSugerido}</strong>
               </span>
               <button className="btn-ghost text-xs" type="button" onClick={aplicarTomSugerido}>
                 {t('editor.applySuggested')}

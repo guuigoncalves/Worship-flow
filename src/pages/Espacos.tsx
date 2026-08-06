@@ -61,7 +61,7 @@ export default function Espacos() {
   }
 
   return (
-    <main className="app-page fade-in space-y-5">
+    <main className="app-page fade-in space-y-5 pb-32" style={{ backgroundColor: '#0B0C10' }}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>

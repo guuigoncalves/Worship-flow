@@ -48,11 +48,15 @@ export function EspacosProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user || user.isAnonymous) {
       setEspacos([]);
+      setLoading(false);
       return undefined;
     }
     setLoading(true);
     const unsubscribe = onSnapshot(collection(db, 'users', user.uid, 'espacos'), (snapshot) => {
       setEspacos(snapshot.docs.map((item) => item.data() as EspacoResumo));
+      setLoading(false);
+    }, () => {
+      setEspacos([]);
       setLoading(false);
     });
     return unsubscribe;
