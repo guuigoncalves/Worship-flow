@@ -8,7 +8,7 @@
 :root,
 .tema-eclipse {
   --fundo:#07070F; --superficie:#0E0E1C; --superficie-alta:#161628;
-  --borda:#1C1C34; --primaria:#E4B429; --primaria-dim:rgba(228,180,41,0.12);
+  --borda:#1C1C34; --primaria:#8B5CF6; --primaria-dim:rgba(139,92,246,0.14);
   --acento:#5B8DEF; --perigo:#E04040; --sucesso:#36B876;
   --texto:#ECEDF8; --texto-sec:#6A6A88; --texto-ter:#2E2E4A;
   --font-body:'DM Sans',sans-serif; --font-display:'Syne',sans-serif; --font-mono:'JetBrains Mono',monospace;
