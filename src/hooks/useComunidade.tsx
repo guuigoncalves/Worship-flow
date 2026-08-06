@@ -66,7 +66,11 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
           setPendentes(snapshot.docs.map((doc) => doc.data() as MusicaComunidade).filter((musica) => !musica.solicitacaoExclusao));
         },
         (err) => {
-          setError(err.message);
+          if (err.code === 'permission-denied') {
+            setPendentes([]);
+          } else {
+            setError(err.message);
+          }
         }
       );
 
@@ -76,7 +80,11 @@ export function ComunidadeProvider({ children }: { children: ReactNode }) {
           setSolicitacoesExclusao(snapshot.docs.map((doc) => doc.data() as MusicaComunidade));
         },
         (err) => {
-          setError(err.message);
+          if (err.code === 'permission-denied') {
+            setSolicitacoesExclusao([]);
+          } else {
+            setError(err.message);
+          }
         }
       );
     }

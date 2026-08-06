@@ -31,7 +31,7 @@ function SectionHeader({ icon, titulo, verTodas }: { icon: React.ReactNode; titu
         {icon}{titulo}
       </h2>
       {verTodas && (
-        <Link to={verTodas} className="flex items-center gap-0.5 text-xs font-medium text-purple-400 hover:text-purple-300 transition-colors">
+        <Link to={verTodas} className="flex items-center gap-0.5 text-xs font-medium text-[var(--primaria)] hover:text-purple-300 transition-colors">
           Ver todas <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       )}
@@ -43,7 +43,7 @@ function EstadoVazio({ texto, acaoLabel, acaoHref }: { texto: string; acaoLabel?
   return (
     <div className="flex flex-col items-center gap-2 p-6 text-center">
       <p className="text-xs text-white/50">{texto}</p>
-      {acaoLabel && acaoHref && <Link to={acaoHref} className="text-xs font-semibold text-purple-400 hover:underline">{acaoLabel}</Link>}
+      {acaoLabel && acaoHref && <Link to={acaoHref} className="text-xs font-semibold text-[var(--primaria)] hover:underline">{acaoLabel}</Link>}
     </div>
   );
 }
@@ -71,14 +71,14 @@ function MetronomoWidget() {
     <article className="card rounded-2xl border border-white/10 bg-[#141522]/90 p-5 shadow-xl flex flex-col justify-between">
       <div className="flex items-center justify-between mb-2">
         <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/70">
-          <span className="text-purple-400">⏱</span> METRÔNOMO
+          <span className="text-[var(--primaria)]">⏱</span> METRÔNOMO
         </h2>
-        <div className={`w-2 h-2 rounded-full ${ativo ? 'bg-purple-400 animate-ping' : 'bg-white/20'}`} />
+        <div className={`w-2 h-2 rounded-full ${ativo ? 'bg-[var(--primaria)] animate-ping' : 'bg-white/20'}`} />
       </div>
 
       <div className="flex items-center justify-around py-3">
         <div className="relative w-14 h-20 flex items-center justify-center">
-          <div className="w-1 h-16 bg-gradient-to-t from-purple-500 to-purple-300 rounded-full origin-bottom animate-bounce" style={{ animationDuration: `${60 / bpm}s` }} />
+          <div className="w-1 h-16 bg-gradient-to-t from-[var(--primaria)] to-[var(--acento)] rounded-full origin-bottom animate-bounce" style={{ animationDuration: `${60 / bpm}s` }} />
         </div>
 
         <div className="text-center">
@@ -88,23 +88,23 @@ function MetronomoWidget() {
       </div>
 
       <div className="flex items-center justify-center gap-3 pt-2">
-        <button 
-          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-white/10 active:scale-95" 
-          onClick={() => setBpm((v) => Math.max(40, v - 1))} 
+        <button
+          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-white/10 active:scale-95"
+          onClick={() => setBpm((v) => Math.max(40, v - 1))}
           aria-label="Diminuir BPM"
         >
           <Minus className="h-4 w-4" />
         </button>
-        <button 
-          className="w-12 h-12 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center transition-all shadow-lg shadow-purple-600/30 active:scale-95" 
-          onClick={alternar} 
+        <button
+          className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo flex items-center justify-center transition-all shadow-lg shadow-purple-900/30 active:scale-95"
+          onClick={alternar}
           aria-label={ativo ? 'Parar metrônomo' : 'Iniciar metrônomo'}
         >
           {ativo ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-current ml-0.5" />}
         </button>
-        <button 
-          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-white/10 active:scale-95" 
-          onClick={() => setBpm((v) => Math.min(240, v + 1))} 
+        <button
+          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-white/10 active:scale-95"
+          onClick={() => setBpm((v) => Math.min(240, v + 1))}
           aria-label="Aumentar BPM"
         >
           <Plus className="h-4 w-4" />
@@ -128,11 +128,11 @@ export default function Inicio() {
   const cifrasRecentes = useMemo(() => [...musicas].filter((m) => m.ultimaTocada).sort((a, b) => (b.ultimaTocada ?? '').localeCompare(a.ultimaTocada ?? '')).slice(0, 5), [musicas]);
 
   return (
-    <main className="app-page space-y-6 pb-28 fade-in">
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
       {/* Cabeçalho com Info de Usuário */}
       <header className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+          <div className="p-2 rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo">
             <Volume2 size={24} className="animate-pulse" />
           </div>
           <div>
@@ -149,20 +149,20 @@ export default function Inicio() {
       </header>
 
       {/* Busca Rápida Estilizada */}
-      <Link to="/busca-rapida" className="card flex items-center gap-3 rounded-2xl border border-white/10 bg-[#12131C]/80 p-3.5 text-white/40 hover:border-purple-500/40 transition-all backdrop-blur-xl shadow-inner">
+      <Link to="/busca-rapida" className="card flex items-center gap-3 rounded-2xl border border-white/10 bg-[#141522]/80 p-3.5 text-white/40 hover:border-[var(--primaria)]/40 transition-all backdrop-blur-xl shadow-inner">
         <Search className="h-4 w-4 shrink-0 text-white/40" />
         <span className="flex-1 text-xs text-white/60">Buscar músicas, artistas, pastas, espaços...</span>
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] border border-[var(--primaria)]/30">
           <SlidersHorizontal className="h-3.5 w-3.5" />
         </span>
       </Link>
 
-      {/* Hero Card: Próximo Evento / Modo Palco */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-950/80 via-[#141522] to-indigo-950/60 border border-purple-500/30 p-5 shadow-2xl">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Hero Card: Próximo Culto / Modo Palco */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#0B0C10] via-[#141522] to-[#1A1040] border border-white/10 p-5 shadow-2xl">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-[var(--primaria)]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[var(--primaria-dim)] border border-[var(--primaria)]/30 text-[var(--primaria)] text-[10px] font-bold uppercase tracking-wider">
               <Calendar size={12} /> Próximo Culto
             </div>
             <h2 className="text-lg font-extrabold text-white">Culto de Domingo - Noite</h2>
@@ -173,7 +173,7 @@ export default function Inicio() {
 
           <button
             onClick={() => navigate('/tocar')}
-            className="btn-primary text-xs py-2.5 px-5 flex items-center justify-center gap-2 rounded-2xl font-bold shadow-lg shadow-purple-600/30 shrink-0 cursor-pointer"
+            className="btn-primary text-xs py-2.5 px-5 flex items-center justify-center gap-2 rounded-2xl font-bold shadow-lg shadow-[var(--primaria)]/30 shrink-0 cursor-pointer"
           >
             <Radio size={16} />
             <span>Modo Palco</span>
@@ -181,26 +181,26 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Playlists */}
+      {/* Playlists - Carrossel horizontal */}
       <section>
-        <SectionHeader icon={<ListMusic className="h-4 w-4 text-purple-400" />} titulo="PLAYLISTS" verTodas="/playlists" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <SectionHeader icon={<ListMusic className="h-4 w-4 text-[var(--primaria)]" />} titulo="PLAYLISTS" verTodas="/playlists" />
+        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
           {[
             { id: 1, titulo: 'Domingo Manhã', qtd: 12 },
             { id: 2, titulo: 'Ensaio Geral', qtd: 20 },
             { id: 3, titulo: 'Acústico', qtd: 8 },
             { id: 4, titulo: 'Culto de Jovens', qtd: 15 },
           ].map((item) => (
-            <article 
-              key={item.id} 
+            <article
+              key={item.id}
               onClick={() => navigate('/playlists')}
-              className="card overflow-hidden rounded-2xl border border-white/10 bg-[#141522]/90 hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg"
+              className="card overflow-hidden rounded-2xl border border-white/10 bg-[#141522]/90 hover:border-[var(--primaria)]/40 transition-all cursor-pointer group shadow-lg shrink-0 w-44"
             >
               <div className="relative">
-                <div className="flex h-24 items-center justify-center bg-gradient-to-br from-purple-900/60 to-indigo-900/60 p-2 text-center">
-                  <span className="text-xs font-bold text-white/90 group-hover:text-purple-300 transition-colors">{item.titulo}</span>
+                <div className="flex h-24 items-center justify-center bg-gradient-to-br from-[var(--primaria)]/20 to-[var(--acento)]/20 p-2 text-center">
+                  <span className="text-xs font-bold text-white/90 group-hover:text-[var(--primaria)] transition-colors">{item.titulo}</span>
                 </div>
-                <button type="button" className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-purple-600 text-white shadow-md group-hover:scale-110 transition-transform">
+                <button type="button" className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-[var(--primaria)] text-fundo shadow-md group-hover:scale-110 transition-transform">
                   <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
                 </button>
               </div>
@@ -213,31 +213,20 @@ export default function Inicio() {
         </div>
       </section>
 
-      {/* Mais ouvidas + Cifras recentes */}
-      <section className="grid gap-6 lg:grid-cols-2">
+      {/* Mais ouvidas + Cifras recentes em 2 colunas */}
+      <section className="grid gap-6 md:grid-cols-2">
         <div>
-          <SectionHeader icon={<Music2 className="h-4 w-4 text-purple-400" />} titulo="MAIS OUVIDAS" verTodas="/musica" />
+          <SectionHeader icon={<Music2 className="h-4 w-4 text-[var(--primaria)]" />} titulo="MAIS OUVIDAS" verTodas="/musica" />
           <div className="card divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#141522]/90 overflow-hidden shadow-xl">
-            {maisOuvidas.map((musica, idx) => (
+            {maisOuvidas.map((musica) => (
               <Link key={musica.id} to={`/musica/${musica.id}`} className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors group">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-xs font-mono font-bold text-white/40 w-4 text-center shrink-0">{String(idx + 1).padStart(2, '0')}</span>
                   <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white truncate group-hover:text-purple-300 transition-colors">{musica.titulo}</p>
+                    <p className="text-xs font-semibold text-white truncate group-hover:text-[var(--primaria)] transition-colors">{musica.titulo}</p>
                     <p className="text-[10px] text-white/50 truncate">{musica.artista || 'Artista não informado'}</p>
                   </div>
                 </div>
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    tocar(musica);
-                  }}
-                  className="p-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/30 text-purple-300 hover:text-white transition-all border border-purple-500/20 shrink-0"
-                >
-                  <Play size={12} fill="currentColor" />
-                </button>
               </Link>
             ))}
             {!maisOuvidas.length && <EstadoVazio texto="Nenhuma música tocada ainda." acaoLabel="Ir pra Música" acaoHref="/musica" />}
@@ -245,18 +234,13 @@ export default function Inicio() {
         </div>
 
         <div>
-          <SectionHeader icon={<FileText className="h-4 w-4 text-purple-400" />} titulo="CIFRAS RECENTES" verTodas="/cifra" />
+          <SectionHeader icon={<FileText className="h-4 w-4 text-[var(--primaria)]" />} titulo="CIFRAS RECENTES" verTodas="/cifra" />
           <div className="card divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#141522]/90 overflow-hidden shadow-xl">
             {cifrasRecentes.map((musica) => (
               <Link key={musica.id} to={`/musica/${musica.id}`} className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors group">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-xs font-bold text-purple-300 shrink-0 font-mono">
-                    {musica.tom || 'C'}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white truncate group-hover:text-purple-300 transition-colors">{musica.titulo}</p>
-                    <p className="text-[10px] text-white/50 truncate">{musica.artista || 'Artista não informado'}</p>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-white truncate group-hover:text-[var(--primaria)] transition-colors">{musica.titulo}</p>
+                  <p className="text-[10px] text-white/50 truncate">{musica.artista || 'Artista não informado'}</p>
                 </div>
                 <span className="shrink-0 text-[10px] text-white/40">{diaRelativo(musica.ultimaTocada as string)}</span>
               </Link>
@@ -266,43 +250,23 @@ export default function Inicio() {
         </div>
       </section>
 
-      {/* Metrônomo / Atividade recente */}
-      <section className="grid gap-6 lg:grid-cols-2">
+      {/* Metrônomo */}
+      <section>
         <MetronomoWidget />
-
-        <article className="card rounded-2xl border border-white/10 bg-[#141522]/90 p-5 shadow-xl">
-          <SectionHeader icon={<Zap className="h-4 w-4 text-purple-400" />} titulo="ATIVIDADE RECENTE" verTodas={espacos.length ? '/espacos' : undefined} />
-          <div className="space-y-2.5">
-            {[
-              { icone: '🎵', texto: 'Nova cifra adicionada', tempo: '10 min atrás' },
-              { icone: '✅', texto: 'Sugestão aprovada', tempo: '1 h atrás' },
-              { icone: '✏️', texto: 'Cifra atualizada', tempo: '2 h atrás' },
-              { icone: '💬', texto: 'Novo comentário', tempo: '3 h atrás' },
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 p-2.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-sm">{item.icone}</span>
-                  <span className="text-xs text-white/90">{item.texto}</span>
-                </div>
-                <span className="text-[10px] text-white/40 font-mono">{item.tempo}</span>
-              </div>
-            ))}
-          </div>
-        </article>
       </section>
 
       {/* Comunidade */}
       <section>
-        <SectionHeader icon={<Users className="h-4 w-4 text-purple-400" />} titulo="COMUNIDADE" />
+        <SectionHeader icon={<Users className="h-4 w-4 text-[var(--primaria)]" />} titulo="COMUNIDADE" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Link to="/editor" className="card flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522]/90 p-4 text-center hover:border-purple-500/40 transition-all group">
-            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+          <Link to="/editor" className="card flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522]/90 p-4 text-center hover:border-[var(--primaria)]/40 transition-all group">
+            <div className="p-2.5 rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] group-hover:scale-110 transition-transform">
               <Plus className="h-5 w-5" />
             </div>
             <span className="text-xs font-semibold text-white">Adicionar música</span>
           </Link>
-          <Link to="/editor" className="card flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522]/90 p-4 text-center hover:border-purple-500/40 transition-all group">
-            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+          <Link to="/editor" className="card flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#141522]/90 p-4 text-center hover:border-[var(--primaria)]/40 transition-all group">
+            <div className="p-2.5 rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] group-hover:scale-110 transition-transform">
               <BookPlus className="h-5 w-5" />
             </div>
             <span className="text-xs font-semibold text-white">Adicionar cifra</span>
@@ -322,14 +286,14 @@ export default function Inicio() {
         </div>
       </section>
 
-      {/* Seções inferiores (Destaque / Mais comentadas / Artistas) */}
+      {/* Seções inferiores (Destaque / Artistas) */}
       <section>
-        <SectionHeader icon={<Flame className="h-4 w-4 text-purple-400" />} titulo="CIFRAS EM DESTAQUE" verTodas="/cifra" />
+        <SectionHeader icon={<Flame className="h-4 w-4 text-[var(--primaria)]" />} titulo="CIFRAS EM DESTAQUE" verTodas="/cifra" />
         <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
           {musicas.slice(0, 5).map((musica) => (
-            <Link key={`destaque-${musica.id}`} to={`/musica/${musica.id}`} className="card min-w-[150px] rounded-2xl border border-white/10 bg-[#141522]/90 p-3 shadow-lg hover:border-purple-500/40 transition-all group shrink-0">
+            <Link key={`destaque-${musica.id}`} to={`/musica/${musica.id}`} className="card min-w-[150px] rounded-2xl border border-white/10 bg-[#141522]/90 p-3 shadow-lg hover:border-[var(--primaria)]/40 transition-all group shrink-0">
               <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="md" />
-              <p className="mt-2 truncate text-xs font-bold text-white group-hover:text-purple-300 transition-colors">{musica.titulo}</p>
+              <p className="mt-2 truncate text-xs font-bold text-white group-hover:text-[var(--primaria)] transition-colors">{musica.titulo}</p>
               <p className="truncate text-[10px] text-white/50">{musica.artista || 'Artista'}</p>
             </Link>
           ))}
@@ -337,14 +301,14 @@ export default function Inicio() {
       </section>
 
       <section className="mb-4">
-        <SectionHeader icon={<Mic2 className="h-4 w-4 text-purple-400" />} titulo="ARTISTAS EM ALTA" verTodas="/artistas" />
+        <SectionHeader icon={<Mic2 className="h-4 w-4 text-[var(--primaria)]" />} titulo="ARTISTAS EM ALTA" verTodas="/artistas" />
         <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
           {[...new Set(musicas.map((m) => m.artista).filter(Boolean))].slice(0, 8).map((artista) => (
-            <Link key={artista} to={`/artista/${encodeURIComponent(artista)}`} className="card min-w-[120px] rounded-2xl border border-white/10 bg-[#141522]/90 p-3 text-center shadow-lg hover:border-purple-500/40 transition-all group shrink-0">
-              <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-gradient-to-tr from-purple-600/40 to-pink-600/40 text-white font-bold text-xs border border-white/10">
+            <Link key={artista} to={`/artista/${encodeURIComponent(artista)}`} className="card min-w-[120px] rounded-2xl border border-white/10 bg-[#141522]/90 p-3 text-center shadow-lg hover:border-[var(--primaria)]/40 transition-all group shrink-0">
+              <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-gradient-to-tr from-[var(--primaria)]/40 to-[var(--acento)]/40 text-white font-bold text-xs border border-white/10">
                 {artista[0].toUpperCase()}
               </div>
-              <p className="mt-2 truncate text-xs font-bold text-white group-hover:text-purple-300 transition-colors">{artista}</p>
+              <p className="mt-2 truncate text-xs font-bold text-white group-hover:text-[var(--primaria)] transition-colors">{artista}</p>
             </Link>
           ))}
         </div>
@@ -352,4 +316,3 @@ export default function Inicio() {
     </main>
   );
 }
-

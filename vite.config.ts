@@ -22,7 +22,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['offline.html', 'icons/icon.svg'],
       manifest: {
         name: 'WorshipFlow',
@@ -66,6 +66,27 @@ export default defineConfig({
             options: {
               cacheName: 'worshipflow-assets',
               expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 30 }
+            }
+          },
+          {
+            urlPattern: /\/proxy/,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'worshipflow-proxy'
+            }
+          },
+          {
+            urlPattern: /\/n8n/,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'worshipflow-n8n'
+            }
+          },
+          {
+            urlPattern: /firestore\.googleapis\.com/,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'worshipflow-firestore'
             }
           }
         ]

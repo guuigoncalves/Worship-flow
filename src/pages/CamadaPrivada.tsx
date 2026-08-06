@@ -9,6 +9,9 @@ import { useAuth } from '../hooks/useAuth';
 
 const abas = ['navidrome', 'frigate'] as const;
 
+const navidromeUser = import.meta.env.VITE_NAVIDROME_USER || '';
+const navidromePass = import.meta.env.VITE_NAVIDROME_PASS || '';
+
 export const CamadaPrivada: React.FC = () => {
     const { autorizado, loading, erro, albuns, buscarFaixas, recarregar, solicitarMusica } = useCamadaPrivada();
     const { user } = useAuth();
@@ -23,6 +26,31 @@ export const CamadaPrivada: React.FC = () => {
     const [usuario, setUsuario] = useState(user?.displayName || user?.email || '');
     const [carregandoPedido, setCarregandoPedido] = useState(false);
     const [mensagemPedido, setMensagemPedido] = useState<string | null>(null);
+
+    if (!navidromeUser || !navidromePass) {
+        return (
+            <div className="app-page fade-in">
+                <div className="flex items-center gap-3">
+                    <button className="btn-ghost text-xs" type="button" onClick={() => navigate(-1)}>
+                        <ArrowLeft size={16} />
+                        <span>Voltar</span>
+                    </button>
+                    <h1 className="text-2xl font-bold text-gradient">Camada Privada</h1>
+                </div>
+                <div className="mt-6">
+                    <div className="card p-6 border border-perigo/30 bg-perigo/10">
+                        <h2 className="text-base font-bold text-perigo mb-2">Credenciais do Navidrome não configuradas</h2>
+                        <p className="text-sm text-textoSecundario">
+                            As variáveis de ambiente <code className="font-mono text-perigo">VITE_NAVIDROME_USER</code> e <code className="font-mono text-perigo">VITE_NAVIDROME_PASS</code> precisam ser definidas na Vercel para que a camada privada funcione.
+                        </p>
+                        <p className="mt-2 text-xs text-textoSecundario">
+                            Sem essas credenciais, o proxy não pode autenticar no Navidrome e as requisições falharão com parâmetros vazios.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (!autorizado) {
         return (
