@@ -1,51 +1,97 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ---------- Funções auxiliares ----------
     function isAuthenticated() {
       return request.auth != null;
     }
-
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
-
-    match /{document=**} {
-      allow read, write: if isAuthenticated();
+    function isAdmin() {
+      // UID fixo do Guilherme — único admin do app (mesmo UID de VITE_ADM_UID)
+      return isAuthenticated() && request.auth.uid == 'Fy360vBRHeSmuMtzNJzn4jwZAKD2';
+    }
+    function isMembroEspaco(espacoId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/espacos/$(espacoId)/membros/$(request.auth.uid));
+    }
+    function papelEspaco(espacoId) {
+      return get(/databases/$(database)/documents/espacos/$(espacoId)/membros/$(request.auth.uid)).data.papel;
+    }
+    function podeEditarEspaco(espacoId) {
+      return isMembroEspaco(espacoId) &&
+        papelEspaco(espacoId) in ['dono', 'admin', 'editor'];
+    }
+    function ehDonoOuAdminEspaco(espacoId) {
+      return isMembroEspaco(espacoId) &&
+        papelEspaco(espacoId) in ['dono', 'admin'];
     }
 
-    match /usuarios/{userId} {
+    // ---------- users/{uid} e TODAS as subcoleções privadas ----------
+    // musicas, favoritos, historico, estatisticas, medleys, playlists,
+    // artistas, configuracoes, espacos (mirror local) — confirmado por
+    // useMusicas, useMedleys, usePlaylists, usePerfil, useEspacos.
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /{subcollection}/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ---------- Espaços ----------
+    match /espacos/{espacoId} {
+      allow read: if isMembroEspaco(espacoId);
+      allow update: if podeEditarEspaco(espacoId);
+      allow create: if isAuthenticated();
+      allow delete: if ehDonoOuAdminEspaco(espacoId);
+
+      match /membros/{membroId} {
+        allow read: if isMembroEspaco(espacoId);
+        // dono/admin gerencia qualquer membro; e o próprio usuário pode se
+        // adicionar UMA vez ao entrar via código (useEspacos: entrarComCodigo)
+        allow write: if ehDonoOuAdminEspaco(espacoId) ||
+          (isAuthenticated() && request.auth.uid == membroId);
+      }
+
+      match /musicas/{musicaId} {
+        allow read: if isMembroEspaco(espacoId);
+        allow write: if podeEditarEspaco(espacoId);
+      }
+    }
+
+    // ---------- Comunidade (coleção flat confirmada — sem subcoleções) ----------
+    match /comunidade/{itemId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId) || isAuthenticated();
+      // Envio: sempre como pendente (Regra #8 AGENTS.md), campo real = enviadaPor
+      allow create: if isAuthenticated() &&
+        request.resource.data.status == 'pendente' &&
+        request.resource.data.enviadaPor == request.auth.uid;
+      // Aprovar/rejeitar/marcar exclusão: só admin (useComunidade só chama
+      // update a partir de aprovarMusica/rejeitarMusica/exclusão)
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
-    match /musicas/{document=**} {
-      allow read, write: if isAuthenticated();
-    }
-    
-    match /cifras/{document=**} {
-      allow read, write: if isAuthenticated();
-    }
-
-    match /playlists/{document=**} {
-      allow read, write: if isAuthenticated();
-    }
-
-    match /espacos/{document=**} {
-      allow read, write: if isAuthenticated();
+    // ---------- Códigos de convite (get-only, sem list — confirmado) ----------
+    // OBS: na criação de um Espaço, o código é gravado ANTES do doc de membro
+    // 'dono' existir (useEspacos.tsx, criarEspaco: linha 72 antes da 73) —
+    // por isso o create checa donoUid no próprio doc de espacos, não o papel
+    // em /membros (que ainda não existe nesse instante).
+    match /codigos/{codigo} {
+      allow get: if isAuthenticated();
+      allow list: if false;
+      allow create: if isAuthenticated() &&
+        get(/databases/$(database)/documents/espacos/$(request.resource.data.espacoId)).data.donoUid == request.auth.uid;
+      allow update, delete: if isAuthenticated() &&
+        ehDonoOuAdminEspaco(resource.data.espacoId);
     }
 
-    match /comunidade/{document=**} {
-      allow read, write: if isAuthenticated();
-    }
-
-    match /solicitacoesComunidade/{document=**} {
-      allow read, write: if isAuthenticated();
-    }
-
-    match /solicitacoesExclusao/{document=**} {
-      allow read, write: if isAuthenticated();
+    // ---------- Fallback: negar tudo que não foi listado acima ----------
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
