@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChevronLeft, ChevronRight, Music2, Save, PenLine } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Music2, Save, PenLine, Play, Pause } from 'lucide-react';
 import { useEspacos, useEspacoDetalhe } from '../hooks/useEspacos';
 import { ExibicaoCifra } from '../components/apresentacao/ExibicaoCifra';
 import { useRolagemAutomatica } from '../components/apresentacao/RolagemAutomatica';
@@ -62,15 +62,15 @@ export default function ModoPreparacao() {
 
   if (loading) {
     return (
-      <main className="app-page grid place-items-center text-textoSecundario">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primaria border-t-transparent" />
+      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+        <div className="w-8 h-8 border-2 border-[var(--primaria)] border-t-transparent rounded-full animate-spin" />
       </main>
     );
   }
 
   if (!musicaAtual || musicas.length === 0) {
     return (
-      <main className="app-page space-y-6 fade-in">
+      <main className="app-page space-y-6 fade-in" style={{ backgroundColor: '#0B0C10' }}>
         <div className="flex items-center gap-3">
           <button className="btn-ghost text-xs" type="button" onClick={() => navigate(`/espaco/${id}`)}>
             <ArrowLeft size={16} />
@@ -84,26 +84,39 @@ export default function ModoPreparacao() {
   }
 
   return (
-    <main className="app-page fade-in">
-      <div className="flex items-center justify-between gap-3">
+    <main className="app-page fade-in" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="flex items-center justify-between gap-3 pb-4">
         <div className="flex items-center gap-3">
           <button className="btn-ghost text-xs" type="button" onClick={() => navigate(`/espaco/${id}`)}>
             <ArrowLeft size={16} />
             <span>Voltar</span>
           </button>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primaria">Modo de Preparação</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--primaria)]">Modo de Preparação</p>
             <h1 className="m-0 font-display text-xl font-bold text-gradient">{espaco?.nome ?? '…'}</h1>
           </div>
         </div>
-        <span className="text-xs text-textoSecundario">
+        <span className="text-xs text-white/50">
           {indice + 1} de {musicas.length}
         </span>
       </div>
 
-      <div className="mt-4 card p-3 bg-[var(--superficie-alta)] border border-[var(--borda)]">
+      <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar mb-4">
+        {musicas.map((m, idx) => (
+          <button
+            key={m.id}
+            type="button"
+            className={`chip shrink-0 text-xs ${idx === indice ? 'chip-active' : ''}`}
+            onClick={() => setIndice(idx)}
+          >
+            {m.titulo}
+          </button>
+        ))}
+      </div>
+
+      <div className="card p-3 bg-[var(--superficie-alta)] border border-[var(--borda)]">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={voltar} disabled={indice === 0}>
               <ChevronLeft size={18} />
             </button>
@@ -115,7 +128,7 @@ export default function ModoPreparacao() {
                 <p className="truncate font-semibold text-sm">{musicaAtual.titulo}</p>
                 <span className="chip text-[10px] px-1.5 py-0.5 border-[var(--borda)]">{musicaAtual.tom}</span>
               </div>
-              <p className="truncate text-xs text-textoSecundario">{musicaAtual.artista}</p>
+              <p className="truncate text-xs text-white/50">{musicaAtual.artista}</p>
             </div>
           </div>
 
@@ -125,8 +138,8 @@ export default function ModoPreparacao() {
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
-            <div className={`h-3 w-3 rounded-full ${metronomeAtivo ? (batida === 0 ? 'bg-primaria' : 'bg-acento') : 'bg-white/20'}`} />
-            <button className={`btn-ghost h-9 px-2 text-xs ${metronomeAtivo ? 'text-primaria' : ''}`} type="button" onClick={() => setMetronomeAtivo((v) => !v)}>
+            <div className={`h-3 w-3 rounded-full ${metronomeAtivo ? (batida === 0 ? 'bg-[var(--primaria)]' : 'bg-[var(--acento)]') : 'bg-white/20'}`} />
+            <button className={`btn-ghost h-9 px-2 text-xs ${metronomeAtivo ? 'text-[var(--primaria)]' : ''}`} type="button" onClick={() => setMetronomeAtivo((v) => !v)}>
               <Music2 size={14} />
               {bpm} BPM
             </button>
@@ -137,7 +150,7 @@ export default function ModoPreparacao() {
         </div>
 
         <div className="mt-2 flex items-center gap-3">
-          <label className="flex items-center gap-1.5 text-xs text-textoSecundario">
+          <label className="flex items-center gap-1.5 text-xs text-white/50">
             <input type="checkbox" checked={autoScroll} onChange={(event) => setAutoScroll(event.target.checked)} className="accent-[var(--primaria)]" />
             Auto-scroll
           </label>
@@ -155,21 +168,21 @@ export default function ModoPreparacao() {
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div ref={scrollRef} className="card overflow-y-auto p-4 sm:p-6" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+        <div ref={scrollRef} className="card overflow-y-auto p-4 sm:p-6" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           <ExibicaoCifra letra={letraTransposta} acordesProibidos={[]} modo="ambos" tamanho={tamanho} possuiCifra={true} formato="acima" />
         </div>
 
         <div className="space-y-4">
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-2">
-              <PenLine size={16} className="text-primaria" />
+              <PenLine size={16} className="text-[var(--primaria)]" />
               <h2 className="text-sm font-semibold">Anotações do Ensaio</h2>
             </div>
-            <p className="text-xs text-textoSecundario mb-2">
+            <p className="text-xs text-white/50 mb-2">
               {musicaAtual.titulo}
             </p>
             <textarea
-              className="input min-h-[120px] resize-y text-xs"
+              className="input min-h-[120px] resize-y text-xs w-full"
               value={nota}
               onChange={(event) => setNota(event.target.value)}
               placeholder="Ex: Intro no piano solista; pular 2º verso; solo de guitarra antes do ponte…"

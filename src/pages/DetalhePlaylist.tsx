@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Music, Play, Plus, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, Music, Play, Plus, Search, Trash2, GripVertical } from 'lucide-react';
 import { CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { PainelDeslizante } from '../components/compartilhado/PainelDeslizante';
@@ -10,7 +10,7 @@ import { useFila } from '../hooks/useFila';
 import { useToast } from '../hooks/useToast';
 import type { Musica } from '../types';
 
-export const DetalhePlaylist: React.FC = () => {
+export default function DetalhePlaylist() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { playlists, adicionarFaixa, removerFaixa } = usePlaylists();
@@ -24,9 +24,9 @@ export const DetalhePlaylist: React.FC = () => {
 
   if (!playlist) {
     return (
-      <div className="app-page fade-in">
+      <main className="app-page fade-in" style={{ backgroundColor: '#0B0C10' }}>
         <EstadoVazio titulo="Playlist não encontrada" texto="Volte para as playlists e selecione outra." />
-      </div>
+      </main>
     );
   }
 
@@ -36,11 +36,13 @@ export const DetalhePlaylist: React.FC = () => {
     event.preventDefault();
     event.stopPropagation();
     await removerFaixa(playlist!.id, musicaId);
+    showToast('Faixa removida', 'sucesso');
   }
 
   async function handleAdicionarFaixa(musicaId: string) {
     await adicionarFaixa(playlist!.id, musicaId);
     setAdicionarAberto(false);
+    showToast('Música adicionada', 'sucesso');
   }
 
   function tocarPlaylist() {
@@ -61,106 +63,73 @@ export const DetalhePlaylist: React.FC = () => {
   });
 
   return (
-    <div className="app-page space-y-5 pb-24 fade-in">
-      {/* Nav top */}
-      <div className="flex items-center justify-between gap-3">
-        <button onClick={() => navigate(-1)} className="btn-ghost h-9 w-9 p-0">
-          <ArrowLeft size={16} />
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+      <header className="flex items-center justify-between gap-3">
+        <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+          <ArrowLeft size={18} />
         </button>
-        <button
-          className="btn-ghost py-2 px-3 text-sm flex items-center gap-2"
-          type="button"
-          onClick={() => setAdicionarAberto(true)}
-        >
-          <Plus className="h-4 w-4" />
-          Adicionar
+        <h1 className="text-xl font-bold text-gradient truncate">{playlist.nome}</h1>
+        <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => setAdicionarAberto(true)} aria-label="Adicionar música">
+          <Plus size={18} />
         </button>
-      </div>
+      </header>
 
-      {/* Banner da playlist */}
-      <div
-        className="rounded-2xl p-5 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgba(162,89,255,0.2) 0%, rgba(91,141,239,0.1) 100%)', border: '1px solid rgba(162,89,255,0.25)' }}
-      >
-        {/* Decoração de fundo */}
-        <div
-          className="absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, #A259FF 0%, transparent 70%)' }}
-        />
-
-        <div className="relative flex items-center gap-4">
-          <div className="shrink-0">
-            <CapaMusica titulo={playlist.nome} tamanho="lg" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gradient">{playlist.nome}</h1>
-            {playlist.descricao && (
-              <p className="mt-1 text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>{playlist.descricao}</p>
-            )}
-            <div className="mt-2 flex items-center gap-3">
-              <span
-                className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                style={{ background: 'rgba(162,89,255,0.2)', color: '#A259FF' }}
-              >
-                {playlist.faixas.length} {playlist.faixas.length === 1 ? 'faixa' : 'faixas'}
-              </span>
-            </div>
-          </div>
+      <div className="card p-5 bg-[var(--primaria-dim)] border border-[var(--borda)] flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <CapaMusica titulo={playlist.nome} tamanho="lg" className="w-20 h-20 text-xl" />
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="text-[10px] uppercase font-bold text-[var(--primaria)] tracking-wider">Playlist</p>
+          <h2 className="text-lg font-bold text-white truncate">{playlist.nome}</h2>
+          {playlist.descricao && (
+            <p className="text-xs text-white/50">{playlist.descricao}</p>
+          )}
+          <p className="text-xs text-white/40">{playlist.faixas.length} {playlist.faixas.length === 1 ? 'faixa' : 'faixas'}</p>
         </div>
-
-        {/* Botão hero Tocar */}
         <button
-          className="btn-primary mt-4 w-full flex items-center justify-center gap-2"
+          className="btn-primary py-3 px-5 text-xs flex items-center gap-2 shrink-0"
           type="button"
           onClick={() => tocarPlaylist()}
           disabled={playlist.faixas.length === 0}
-          style={{ opacity: playlist.faixas.length === 0 ? 0.5 : 1 }}
         >
-          <Play className="h-5 w-5" fill="currentColor" />
-          Tocar playlist
+          <Play size={16} />
+          <span>Tocar Tudo</span>
         </button>
       </div>
 
-      {/* Lista de faixas */}
-      <div>
+      <section>
         <div className="mb-3 flex items-center gap-2">
-          <Music size={14} style={{ color: '#A259FF' }} />
-          <span className="text-sm font-semibold">Faixas</span>
+          <Music size={14} className="text-[var(--primaria)]" />
+          <span className="text-sm font-semibold text-white/70">Faixas</span>
+          <span className="text-xs text-white/40">{faixasMusicas.length}</span>
         </div>
 
         {faixasMusicas.length === 0 ? (
           <EstadoVazio titulo="Nenhuma faixa adicionada" texto="Clique em 'Adicionar' para incluir músicas da sua biblioteca." />
         ) : (
-          <div className="card divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+          <div className="card divide-y divide-white/5">
             {faixasMusicas.map((musica, index) => (
-              <div key={musica.id} className="flex items-center gap-3 p-3">
-                {/* Número */}
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
-                  style={{ background: 'rgba(162,89,255,0.12)', color: '#A259FF' }}
-                >
-                  {index + 1}
-                </span>
-
-                <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-sm">{musica.titulo}</p>
-                  <p className="truncate text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{musica.artista}</p>
+              <div
+                key={musica.id}
+                className="flex items-center gap-3 p-3 hover:bg-white/5 transition-colors group"
+              >
+                <div className="flex items-center gap-2 shrink-0">
+                  <GripVertical size={14} className="text-white/20 group-hover:text-white/40" />
+                  <span className="text-xs font-mono font-bold text-white/40 w-5 text-center">{index + 1}</span>
                 </div>
-
-                {/* Badge tom */}
-                <span
-                  className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-bold"
-                  style={{ background: 'rgba(162,89,255,0.12)', color: '#A259FF', border: '1px solid rgba(162,89,255,0.25)' }}
+                <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-white truncate group-hover:text-[var(--primaria)] transition-colors">{musica.titulo}</p>
+                  <p className="text-[10px] text-white/50 truncate">{musica.artista || 'Artista'}</p>
+                </div>
+                <button
+                  className="p-2 rounded-lg bg-[var(--primaria-dim)] hover:bg-[var(--primaria)]/30 text-[var(--primaria)] hover:text-white transition-colors shrink-0"
+                  title="Tocar"
+                  onClick={() => adicionarFila(musica.id)}
                 >
-                  {musica.tom}
-                </span>
-
-                {/* Remover */}
+                  <Play size={14} fill="currentColor" />
+                </button>
                 <button
                   type="button"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors shrink-0"
                   style={{ background: 'rgba(224,64,64,0.08)', color: '#E04040' }}
                   onClick={(e) => void handleRemoverFaixa(musica.id, e)}
                   aria-label={`Remover ${musica.titulo}`}
@@ -171,13 +140,12 @@ export const DetalhePlaylist: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Painel Adicionar */}
       <PainelDeslizante aberto={adicionarAberto} titulo="Adicionar música" onClose={() => setAdicionarAberto(false)}>
         <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-textoSecundario" aria-hidden="true" />
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" aria-hidden="true" />
             <input
               className="input pl-10"
               value={consulta}
@@ -198,22 +166,20 @@ export const DetalhePlaylist: React.FC = () => {
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
-                    <span className="min-w-0 truncate">{musica.titulo}</span>
+                    <span className="min-w-0 truncate text-sm">{musica.titulo}</span>
                   </div>
                   {jaTem ? (
-                    <span className="text-xs text-sucesso">✓</span>
+                    <span className="text-xs text-[var(--sucesso)]">✓</span>
                   ) : (
-                    <Plus className="h-4 w-4 text-primaria" />
+                    <Plus className="h-4 w-4 text-[var(--primaria)]" />
                   )}
                 </button>
               );
             })}
-            {resultadosBusca.length === 0 ? <p className="text-sm text-textoSecundario">Nenhuma música encontrada.</p> : null}
+            {resultadosBusca.length === 0 ? <p className="text-sm text-white/50">Nenhuma música encontrada.</p> : null}
           </div>
         </div>
       </PainelDeslizante>
-    </div>
+    </main>
   );
-};
-
-export default DetalhePlaylist;
+}
