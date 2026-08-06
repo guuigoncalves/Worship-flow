@@ -80,6 +80,15 @@ function ProtectedRoute() {
   return <Outlet />;
 }
 
+function LoginRedirect() {
+  const { user } = useAuth();
+  const location = useLocation();
+  if (user && location.pathname === '/login') {
+    return <Navigate to="/" replace />;
+  }
+  return null;
+}
+
 function Shell() {
   const location = useLocation();
   const performanceMode = location.pathname.startsWith('/tocar/');
@@ -91,7 +100,7 @@ function Shell() {
       <IndicadorOffline />
       <Suspense fallback={<div className="app-page grid place-items-center text-textoSecundario">{t('common.loading')}</div>}>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<><LoginRedirect /><Login /></>} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Inicio />} />
             <Route path="/musica" element={<Musica />} />

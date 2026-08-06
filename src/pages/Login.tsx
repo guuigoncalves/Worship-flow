@@ -1,21 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Globe } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInGoogle, signInEmail } = useAuth();
+  const { signInGoogle, signInEmail, user } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
     try {
       await signInEmail(email, senha);
+      navigate('/');
+    } catch {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setLoading(true);
+    try {
+      await signInGoogle();
       navigate('/');
     } catch {
       setLoading(false);
@@ -98,7 +114,8 @@ export default function Login() {
         <button
           type="button"
           className="btn-ghost w-full py-3 text-sm font-medium flex items-center justify-center gap-2 border border-white/10"
-          onClick={() => void signInGoogle()}
+          onClick={handleGoogleLogin}
+          disabled={loading}
         >
           <Globe size={18} />
           Continuar com Google
