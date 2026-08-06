@@ -15,7 +15,6 @@ import { PlayerProvider } from './hooks/usePlayer';
 import { ErrorBoundary } from './components/compartilhado/ErrorBoundary';
 import { IndicadorOffline } from './components/compartilhado/Indicador';
 import { InstallBanner } from './components/compartilhado/InstallBanner';
-import { NavegacaoInferior } from './components/compartilhado/NavegacaoInferior';
 import { Toasts } from './components/compartilhado/Toast';
 import { MiniPlayer } from './components/player/MiniPlayer';
 
@@ -135,7 +134,6 @@ function Shell() {
       </Suspense>
       {!performanceMode && !publicAuthMode ? (
         <>
-          <NavegacaoInferior />
           <MiniPlayer />
           <InstallBanner />
         </>
