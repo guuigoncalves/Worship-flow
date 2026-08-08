@@ -42,19 +42,29 @@ export function NavegacaoInferior() {
     <>
       {/* Dock flutuante — mobile */}
       <nav className="fixed inset-x-3 bottom-3 z-40 md:hidden">
-        <div className="nav-dock mx-auto grid max-w-md grid-cols-4 gap-1 p-1.5">
+        <div className="mx-auto grid max-w-md grid-cols-4 gap-1 p-1.5 rounded-3xl bg-[#141522]/90 border border-white/10 backdrop-blur-2xl shadow-2xl shadow-purple-950/40">
           {principais.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} end={to === '/'} className="flex min-w-0 flex-col items-center gap-0.5 rounded-2xl px-1 py-2.5 text-[11px] text-textoSecundario">
+            <NavLink key={to} to={to} end={to === '/'} className="flex min-w-0 flex-col items-center">
               {({ isActive }) => (
-                <span className={`nav-dock-item flex w-full flex-col items-center gap-0.5 rounded-2xl px-1 py-1 ${isActive ? 'text-fundo' : ''}`} data-active={isActive}>
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                <span
+                  className={`flex w-full flex-col items-center gap-1 rounded-2xl py-2 px-1 text-[11px] font-semibold transition-all ${
+                    isActive
+                      ? 'bg-purple-600/30 text-purple-300 border border-purple-500/40'
+                      : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
                   <span className="w-full truncate text-center">{label}</span>
                 </span>
               )}
             </NavLink>
           ))}
-          <button type="button" className="flex min-w-0 flex-col items-center gap-0.5 rounded-2xl px-1 py-2.5 text-[11px] text-textoSecundario" onClick={() => setMaisAberto(true)}>
-            <Menu className="h-5 w-5" aria-hidden="true" />
+          <button
+            type="button"
+            className="flex min-w-0 flex-col items-center gap-1 rounded-2xl py-2 px-1 text-[11px] font-semibold text-white/50 hover:text-white hover:bg-white/5 border border-transparent transition-all"
+            onClick={() => setMaisAberto(true)}
+          >
+            <Menu className="h-5 w-5 shrink-0" aria-hidden="true" />
             <span>Mais</span>
           </button>
         </div>
