@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Copy, LogIn, Plus, Users, ChevronRight } from 'lucide-react';
+import { Header } from '../components/aurora';
 import { PainelDeslizante } from '../components/compartilhado/PainelDeslizante';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+
 import { useEspacos } from '../hooks/useEspacos';
 import { useToast } from '../hooks/useToast';
 import type { Espaco } from '../types';
@@ -62,24 +64,27 @@ export default function Espacos() {
 
   return (
     <main className="app-page fade-in space-y-5 pb-32" style={{ backgroundColor: '#0B0C10' }}>
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A259FF' }}>Colaboração</p>
-          <h1 className="m-0 font-display text-3xl font-bold text-gradient">Meus Espaços</h1>
-        </div>
+      {/* Header Aurora */}
+      <Header subtitulo="Colaboração e Ministério" />
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-white/70">Meus Espaços</h2>
         <div className="flex gap-2">
           <button
-            className="btn-ghost text-sm flex items-center gap-2"
+            className="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold text-white transition-all flex items-center gap-1.5"
             type="button"
             onClick={() => setEntrarAberto(true)}
           >
-            <LogIn className="h-4 w-4" />
-            Entrar em um espaço
+            <LogIn className="h-3.5 w-3.5" />
+            Entrar com código
           </button>
-          <button className="btn-primary text-sm" type="button" onClick={() => setCriarAberto(true)}>
-            <Plus className="h-4 w-4" />
-            Criar
+          <button
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-xs font-bold text-fundo shadow-lg shadow-purple-900/20 hover:opacity-90 transition-all flex items-center gap-1.5"
+            type="button"
+            onClick={() => setCriarAberto(true)}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Criar Espaço
           </button>
         </div>
       </div>
