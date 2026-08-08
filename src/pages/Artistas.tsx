@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
-import { SectionHeader, Avatar } from '../components/aurora';
+import { SectionHeader, Avatar, Header } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+
 import { User, Search, ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -30,15 +31,17 @@ export default function Artistas() {
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center justify-between pt-1">
-        <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+      <Header subtitulo="Artistas e Ministérios" />
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <button className="h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
           <ArrowLeft size={18} />
         </button>
-        <h1 className="text-xl font-bold text-gradient">Artistas</h1>
-        <button className="btn-ghost h-9 w-9 p-0" type="button" aria-label="Buscar" onClick={() => navigate('/busca-rapida')}>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-white/70">Artistas ({artistas.length})</h2>
+        <button className="h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors" type="button" aria-label="Buscar" onClick={() => navigate('/busca-rapida')}>
           <Search size={18} />
         </button>
-      </header>
+      </div>
 
       {artistas.length === 0 ? (
         <EstadoVazio
