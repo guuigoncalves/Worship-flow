@@ -17,6 +17,7 @@ import { IndicadorOffline } from './components/compartilhado/Indicador';
 import { InstallBanner } from './components/compartilhado/InstallBanner';
 import { Toasts } from './components/compartilhado/Toast';
 import { MiniPlayer } from './components/player/MiniPlayer';
+import { NavegacaoInferior } from './components/compartilhado/NavegacaoInferior';
 
 const Inicio = lazy(() => import('./pages/Inicio'));
 const Login = lazy(() => import('./pages/Login'));
@@ -134,6 +135,7 @@ function Shell() {
       </Suspense>
       {!performanceMode && !publicAuthMode ? (
         <>
+          <NavegacaoInferior />
           <MiniPlayer />
           <InstallBanner />
         </>

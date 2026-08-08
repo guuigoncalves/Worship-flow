@@ -158,7 +158,7 @@ export default function Inicio() {
           </div>
 
           <button
-            onClick={() => navigate('/tocar')}
+            onClick={() => navigate('/player')}
             className="btn-primary text-xs py-2.5 px-5 flex items-center justify-center gap-2 rounded-2xl font-bold shadow-lg shadow-[var(--primaria)]/30 shrink-0 cursor-pointer"
           >
             <Radio size={16} />

@@ -111,7 +111,7 @@ export default function Musica() {
         <button
           type="button"
           className="card flex flex-col items-center gap-2 rounded-2xl border border-purple-500/20 bg-slate-900/60 p-3 text-center hover:border-purple-500/40 transition-all group"
-          onClick={() => navigate('/tocar')}
+          onClick={() => navigate('/player')}
         >
           <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20 transition-colors">
             <Play size={18} />
