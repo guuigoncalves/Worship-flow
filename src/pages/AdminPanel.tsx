@@ -93,18 +93,18 @@ export default function AdminPanel() {
                     <button
                       type="button"
                       onClick={() => void aprovarMusica(musica.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors"
                     >
-                      <Check size={14} />
-                      Aprovar
+                      <Check className="w-4 h-4 shrink-0" />
+                      <span>Aprovar</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => void rejeitarMusica(musica.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors"
                     >
-                      <X size={14} />
-                      Rejeitar
+                      <X className="w-4 h-4 shrink-0" />
+                      <span>Rejeitar</span>
                     </button>
                   </div>
                 </div>
@@ -149,16 +149,18 @@ export default function AdminPanel() {
                     <button
                       type="button"
                       onClick={() => void aprovarExclusaoPermanente(item.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors"
                     >
-                      Aprovar exclusão
+                      <X className="w-4 h-4 shrink-0" />
+                      <span>Aprovar exclusão</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => void rejeitarExclusaoRestaurar(item.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-semibold border border-white/10 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-semibold border border-white/10 transition-colors"
                     >
-                      Rejeitar
+                      <Check className="w-4 h-4 shrink-0" />
+                      <span>Rejeitar</span>
                     </button>
                   </div>
                 </div>
