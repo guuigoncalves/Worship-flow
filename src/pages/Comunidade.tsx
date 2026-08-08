@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, MessageCircle, Plus, Search, Bell, Globe, User } from 'lucide-react';
 import { useComunidade } from '../hooks/useComunidade';
 import { useAuth } from '../hooks/useAuth';
-import { SectionHeader, Avatar } from '../components/aurora';
+import { SectionHeader, Avatar, Header } from '../components/aurora';
+
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useToast } from '../hooks/useToast';
 
@@ -64,25 +65,19 @@ export default function Comunidade() {
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
-          <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
-            <ArrowLeft size={18} />
-          </button>
-          <div className="flex items-center gap-2">
-            <Globe size={20} className="text-[var(--primaria)]" />
-            <h1 className="text-xl font-bold text-gradient">Comunidade</h1>
-          </div>
-        </div>
+      <Header subtitulo="Compartilhamento e Feed" />
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <button className="h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+          <ArrowLeft size={18} />
+        </button>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-white/70">Feed da Comunidade</h2>
         <div className="flex items-center gap-2">
-          <button className="btn-ghost h-9 w-9 p-0" type="button" aria-label="Notificações">
+          <button className="h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors" type="button" aria-label="Notificações">
             <Bell size={18} />
           </button>
-          <button className="btn-ghost h-9 w-9 p-0" type="button" aria-label="Buscar">
-            <Search size={18} />
-          </button>
         </div>
-      </header>
+      </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         {[
