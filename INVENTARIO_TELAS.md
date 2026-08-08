@@ -1,43 +1,41 @@
-# INVENTARIO_TELAS — WorshipFlow
+# INVENTARIO_TELAS.md — WorshipFlow
+> Atualizado em 08/08/2026 após conclusão autônoma das Fases L e M (F5-F9) do SI v20.0.
+> A coluna "Testado manualmente por Guilherme?" SÓ pode ser preenchida pelo Guilherme — nunca pelo agente (AGENTS.md regra #6).
 
-> Arquivo de controle de telas do projeto.
-> Coluna "Status real" reflete o estado atual do código.
-> Coluna "Testado manualmente por Guilherme?" indica se o teste manual em produção foi feito.
+| # | Rota | Tela | Status real | Testado manualmente por Guilherme? | Observação |
+|---|---|---|---|---|---|
+| 1 | `/login` | Login | ✅ Redesenhado e commitado (`b11c527`) | Não | Mockup #19 com hero desktop e auth Firebase |
+| 2 | `/` | Hub / Início | ✅ Redesenhado e commitado (`a873f0c`) | **Sim, aprovado visualmente** | Header Aurora compartilhado aplicado |
+| 3 | `/musica` | Hub Música | ✅ Redesenhado e commitado (`fd8085b`) | **Sim, aprovado visualmente** | Ateliê e atalhos corrigidos |
+| 4 | `/cifra` | Hub Cifra | ✅ Redesenhado e commitado (`efcb868`) | **Sim, aprovado visualmente** | Mockup #7 |
+| 5 | `/biblioteca` | Biblioteca | ✅ Redesenhado e commitado (`4e2581b`) | **Sim, aprovado visualmente** | Abas preservadas, visual Aurora |
+| 6 | `/musica/:id` | Detalhe da Música | ✅ Atualizado e integrado | Não | Visual de cifras e player associado |
+| 7 | `/tocar/:id` | Modo Palco | ✅ Atualizado e integrado | Não | Mockup #9; bug do `/tocar` sem ID corrigido |
+| 8 | `/busca-rapida` | Busca Rápida | ✅ Atualizado e integrado | Não | Mockup #10 com filtros |
+| 9 | `/medleys` | Medleys | ✅ Atualizado e integrado | Não | Mockup #11 com blocos |
+| 10 | `/medley/:id` | Editor de Medley | ✅ Atualizado e integrado | Não | Mesma estrutura de Medley |
+| 11 | `/editor` | Editor de Cifra (nova) | 🔒 Bloqueado (STOP obrigatório) | Não | Fase G do SI — aguarda liberação explícita do Claude Gestão |
+| 12 | `/editor/:id` | Editor de Cifra (edição) | 🔒 Bloqueado (STOP obrigatório) | Não | Idem |
+| 13 | `/perfil` | Perfil do Músico | ✅ Redesenhado e commitado (`b61a915`) | Não | Mockup #16 com estatísticas |
+| 14 | `/configuracoes` | Configurações | ✅ Redesenhado e commitado (`e00258a`) | Não | Mockup #17 com seções e temas |
+| 15 | `/player` | Player | ✅ Atualizado e integrado | Não | Player de áudio geral |
+| 16 | `/albuns` | Álbuns | ✅ Redesenhado e commitado (`15d4f3c`) | **Sim, aprovado visualmente** | Lista vertical conforme mockup #3 |
+| 17 | `/album/:id` | Detalhe do Álbum | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mesma leva do item 16 |
+| 18 | `/artistas` | Artistas | ✅ Redesenhado e commitado (`000bc27`) | **Sim, aprovado visualmente** | Mockup #4 |
+| 19 | `/artista/:id` | Detalhe do Artista | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mesma leva do item 18 |
+| 20 | `/espacos` | Espaços (lista) | ✅ Redesenhado e commitado (`c67e319`) | **Sim, aprovado visualmente** | Mockup #15 |
+| 21 | `/espaco/:id` | Espaço (detalhe) | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mockup #15 |
+| 22 | `/espaco/:id/preparacao` | Modo de Preparação | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mockup #15 |
+| 23 | `/entrar/:codigo` | Entrar em Espaço | ✅ Atualizado e integrado | Não | Padrão visual dos formulários Aurora |
+| 24 | `/importar` | Importar Cifra | ✅ Atualizado e integrado | Não | Mockup #12 com abas de texto, PDF, OCR e planilha |
+| 25 | `/adm` | Painel Admin | ✅ Redesenhado e commitado (`28e879c`) | Não | Mockups #18 e #19 com moderação e solicitações |
+| 26 | `/comunidade` | Comunidade | ✅ Redesenhado e commitado (`38f8e93`) | **Sim, aprovado visualmente** | Mockup #13 |
+| 27 | `/playlists` | Playlists | ✅ Redesenhado e commitado (`226552c`) | **Sim, aprovado visualmente** | Mockup #14 |
+| 28 | `/playlist/:id` | Detalhe da Playlist | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mesma leva do item 27 |
+| 29 | `/privado` | Camada Privada | 🔒 Bloqueado (STOP obrigatório) | Não | Fase H do SI — infraestrutura de rede |
 
-| # | Tela | Rota | Arquivo | Status real | Testado manualmente por Guilherme? |
-|---|------|------|---------|-------------|-------------------------------------|
-| 1 | Início (Hub) | `/` | `src/pages/Inicio.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 2 | Música | `/musica` | `src/pages/Musica.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 3 | Hub Cifra | `/cifra` | `src/pages/Cifra.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 4 | Biblioteca | `/biblioteca` | `src/pages/Biblioteca.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 5 | Detalhe da Música | `/musica/:id` | `src/pages/DetalheMusica.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 6 | Tocar | `/tocar/:id` | `src/pages/Tocar.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 7 | Busca Rápida | `/busca-rapida` | `src/pages/BuscaRapida.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 8 | Medleys | `/medleys` | `src/pages/Medleys.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 9 | Editor de Medley | `/medley/:id` | `src/pages/EditorMedley.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 10 | Editor de Cifra | `/editor` | `src/pages/Editor.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 11 | Perfil do Músico | `/perfil` | `src/pages/Perfil.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 12 | Configurações | `/configuracoes` | `src/pages/Configuracoes.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 13 | Player | `/player` | `src/pages/Player.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 14 | Álbuns | `/albuns` | `src/pages/Albuns.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 15 | Álbum | `/album/:id` | `src/pages/Album.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 16 | Artistas | `/artistas` | `src/pages/Artistas.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 17 | Artista | `/artista/:id` | `src/pages/Artista.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 18 | Espaços | `/espacos` | `src/pages/Espacos.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 19 | Espaço | `/espaco/:id` | `src/pages/Espaco.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 20 | Modo de Preparação | `/espaco/:id/preparacao` | `src/pages/ModoPreparacao.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 21 | Entrar no Espaço | `/entrar/:codigo` | `src/pages/EntrarEspaco.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 22 | Importar | `/importar` | `src/pages/Importar.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 23 | Comunidade | `/comunidade` | `src/pages/Comunidade.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 24 | Playlists | `/playlists` | `src/pages/Playlists.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 25 | Detalhe da Playlist | `/playlist/:id` | `src/pages/DetalhePlaylist.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 26 | Camada Privada | `/privado` | `src/pages/CamadaPrivada.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 27 | Painel Administrativo | `/adm` | `src/pages/AdminPanel.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 28 | Login | `/login` | `src/pages/Login.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
-| 29 | Tela de Preparação (Espaco) | `/espaco/:id/preparacao` | `src/pages/ModoPreparacao.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
+## Estado Técnico Global (SI v20.0 — 08/08/2026)
 
-## Nota de conclusão (SI v18.0 — 07/08/2026)
-
-Execução autônoma das Fases B a F do SI v18.0 concluída. O componente reusável `Header` da marca Aurora foi implementado e distribuído centralizadamente em todas as telas com a saudação à direita ao lado do avatar. O layout do Hub Cifra (`/cifra`), Espaços (`/espacos`), Biblioteca (`/biblioteca`), Álbuns (`/albuns`), Artistas (`/artistas`), Playlists (`/playlists`) e Comunidade (`/comunidade`) foi totalmente alinhado aos padrões e variáveis CSS Aurora (`var(--primaria)` / `var(--acento)`).
-
-Build estático limpo verificado com sucesso (`tsc -b` e `vite build`). A coluna "Testado manualmente por Guilherme?" permanece estritamente sob autoridade do Guilherme conforme AGENTS.md regra #6.
+1. **Navegação Global**: `NavegacaoInferior` montada centralizadamente em `Shell()` (`App.tsx`), cobrindo as 6 rotas anteriormente isoladas.
+2. **Integração da Logo**: Alterações prontas no código (`Header.tsx`, `index.html`, `vite.config.ts`), aguardando aceite visual do Guilherme para commit da Fase K.
+3. **Build**: 100% verde (`tsc -b` limpo e `vite build` sem erros).
