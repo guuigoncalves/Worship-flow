@@ -1,109 +1,107 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Check, X, LogOut, Shield, Trash2, Users, RotateCcw, Activity, FolderOpen, Clock, AlertCircle } from 'lucide-react';
-import { SectionHeader, CapaMusica, Avatar } from '../components/aurora';
+import { Check, X, Shield, Eye, Bell, User } from 'lucide-react';
+import { CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useAuth } from '../hooks/useAuth';
 import { useComunidade } from '../hooks/useComunidade';
-import { useMusicas } from '../hooks/useMusicas';
-
-const adminTabs = ['pendentes', 'gestao', 'logs'] as const;
 
 export default function AdminPanel() {
   const { user } = useAuth();
   const { pendentes, solicitacoesExclusao, aprovarMusica, rejeitarMusica, aprovarExclusaoPermanente, rejeitarExclusaoRestaurar } = useComunidade();
-  const { musicas } = useMusicas();
   const isAdmin = Boolean(user?.uid && import.meta.env.VITE_ADM_UID && user.uid === import.meta.env.VITE_ADM_UID);
-  const [tab, setTab] = useState<(typeof adminTabs)[number]>('pendentes');
+  const [abaAtiva, setAbaAtiva] = useState<'moderacao' | 'exclusao'>('moderacao');
 
   if (!isAdmin) return <Navigate to="/" replace />;
 
-  const totalMusicos = musicas.length;
-  const totalCifras = musicas.length;
-  const pendentesCount = pendentes.length;
-
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center gap-3 pt-1">
-        <Shield size={20} className="text-[var(--primaria)]" />
-        <h1 className="text-xl font-bold text-gradient">Painel Administrativo</h1>
+      {/* Header Admin */}
+      <header className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+            <Shield size={20} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white">Painel Admin</h1>
+            <p className="text-[10px] text-white/40">Gestão de conteúdo e solicitações</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button type="button" className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white transition-colors">
+            <Bell size={18} />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-purple-600 grid place-items-center text-white font-bold text-xs">
+            <User size={16} />
+          </div>
+        </div>
       </header>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="card p-4 text-center border border-white/10">
-          <div className="flex items-center justify-center gap-1.5 mb-1">
-            <Users size={16} style={{ color: 'var(--primaria)' }} />
-            <span className="text-xl font-bold" style={{ color: 'var(--primaria)' }}>{totalMusicos}</span>
-          </div>
-          <p className="text-[10px] text-white/40">Cifras no Acervo</p>
-        </div>
-        <div className="card p-4 text-center border border-white/10">
-          <div className="flex items-center justify-center gap-1.5 mb-1">
-            <FolderOpen size={16} style={{ color: 'var(--primaria)' }} />
-            <span className="text-xl font-bold" style={{ color: 'var(--primaria)' }}>{totalCifras}</span>
-          </div>
-          <p className="text-[10px] text-white/40">Total de Músicos</p>
-        </div>
-        <div className="card p-4 text-center border border-white/10">
-          <div className="flex items-center justify-center gap-1.5 mb-1">
-            <AlertCircle size={16} style={{ color: 'var(--acento)' }} />
-            <span className="text-xl font-bold" style={{ color: 'var(--acento)' }}>{pendentesCount}</span>
-          </div>
-          <p className="text-[10px] text-white/40">Pedidos Pendentes</p>
-        </div>
+      {/* Tabs */}
+      <div className="flex rounded-2xl bg-[#141522]/80 p-1 border border-white/10">
+        <button
+          type="button"
+          onClick={() => setAbaAtiva('moderacao')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            abaAtiva === 'moderacao' ? 'bg-purple-600/30 text-white border border-purple-500/40 shadow' : 'text-white/40 hover:text-white'
+          }`}
+        >
+          Moderação
+        </button>
+        <button
+          type="button"
+          onClick={() => setAbaAtiva('exclusao')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            abaAtiva === 'exclusao' ? 'bg-purple-600/30 text-white border border-purple-500/40 shadow' : 'text-white/40 hover:text-white'
+          }`}
+        >
+          Solicitações de exclusão
+        </button>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {[
-          { id: 'pendentes', label: 'Solicitações Pendentes' },
-          { id: 'gestao', label: 'Gerenciar Músicos / Permissões' },
-          { id: 'logs', label: 'Logs de Acesso' },
-        ].map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            className={`chip shrink-0 text-xs px-4 py-2 transition-all font-medium ${
-              tab === a.id
-                ? 'bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-fundo border-transparent font-bold'
-                : 'bg-[#141522]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
-            }`}
-            onClick={() => setTab(a.id as (typeof adminTabs)[number])}
-          >
-            {a.label}
-          </button>
-        ))}
-      </div>
+      {/* Tab: Moderação */}
+      {abaAtiva === 'moderacao' && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Cifras pendentes de aprovação</h2>
+            <span className="text-xs font-semibold text-purple-400">{pendentes.length} pendentes</span>
+          </div>
 
-      {tab === 'pendentes' && (
-        <section className="space-y-4">
-          <SectionHeader icone={<Users size={16} />} titulo="Solicitações Pendentes" />
           {pendentes.length === 0 ? (
-            <EstadoVazio titulo="Nenhuma solicitação pendente" texto="Quando usuários enviarem cifras para a comunidade, elas aparecerão aqui." />
+            <EstadoVazio titulo="Nenhuma cifra pendente" texto="Não há solicitações de aprovação no momento." />
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {pendentes.map((musica) => (
-                <div key={musica.id} className="card p-4 flex items-center justify-between gap-3 border border-white/10">
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div
+                  key={musica.id}
+                  className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl hover:border-white/20 transition-all"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
                     <div className="min-w-0 flex-1">
-                      <h2 className="truncate font-semibold text-sm text-white">{musica.titulo}</h2>
-                      <p className="truncate text-xs text-white/50">{musica.artista} · {musica.tom}</p>
-                      <p className="text-[10px] text-white/30 mt-0.5">Enviada por {musica.enviadaPor}</p>
+                      <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
+                      <p className="text-xs text-white/40 truncate">{musica.artista}</p>
+                      <p className="text-[10px] text-white/30 truncate mt-0.5">Enviada por {musica.enviadaPor}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 text-xs font-semibold border border-purple-500/20 mr-1">
+                      {musica.tom}
+                    </span>
                     <button
                       type="button"
-                      className="btn-ghost h-9 px-3 text-xs text-sucesso border-sucesso/30 hover:border-sucesso hover:text-sucesso"
                       onClick={() => void aprovarMusica(musica.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold border border-emerald-500/20 transition-colors"
                     >
                       <Check size={14} />
                       Aprovar
                     </button>
                     <button
                       type="button"
-                      className="btn-ghost h-9 px-3 text-xs text-perigo border-perigo/30 hover:border-perigo hover:text-perigo"
                       onClick={() => void rejeitarMusica(musica.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors"
                     >
                       <X size={14} />
                       Rejeitar
@@ -116,67 +114,57 @@ export default function AdminPanel() {
         </section>
       )}
 
-      {tab === 'gestao' && (
-        <section className="space-y-4">
-          <SectionHeader icone={<Shield size={16} />} titulo="Gerenciar Músicos / Permissões" />
-          <div className="card p-4 border border-white/10">
-            <div className="flex items-center gap-2 mb-3">
-              <Users size={16} style={{ color: 'var(--primaria)' }} />
-              <span className="text-sm font-semibold text-white">Músicos Ativos</span>
-            </div>
-            <div className="space-y-2">
-              {[
-                { nome: 'Guilherme', papel: 'Administrador', status: 'ativo' },
-                { nome: 'Maria', papel: 'Música', status: 'ativo' },
-                { nome: 'João', papel: 'Músico', status: 'inativo' },
-              ].map((m) => (
-                <div key={m.nome} className="flex items-center justify-between gap-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div className="flex items-center gap-3">
-                    <Avatar nome={m.nome} tamanho="sm" />
-                    <div>
-                      <p className="text-sm font-medium text-white">{m.nome}</p>
-                      <p className="text-xs text-white/40">{m.papel}</p>
-                    </div>
-                  </div>
-                  <span className={`chip text-[10px] ${m.status === 'ativo' ? 'bg-sucesso/20 text-sucesso' : 'bg-white/10 text-white/40'}`}>
-                    {m.status === 'ativo' ? 'Ativo' : 'Inativo'}
-                  </span>
-                </div>
-              ))}
-            </div>
+      {/* Tab: Solicitações de exclusão */}
+      {abaAtiva === 'exclusao' && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Solicitações de exclusão de conteúdo</h2>
+            <span className="text-xs font-semibold text-purple-400">{solicitacoesExclusao.length} solicitações</span>
           </div>
-        </section>
-      )}
 
-      {tab === 'logs' && (
-        <section className="space-y-4">
-          <SectionHeader icone={<Activity size={16} />} titulo="Logs de Acesso" />
-          <div className="card p-4 border border-white/10">
-            <div className="flex items-center gap-2 mb-3">
-              <Clock size={16} style={{ color: 'var(--primaria)' }} />
-              <span className="text-sm font-semibold text-white">Atividade Recente</span>
-            </div>
-            <div className="space-y-2">
-              {[
-                { action: 'Login', usuario: 'Guilherme', tempo: '2 min atrás' },
-                { action: 'Aprovação de cifra', usuario: 'Guilherme', tempo: '15 min atrás' },
-                { action: 'Login', usuario: 'Maria', tempo: '1h atrás' },
-                { action: 'Rejeição de cifra', usuario: 'Guilherme', tempo: '3h atrás' },
-                { action: 'Login', usuario: 'João', tempo: '1d atrás' },
-              ].map((log, idx) => (
-                <div key={idx} className="flex items-center justify-between gap-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div className="flex items-center gap-3">
-                    <Activity size={14} style={{ color: 'var(--primaria)' }} />
-                    <div>
-                      <p className="text-sm text-white">{log.action}</p>
-                      <p className="text-xs text-white/40">{log.usuario}</p>
+          {solicitacoesExclusao.length === 0 ? (
+            <EstadoVazio titulo="Nenhuma solicitação de exclusão" texto="Nenhum pedido de exclusão registrado no momento." />
+          ) : (
+            <div className="space-y-3">
+              {solicitacoesExclusao.map((item) => (
+                <div
+                  key={item.id}
+                  className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl hover:border-white/20 transition-all"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <CapaMusica tom="C" titulo={item.titulo} tamanho="sm" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-white truncate">{item.titulo}</p>
+                        <span className="flex items-center gap-1 text-[10px] text-white/30">
+                          <Eye size={12} /> 2.4k
+                        </span>
+                      </div>
+                      <p className="text-xs text-white/40 truncate">{item.artista}</p>
+                      <p className="text-[10px] text-white/30 truncate mt-0.5">Solicitada por: {item.enviadaPor}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-white/30 shrink-0">{log.tempo}</span>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => void aprovarExclusaoPermanente(item.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors"
+                    >
+                      Aprovar exclusão
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void rejeitarExclusaoRestaurar(item.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-semibold border border-white/10 transition-colors"
+                    >
+                      Rejeitar
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </section>
       )}
     </main>
