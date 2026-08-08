@@ -4,10 +4,12 @@ import {
   Search, Play, Disc, User, Folder, ChevronRight,
   Volume2, Headphones, Mic2, BookOpen
 } from 'lucide-react';
+import { usePlaylists } from '../hooks/usePlaylists';
 import { useMusicas } from '../hooks/useMusicas';
 import { usePlayer } from '../hooks/usePlayer';
 import { useAuth } from '../hooks/useAuth';
-import { SectionHeader, CapaMusica, Avatar } from '../components/aurora';
+import { SectionHeader, CapaMusica, Avatar, Header } from '../components/aurora';
+
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import type { Musica } from '../types';
 
@@ -29,6 +31,7 @@ function SectionHeaderInner({ icon, titulo, verTodas }: { icon: React.ReactNode;
 export default function Musica() {
   const navigate = useNavigate();
   const { musicas, loading } = useMusicas();
+  const { playlists } = usePlaylists();
   const { tocar } = usePlayer();
   const { user, perfilUsuario } = useAuth();
 
@@ -36,17 +39,6 @@ export default function Musica() {
 
   const primeiroNome = perfilUsuario?.nome?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Músico';
   const fotoUsuario = perfilUsuario?.foto || user?.photoURL || undefined;
-
-  const playlists = useMemo(() => {
-    const mapa = new Map<string, Musica[]>();
-    musicas.forEach((m) => {
-      const key = (m as any).playlist || 'Sem Playlist';
-      const lista = mapa.get(key) || [];
-      lista.push(m);
-      mapa.set(key, lista);
-    });
-    return Array.from(mapa.entries()).map(([nome, lista]) => ({ nome, total: lista.length }));
-  }, [musicas]);
 
   const maisTocadas = useMemo(() => {
     let lista = [...musicas].sort((a, b) => (b.vezesTocada || 0) - (a.vezesTocada || 0));
@@ -100,20 +92,8 @@ export default function Musica() {
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 text-white">
-            <Volume2 size={24} className="animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gradient tracking-tight">WorshipFlow</h1>
-            <p className="text-xs text-white/60">
-              Olá, {primeiroNome} <span className="inline-block animate-bounce">🎵</span>
-            </p>
-          </div>
-        </div>
-        <Avatar nome={primeiroNome} fotoUrl={fotoUsuario} tamanho="md" />
-      </header>
+      <Header />
+
 
       <div className="relative">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
@@ -172,14 +152,14 @@ export default function Musica() {
 
       <section>
         <SectionHeaderInner icon={<Disc className="h-4 w-4 text-purple-400" />} titulo="PLAYLISTS" verTodas="/playlists" />
-        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-          {playlists.length === 0 ? (
-            <EstadoVazio titulo="Nenhuma playlist" texto="Nenhuma playlist encontrada." />
-          ) : (
-            playlists.map((playlist) => (
+        {playlists.length === 0 ? (
+          <EstadoVazio titulo="Nenhuma playlist criada" texto="Crie sua primeira playlist para organizar suas músicas." />
+        ) : (
+          <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+            {playlists.map((playlist) => (
               <div
-                key={playlist.nome}
-                onClick={() => navigate('/playlists')}
+                key={playlist.id}
+                onClick={() => navigate(`/playlist/${playlist.id}`)}
                 className="card overflow-hidden rounded-2xl border border-purple-500/20 bg-[#141522]/90 hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg shrink-0 w-44"
               >
                 <div className="relative">
@@ -189,12 +169,12 @@ export default function Musica() {
                 </div>
                 <div className="p-2.5">
                   <p className="truncate text-xs font-semibold text-white">{playlist.nome}</p>
-                  <p className="text-[10px] text-white/40">{playlist.total} {playlist.total === 1 ? 'música' : 'músicas'}</p>
+                  <p className="text-[10px] text-white/40">{playlist.faixas?.length || 0} {playlist.faixas?.length === 1 ? 'música' : 'músicas'}</p>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section>
