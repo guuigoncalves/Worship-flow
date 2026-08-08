@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
 import { usePlayer } from '../hooks/usePlayer';
-import { SectionHeader, CapaMusica } from '../components/aurora';
+import { SectionHeader, CapaMusica, Header } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+
 import {
   Search,
   Plus,
@@ -59,20 +60,19 @@ export default function Biblioteca() {
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo">
-            <Music size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gradient tracking-tight">Biblioteca</h1>
-          </div>
-        </div>
-        <button className="btn-primary py-2 px-4 text-xs flex items-center gap-2" type="button" onClick={() => navigate('/editor')}>
-          <Plus size={16} />
+      <Header subtitulo="Sua biblioteca musical completa" />
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-white/70">Acervo Musical</h2>
+        <button
+          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-xs font-bold text-fundo shadow-lg shadow-purple-900/20 hover:opacity-90 transition-all flex items-center gap-1.5"
+          type="button"
+          onClick={() => navigate('/editor')}
+        >
+          <Plus size={14} />
           <span>Nova Cifra</span>
         </button>
-      </header>
+      </div>
 
       <div className="relative">
         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
