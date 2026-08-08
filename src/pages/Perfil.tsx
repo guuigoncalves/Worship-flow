@@ -1,164 +1,169 @@
-import { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Settings, Music, Palette, BookOpen, Clock, Play, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Edit3, Award, BookOpen, ListMusic, Heart, Settings, ChevronRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { usePerfil } from '../hooks/usePerfil';
 import { useMusicas } from '../hooks/useMusicas';
+import { usePlaylists } from '../hooks/usePlaylists';
 import { useHistorico } from '../hooks/useHistorico';
 import { Avatar, CapaMusica } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 
 export default function Perfil() {
   const navigate = useNavigate();
-  const { perfilUsuario } = useAuth();
+  const { perfilUsuario, user } = useAuth();
   const { perfil } = usePerfil();
   const { musicas } = useMusicas();
-  const { totalReproducoes, maisTocadas, recentes } = useHistorico();
-  const [aba, setAba] = useState<'instrumentos' | 'cifras' | 'historico'>('instrumentos');
+  const { playlists } = usePlaylists();
+  const { recentes } = useHistorico();
 
-  const instrumentos = perfil.instrumento ? [perfil.instrumento] : [];
-
-  const estatisticas = [
-    { label: 'Músicas Tocadas', valor: totalReproducoes, icone: <Play size={16} /> },
-    { label: 'Escalas', valor: perfil.tonsPreferidos.length, icone: <Palette size={16} /> },
-    { label: 'Cifras Criadas', valor: musicas.length, icone: <BookOpen size={16} /> },
-  ];
+  const primeiroNome = perfilUsuario?.nome || user?.displayName || 'Músico';
+  const handle = perfilUsuario?.nome ? `@${perfilUsuario.nome.toLowerCase().replace(/\s+/g, '')}` : '@musico';
+  const funcao = perfil.instrumento ? `${perfil.instrumento.charAt(0).toUpperCase() + perfil.instrumento.slice(1)} • Vocal` : 'Músico • Louvor';
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center gap-3 pt-1">
-        <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+      {/* Header */}
+      <header className="flex items-center justify-between pt-1">
+        <button
+          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          type="button"
+          onClick={() => navigate(-1)}
+          aria-label="Voltar"
+        >
           <ArrowLeft size={18} />
         </button>
-        <div className="flex items-center gap-3 flex-1">
-          <Avatar nome={perfilUsuario?.nome ?? perfil.instrumento} fotoUrl={perfilUsuario?.foto} tamanho="lg" />
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-bold text-white truncate">{perfilUsuario?.nome ?? perfil.instrumento}</h1>
-            <p className="text-xs text-white/50 capitalize">{perfil.instrumento}</p>
-          </div>
-          <button className="btn-ghost h-9 w-9 p-0 shrink-0" type="button" onClick={() => navigate('/configuracoes')} aria-label="Configurações">
-            <Settings size={18} />
-          </button>
-        </div>
+        <h1 className="text-lg font-bold text-white">Meu perfil</h1>
+        <button
+          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          type="button"
+          onClick={() => navigate('/configuracoes')}
+          aria-label="Editar configurações"
+        >
+          <Edit3 size={16} />
+        </button>
       </header>
 
-      <div className="grid grid-cols-3 gap-3">
-        {estatisticas.map((stat) => (
-          <div key={stat.label} className="card p-4 text-center border border-white/10">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              {stat.icone}
-              <span className="text-xl font-bold" style={{ color: 'var(--primaria)' }}>{stat.valor}</span>
+      {/* Profile Card Main */}
+      <div className="flex flex-col items-center text-center space-y-3 pt-2">
+        <div className="relative">
+          <Avatar nome={primeiroNome} fotoUrl={perfilUsuario?.foto} tamanho="lg" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-white">{primeiroNome}</h2>
+          <p className="text-xs text-white/40 mt-0.5">{handle}</p>
+          <p className="text-xs text-purple-300 font-medium mt-1">{funcao}</p>
+        </div>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold">
+          <Award size={14} />
+          <span>Nível: Avançado</span>
+        </div>
+      </div>
+
+      {/* Resumo */}
+      <section className="space-y-2">
+        <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Resumo</h3>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="card p-3 text-center border border-white/10 bg-[#141522]/80 rounded-2xl">
+            <div className="flex items-center justify-center gap-1.5 mb-1 text-purple-400">
+              <BookOpen size={16} />
+              <span className="text-lg font-bold text-white">{musicas.length}</span>
             </div>
-            <p className="text-[10px] text-white/40">{stat.label}</p>
+            <p className="text-[10px] text-white/40">Cifras criadas</p>
           </div>
-        ))}
-      </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {[
-          { id: 'instrumentos', label: 'Meus Instrumentos' },
-          { id: 'cifras', label: 'Minhas Cifras' },
-          { id: 'historico', label: 'Histórico de Cultos' },
-        ].map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            className={`chip shrink-0 text-xs px-4 py-2 transition-all font-medium ${
-              aba === s.id
-                ? 'bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-fundo border-transparent font-bold'
-                : 'bg-[#141522]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
-            }`}
-            onClick={() => setAba(s.id as typeof aba)}
-          >
-            {s.label}
+          <div className="card p-3 text-center border border-white/10 bg-[#141522]/80 rounded-2xl">
+            <div className="flex items-center justify-center gap-1.5 mb-1 text-purple-400">
+              <ListMusic size={16} />
+              <span className="text-lg font-bold text-white">{playlists.length}</span>
+            </div>
+            <p className="text-[10px] text-white/40">Playlists</p>
+          </div>
+
+          <div className="card p-3 text-center border border-white/10 bg-[#141522]/80 rounded-2xl">
+            <div className="flex items-center justify-center gap-1.5 mb-1 text-purple-400">
+              <Heart size={16} />
+              <span className="text-lg font-bold text-white">0</span>
+            </div>
+            <p className="text-[10px] text-white/40">Curtidas recebidas</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Acordes preferidos */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Acordes preferidos</h3>
+          <button type="button" onClick={() => navigate('/configuracoes')} className="text-xs text-purple-400 hover:underline">
+            Editar
           </button>
-        ))}
-      </div>
-
-      {aba === 'instrumentos' && (
-        <section className="space-y-3">
-          {instrumentos.length === 0 ? (
-            <EstadoVazio titulo="Nenhum instrumento" texto="Adicione seus instrumentos nas configurações." />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {perfil.tonsPreferidos.length > 0 ? (
+            perfil.tonsPreferidos.map((tom) => (
+              <span key={tom} className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-white">
+                {tom}
+              </span>
+            ))
           ) : (
-            instrumentos.map((instr) => (
-              <div key={instr} className="card p-4 flex items-center gap-3 border border-white/10">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                  <Music size={18} style={{ color: 'var(--primaria)' }} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-white capitalize">{instr}</p>
-                  <p className="text-xs text-white/40">Instrumento principal</p>
-                </div>
-                <ChevronRight size={16} className="text-white/20 shrink-0" />
-              </div>
+            ['G', 'D', 'Em', 'C', 'Am', 'Bm'].map((tom) => (
+              <span key={tom} className="px-3.5 py-1.5 rounded-xl bg-[#141522] border border-white/10 text-xs font-semibold text-white/80">
+                {tom}
+              </span>
             ))
           )}
-        </section>
-      )}
+        </div>
+      </section>
 
-      {aba === 'cifras' && (
-        <section className="space-y-3">
-          {musicas.length === 0 ? (
-            <EstadoVazio titulo="Nenhuma cifra" texto="Crie ou importe cifras para vê-las aqui." />
-          ) : (
-            musicas.map((musica) => (
-              <div key={musica.id} className="card p-3 flex items-center gap-3 border border-white/10">
+      {/* Acordes evitados */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Acordes evitados</h3>
+          <button type="button" onClick={() => navigate('/configuracoes')} className="text-xs text-purple-400 hover:underline">
+            Editar
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {['F#', 'B', 'Cm', 'Fm'].map((tom) => (
+            <span key={tom} className="px-3.5 py-1.5 rounded-xl bg-[#141522] border border-white/10 text-xs font-semibold text-white/60">
+              {tom}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Histórico recente */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Histórico recente</h3>
+          <button type="button" onClick={() => navigate('/biblioteca')} className="text-xs text-purple-400 hover:underline">
+            Ver tudo
+          </button>
+        </div>
+
+        {recentes.length === 0 ? (
+          <EstadoVazio titulo="Sem histórico recente" texto="Músicas acessadas recentemente aparecerão aqui." />
+        ) : (
+          <div className="space-y-2">
+            {recentes.slice(0, 4).map((musica) => (
+              <div
+                key={musica.id}
+                onClick={() => navigate(`/musica/${musica.id}`)}
+                className="card p-3 flex items-center gap-3 border border-white/10 bg-[#141522]/80 hover:bg-[#1A1040]/50 transition-all rounded-2xl cursor-pointer"
+              >
                 <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
-                  <p className="text-xs text-white/50">{musica.artista} · {musica.tom}</p>
+                  <p className="text-xs text-white/40 truncate">{musica.artista}</p>
                 </div>
-                <ChevronRight size={16} className="text-white/20 shrink-0" />
+                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                  {musica.tom}
+                </span>
               </div>
-            ))
-          )}
-        </section>
-      )}
-
-      {aba === 'historico' && (
-        <section className="space-y-3">
-          {maisTocadas.length === 0 && recentes.length === 0 ? (
-            <EstadoVazio titulo="Nenhum histórico" texto="Suas cifras mais tocadas e recentes aparecerão aqui." />
-          ) : (
-            <>
-              {maisTocadas.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Mais Tocadas</p>
-                  <div className="space-y-2">
-                    {maisTocadas.slice(0, 5).map((musica) => (
-                      <div key={musica.id} className="card p-3 flex items-center gap-3 border border-white/10">
-                        <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
-                          <p className="text-xs text-white/50">{musica.artista}</p>
-                        </div>
-                        <span className="text-xs text-white/30 shrink-0">{musica.vezesTocada}x</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {recentes.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Recentes</p>
-                  <div className="space-y-2">
-                    {recentes.slice(0, 5).map((musica) => (
-                      <div key={musica.id} className="card p-3 flex items-center gap-3 border border-white/10">
-                        <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-white truncate">{musica.titulo}</p>
-                          <p className="text-xs text-white/50">{musica.artista}</p>
-                        </div>
-                        <span className="text-xs text-white/30 shrink-0">{musica.ultimaTocada ? new Date(musica.ultimaTocada).toLocaleDateString('pt-BR') : ''}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </section>
-      )}
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
