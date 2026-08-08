@@ -2,7 +2,8 @@ import { useState, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
 import { useAuth } from '../hooks/useAuth';
-import { CapaMusica, Avatar } from '../components/aurora';
+import { CapaMusica, Avatar, Header } from '../components/aurora';
+
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import {
   BookOpen,
@@ -74,27 +75,15 @@ export default function Cifra() {
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo">
-            <FileText size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gradient tracking-tight">WorshipFlow</h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-white/60">Olá, {primeiroNome}</span>
-          <Avatar nome={primeiroNome} fotoUrl={fotoUsuario} tamanho="md" />
-        </div>
-      </header>
+      <Header />
 
-      <p className="text-xs text-white/50">Hub Cifra: tudo o que você precisa para criar, organizar e compartilhar cifras.</p>
+
+      <p className="text-xs text-white/50 -mt-3">Hub Cifra: tudo o que você precisa para criar, organizar e compartilhar cifras.</p>
 
       <div className="flex gap-3">
         <button
           onClick={() => navigate('/biblioteca')}
-          className="flex-1 card p-4 flex items-center gap-3 border border-white/10 bg-[#141522]/90 hover:border-[var(--primaria)]/40 transition-all cursor-pointer group rounded-2xl"
+          className="flex-1 p-4 flex items-center gap-3 border border-white/10 bg-transparent hover:bg-white/5 transition-all cursor-pointer group rounded-2xl"
         >
           <div className="p-2.5 rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] group-hover:scale-110 transition-transform">
             <BookOpen size={20} />
@@ -103,7 +92,7 @@ export default function Cifra() {
         </button>
         <button
           onClick={() => navigate('/editor')}
-          className="flex-1 card p-4 flex items-center gap-3 border border-white/10 bg-[#141522]/90 hover:border-[var(--primaria)]/40 transition-all cursor-pointer group rounded-2xl"
+          className="flex-1 p-4 flex items-center gap-3 border border-white/10 bg-transparent hover:bg-white/5 transition-all cursor-pointer group rounded-2xl"
         >
           <div className="p-2.5 rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] group-hover:scale-110 transition-transform">
             <Plus size={20} />
