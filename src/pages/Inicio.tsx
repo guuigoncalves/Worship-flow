@@ -12,7 +12,8 @@ import { usePlayer } from '../hooks/usePlayer';
 import { COR_TOM } from '../data/cores-tom';
 import { Metronomo } from '../utils/metronomo';
 import type { Musica } from '../types';
-import { Avatar, CapaMusica } from '../components/aurora';
+import { Avatar, CapaMusica, Header } from '../components/aurora';
+
 
 function diaRelativo(iso: string): string {
   if (!iso) return 'Recentemente';
@@ -130,23 +131,8 @@ export default function Inicio() {
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
       {/* Cabeçalho com Info de Usuário */}
-      <header className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo">
-            <Volume2 size={24} className="animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gradient tracking-tight">WorshipFlow</h1>
-            <p className="text-xs text-white/60">
-              Olá, {primeiroNome} <span className="inline-block animate-bounce">🎵</span>
-            </p>
-            <p className="text-[10px] text-white/40">Vamos fazer música hoje?</p>
-          </div>
-        </div>
-        <Link to="/perfil" aria-label="Perfil">
-          <Avatar nome={primeiroNome} fotoUrl={fotoUsuario} tamanho="md" />
-        </Link>
-      </header>
+      <Header />
+
 
       {/* Busca Rápida Estilizada */}
       <Link to="/busca-rapida" className="card flex items-center gap-3 rounded-2xl border border-white/10 bg-[#141522]/80 p-3.5 text-white/40 hover:border-[var(--primaria)]/40 transition-all backdrop-blur-xl shadow-inner">
