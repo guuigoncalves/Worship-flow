@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ListMusic, Plus, Trash2, Play, ChevronRight } from 'lucide-react';
-import { CapaMusica } from '../components/aurora';
+import { CapaMusica, Header } from '../components/aurora';
+
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { PainelDeslizante } from '../components/compartilhado/PainelDeslizante';
 import { usePlaylists } from '../hooks/usePlaylists';
@@ -43,21 +44,22 @@ export default function Playlists() {
 
   return (
     <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
-            <ArrowLeft size={18} />
-          </button>
-          <div className="flex items-center gap-2">
-            <ListMusic size={20} className="text-[var(--primaria)]" />
-            <h1 className="text-xl font-bold text-gradient">Playlists</h1>
-          </div>
-        </div>
-        <button className="btn-primary py-2 px-4 text-sm flex items-center gap-2" type="button" onClick={() => setCriarAberto(true)}>
-          <Plus size={16} />
-          Nova Playlist
+      <Header subtitulo="Suas listas de reprodução" />
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <button className="h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
+          <ArrowLeft size={18} />
         </button>
-      </header>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-white/70">Playlists ({playlists.length})</h2>
+        <button
+          className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-xs font-bold text-fundo shadow-lg shadow-purple-900/20 hover:opacity-90 transition-all flex items-center gap-1.5"
+          type="button"
+          onClick={() => setCriarAberto(true)}
+        >
+          <Plus size={14} />
+          <span>Nova Playlist</span>
+        </button>
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
