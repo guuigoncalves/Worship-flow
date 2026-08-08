@@ -36,6 +36,8 @@
 | 28 | Login | `/login` | `src/pages/Login.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
 | 29 | Tela de Preparação (Espaco) | `/espaco/:id/preparacao` | `src/pages/ModoPreparacao.tsx` | 🟡 Código atualizado (Aguardando teste) | Não |
 
-## Nota de conclusão
+## Nota de conclusão (SI v18.0 — 07/08/2026)
 
-A reconstrução de código do SI v15.0 foi concluída em todos os 29 componentes de tela. Todas as telas foram reescritas com o layout Aurora (fundo `#0B0C10`, cards `#141522`, bordas `border-white/10 rounded-2xl`, acentos via variáveis CSS `var(--primaria)`/`var(--acento)`), `pb-32` aplicado em todas as telas para evitar sobreposição com o Mini Player, e verificação de build (`tsc -b` e `npm run build`) passaram sem erros. Os testes manuais em produção aguardam a execução pelo Guilherme.
+Execução autônoma das Fases B a F do SI v18.0 concluída. O componente reusável `Header` da marca Aurora foi implementado e distribuído centralizadamente em todas as telas com a saudação à direita ao lado do avatar. O layout do Hub Cifra (`/cifra`), Espaços (`/espacos`), Biblioteca (`/biblioteca`), Álbuns (`/albuns`), Artistas (`/artistas`), Playlists (`/playlists`) e Comunidade (`/comunidade`) foi totalmente alinhado aos padrões e variáveis CSS Aurora (`var(--primaria)` / `var(--acento)`).
+
+Build estático limpo verificado com sucesso (`tsc -b` e `vite build`). A coluna "Testado manualmente por Guilherme?" permanece estritamente sob autoridade do Guilherme conforme AGENTS.md regra #6.

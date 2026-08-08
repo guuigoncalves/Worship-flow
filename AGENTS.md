@@ -1,84 +1,99 @@
 # AGENTS.md — WorshipFlow
-> Lido automaticamente por agentes compatíveis (Kilo Code, OpenCode, Cline). Confirme a leitura
-> deste arquivo e do `ARQUITETURA.md` antes de qualquer alteração.
+> Lido automaticamente por agentes compatíveis (Kilo Code, OpenCode, Cline, Antigravity).
+> Confirme a leitura deste arquivo e do `ARQUITETURA.md` antes de qualquer alteração.
 
 ## O que este projeto é
 App de cifra/letra/player musical (React 19 + Vite + TypeScript + Firebase), com sistema visual
-Aurora. Ver `ARQUITETURA.md` pro estado técnico real e `SYSTEM_INSTRUCTION_CHAT_DEV.md` pro plano
-de fases em andamento.
+Aurora. Ver `ARQUITETURA.md` pro estado técnico real e `SYSTEM_INSTRUCTION_CHAT_DEV.md` (SI) pro
+plano de fases em andamento.
+
+## Mockups de referência
+Ficam em `docs/mockups/`, nomeados `mockup-NN.png` onde `NN` é o número usado em todos os
+documentos de governança (ex: "imagem #7" = `docs/mockups/mockup-07.png`). Sempre conferir essa
+pasta antes de reconstruir uma tela — não pedir a imagem no chat se ela já estiver ali.
+
+## Papéis
+1. **Claude Gestão**: dá o PLANO. Não dá comando por comando. Só é consultado quando o agente
+   executor travar em algo que é decisão dele por natureza (STOP obrigatório, ver regra #13/#17).
+2. **Agente executor** (Antigravity, ou Kilo Code/AI Studio): recebe o plano completo, executa,
+   testa, avança de fase sozinho sem devolver o ciclo ao Claude Gestão a cada etapa — dentro dos
+   limites da regra #17 abaixo.
+3. **Guilherme**: testa o resultado, autoriza, só traz de volta ao Claude Gestão quando o plano
+   inteiro estiver concluído ou quando o agente reportar um STOP real.
 
 ## Regras invioláveis
 1. **Nenhuma tela mostra dado inventado.** Todo número/status/lista vem de um hook real. Sem dado
-   real → usar `EstadoVazio` (prop `texto`, não `descricao`). **Isso inclui erro de infraestrutura:**
-   se uma chamada falha por proxy fora do ar, rota removida, CORS bloqueando, credencial ausente,
-   ou variável de ambiente ausente, a mensagem não pode se disfarçar de "nenhum dado encontrado" —
-   já aconteceu repetidas vezes neste projeto (variável de ambiente do proxy, caminho da API do
-   Navidrome, rota de câmera removida, credenciais do Navidrome vazias em produção). **Também
-   inclui nunca gravar dado de exemplo/demonstração na conta real de um usuário** — já aconteceu
-   uma vez (auto-seed de músicas falsas), corrigido, não repetir em nenhuma outra coleção.
-2. **Não criar sistema visual paralelo ao Aurora.** Classes já existem em `src/index.css`. Reusar
-   componentes prontos, não recriar.
-3. **Uma tarefa por vez.** Não encadear múltiplas mudanças não relacionadas na mesma sessão.
+   real → usar `EstadoVazio` (prop `texto`). Isso inclui erro de infraestrutura mascarado como
+   "nenhum dado encontrado", e nunca gravar dado de exemplo na conta real de um usuário.
+2. **Não criar sistema visual paralelo ao Aurora.** Reusar componentes de `src/index.css` e
+   `components/aurora/`. Preferir corrigir causa raiz (variável CSS central) a caçar classe por
+   classe.
+3. **Uma tarefa por vez DENTRO de uma fase.** Entre fases diferentes do plano, avanço autônomo é
+   permitido (regra #13), mas sempre respeitando a regra #17 de verificação antes de avançar.
 4. **`export default NomeDaPagina`** em toda página nova.
 5. **Nomes em português.**
-6. **Build limpo antes de considerar qualquer tarefa concluída:** `tsc -b` e `vite build`, ambos
-   sem erro. **Para telas críticas (Editor, Tocar, Login, Modo de Preparação, Camada Privada) isso
-   não basta** — precisa de teste manual REAL no navegador de PRODUÇÃO (não só localhost): navegar,
-   clicar, ver dado carregar, abrir o console e checar se não há erro. Subir `npm run dev` sem erro
-   de console **não é teste manual**. **A coluna "testado manualmente" do `INVENTARIO_TELAS.md` só
-   pode ser preenchida pelo Guilherme, nunca pelo agente** — já aconteceu de um agente marcar como
-   testado sem ter sido, não repetir.
-7. **Não tocar na camada privada** (Navidrome/câmeras/proxy autenticado) sem instrução explícita —
-   é território separado e protegido, mesmo depois de decidido que vai ser construído.
+6. **Build limpo (`tsc -b` e `vite build`) é necessário, nunca suficiente.** Para redesign visual,
+   build limpo NÃO substitui a comparação visual real por screenshot (regra #17). **A coluna
+   "testado manualmente" do `INVENTARIO_TELAS.md` só pode ser preenchida pelo Guilherme, nunca
+   pelo agente**, mesmo com autoverificação por screenshot.
+7. **Não tocar na camada privada** sem instrução explícita — inclui qualquer mudança de
+   infraestrutura de rede (ex: Cloudflare Tunnel), decisão do Claude Gestão, nunca do agente.
 8. **Comunidade:** todo conteúdo enviado nasce com `status: 'pendente'`, nunca `'aprovada'` direto.
-9. **Não editar `.git` via agente autônomo.** Versionamento é manual, feito pelo Guilherme.
-10. **`vercel.json` já existe na raiz** — não duplicar nem sobrescrever sem necessidade real.
-11. **Uma fase marcada como bloqueada/"não começar" no SI do Dev só é liberada por instrução
-    explícita sobre AQUELA fase específica.** Responder uma pergunta técnica pontual (ex: sobre uma
-    URL, uma variável) NUNCA é autorização para destravar uma fase inteira. Se houver qualquer
-    dúvida sobre se algo está liberado: parar e perguntar antes de escrever código, não assumir e
-    reportar depois.
-12. **Câmera (Frigate) nunca passa pelo proxy público** (`worshipflow-proxy`). Acesso é
-    exclusivamente via Tailscale direto. Se encontrar código chamando `/frigate/*` no proxy
-    público, está desatualizado — reportar ao Claude Gestão antes de decidir o que fazer.
-13. **(NOVA) Redesign visual = SUBSTITUIR, nunca mesclar.** Ao redesenhar uma tela pra bater com um
-    mockup de referência, a estrutura visual antiga (JSX, classes) é apagada e reescrita do zero
-    seguindo a imagem — nunca adicionar elemento novo em cima do layout antigo. Elemento que não
-    aparece no mockup é removido da tela, não deixado desligado/oculto. Uma tela por vez, um commit
-    por tela, build limpo e conferência do Guilherme antes de seguir pra próxima. Já aconteceu de
-    20+ telas serem "mescladas" de uma vez e reprovadas inteiras no teste manual — não repetir.
-14. **(NOVA) Variáveis de ambiente client-side (`VITE_*`) não têm valor default silencioso em
-    produção.** Se uma env var crítica (credenciais, UID de admin, URL de proxy) estiver ausente,
-    a tela correspondente deve mostrar aviso explícito de configuração ausente — nunca deixar a
-    chamada sair com valor vazio (`u=&p=`) e falhar com erro genérico de rede.
-15. **(NOVA) `firestore.rules` deve ser trazido para o repositório** (hoje só existe no Console do
-    Firebase, fora de controle de versão e fora de auditoria). Qualquer mudança de regra de
-    segurança precisa ser revisada pelo Claude Gestão antes de aplicada — não é decisão do agente
-    (Regra de Ouro #4).
+9. **Não editar `.git` além de commit/branch de trabalho normal.** Merge em main é manual.
+10. **`vercel.json` já existe na raiz** — não duplicar/sobrescrever sem necessidade real.
+11. **Fase bloqueada no SI só é liberada por instrução explícita sobre AQUELA fase.** Responder
+    pergunta técnica pontual nunca é autorização pra destravar fase inteira.
+12. **Câmera (Frigate) nunca passa pelo proxy público.** Acesso é via Tailscale direto.
+13. **Redesign visual = SUBSTITUIR, nunca mesclar. Uma tela por commit.** Estrutura antiga (JSX,
+    classes) é apagada e reescrita do zero seguindo o mockup. Elemento ausente no mockup é
+    removido, não deixado oculto.
+14. **Variáveis `VITE_*` ausentes**: tela mostra aviso explícito de configuração ausente, nunca
+    chamada silenciosa vazia.
+15. **`firestore.rules` versionado no repo.** Mudança de regra de segurança sempre passa pelo
+    Claude Gestão antes de aplicada — sem exceção de autonomia, mesmo que "resolva" um erro.
+16. **Escolha de modelo (Antigravity):** Flash é padrão pra tarefa mecânica/bem especificada.
+    Sonnet só pra ambiguidade real ou dependência entre múltiplos arquivos. Opus/Gemini Pro quase
+    nunca — cota semanal curta no free tier.
+17. **(NOVA 07/08 — CRÍTICA) O que "autonomia entre fases" significa, e o que NÃO significa:**
+    - Autonomia significa: o agente NÃO precisa esperar o Guilherme aprovar cada tela
+      individualmente antes de seguir pra próxima, **desde que tenha se autoverificado por
+      screenshot comparado ao mockup correspondente e a comparação tenha batido**.
+    - Autonomia **não** significa pular a verificação porque uma ferramenta falhou. Se a
+      autoverificação visual não puder ser feita por qualquer motivo (falha de infraestrutura,
+      ferramenta indisponível, etc.), isso é automaticamente um **STOP** — não uma escolha entre
+      "seguir sem verificar" ou "esperar". O agente NUNCA decide sozinho seguir sem verificação
+      visual real. Build limpo sozinho não conta como verificação de redesign visual.
+    - **STOP significa parar de executar de verdade, não perguntar e continuar em paralelo.**
+      Se o agente faz uma pergunta ao Guilherme, ele para de editar/avançar fases até receber
+      resposta explícita. Fazer a pergunta e simultaneamente escolher uma opção sozinho enquanto
+      "aguarda" é uma violação desta regra, mesmo que a pergunta tenha sido feita corretamente.
+      Já aconteceu uma vez neste projeto (07/08/2026) — 6+ telas foram reescritas sem verificação
+      visual enquanto o agente dizia estar "aguardando orientação". Não repetir.
+    - Antes de qualquer commit ou "Accept" em lote de múltiplos arquivos: se o pacote de mudanças
+      cobre mais de uma tela/fase, o agente apresenta e aguarda aceite **tela por tela**, nunca
+      "Accept all" cobrindo fases diferentes de uma vez — mesmo que tecnicamente correto, aceitar
+      em bloco impede rollback seletivo se uma tela específica tiver problema.
 
 ## Ambiente
 CachyOS (Linux), Fish Shell (Konsole), editor Kate. Fish não aceita redirecionamento encadeado —
 usar `touch caminho/arquivo.tsx; truncate -s 0 caminho/arquivo.tsx; kate caminho/arquivo.tsx`.
 
 ## Dependências com ressalva
-- `chordsheetjs` foi **removida** do projeto (03/08/2026, pendência antiga fechada). Se aparecer
-  de novo em algum diff, é regressão — reportar.
-- Não existe `@dnd-kit` — reordenação de medley é por botões ↑/↓, não drag. Fase 19 (personalização
-  de layout) segue essa mesma lógica quando liberada.
+- `chordsheetjs` removida (03/08/2026). Se reaparecer em diff, é regressão — reportar.
+- Não existe `@dnd-kit` — reordenação é por botões ↑/↓.
+- Playwright instalado localmente (07/08/2026) via `npx playwright install chromium` — confirmado
+  funcional. Não reinstalar sem necessidade.
 
-## Antes de fechar qualquer tarefa
-- [ ] `tsc -b` limpo
-- [ ] `vite build` limpo
-- [ ] Nenhum dado inventado introduzido, nenhum seed automático em conta real
+## Antes de fechar qualquer FASE do plano
+- [ ] `tsc -b` limpo, `vite build` limpo
+- [ ] Nenhum dado inventado, nenhum seed automático em conta real
 - [ ] Nenhum erro técnico mascarado como "dado ausente"
-- [ ] Rotas antigas continuam funcionando
-- [ ] Componentes de `aurora/`/`compartilhado/` reusados, não recriados
-- [ ] Se a tarefa tocou fase marcada como bloqueada no SI: confirmar que houve liberação explícita
-      antes de começar, não depois
-- [ ] Se foi redesign visual: layout antigo foi SUBSTITUÍDO, não mesclado — uma tela por commit
-- [ ] Reportar ao Guilherme em formato curto: o que mudou, o que foi de fato testado manualmente em
-      produção (não localhost, não só build), o que ficou pendente, o que precisa ir pro Claude
-      Gestão
+- [ ] Se tocou fase bloqueada: liberação explícita confirmada antes de começar
+- [ ] Redesign visual: layout SUBSTITUÍDO, screenshot comparado ao mockup de `docs/mockups/`
+      ANTES de marcar concluído — sem exceção, mesmo se a ferramenta de screenshot falhar (nesse
+      caso, é STOP, não pulo de etapa)
+- [ ] Aceite/commit tela por tela, nunca em lote cobrindo fases diferentes
+- [ ] Relatório final consolidado com hash de commit por fase e o que foi de fato autoverificado
 
 ---
-*AGENTS.md v1.2 | Claude (Gestão) | 05/Ago/2026*
+*AGENTS.md v1.4 | Claude (Gestão) | 07/Ago/2026*
