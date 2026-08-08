@@ -28,22 +28,22 @@ export default defineConfig({
         name: 'WorshipFlow',
         short_name: 'WorshipFlow',
         description: 'Assistente de louvor ao vivo para músicos de igreja.',
-        theme_color: '#F0C040',
+        theme_color: '#8B5CF6',
         background_color: '#09090F',
         display: 'standalone',
         start_url: '/',
         scope: '/',
         icons: [
           {
-            src: '/icons/icon.svg',
+            src: '/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/icons/icon.svg',
+            src: '/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ],

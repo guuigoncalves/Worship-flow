@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Avatar } from './Avatar';
+import logo from '../../assets/logo-worshipflow.png';
 
 interface HeaderProps {
   subtitulo?: string;
@@ -15,14 +15,9 @@ export function Header({ subtitulo }: HeaderProps) {
 
   return (
     <header className="flex items-center justify-between pt-1">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-2xl bg-gradient-to-br from-[var(--primaria)] to-[var(--acento)] text-fundo">
-          <Activity size={24} className="animate-pulse" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-gradient tracking-tight">WorshipFlow</h1>
-          {subtitulo && <p className="text-[10px] text-white/40">{subtitulo}</p>}
-        </div>
+      <div className="flex items-center gap-2">
+        <img src={logo} alt="WorshipFlow" style={{ height: '44px', width: 'auto', display: 'block' }} />
+        {subtitulo && <p className="text-[10px] text-white/40 mt-1">{subtitulo}</p>}
       </div>
       <div className="flex items-center gap-2">
         <div className="text-right">
