@@ -1,34 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, User, Activity } from 'lucide-react';
+import { User, Activity } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import logo from '../assets/logo-worshipflow.png';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInGoogle, signInEmail, signInAnon, user } = useAuth();
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { signInGoogle, signInAnon, user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [modoEmail, setModoEmail] = useState(false);
 
   useEffect(() => {
     if (user) {
       navigate('/', { replace: true });
     }
   }, [user, navigate]);
-
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setLoading(true);
-    try {
-      await signInEmail(email, senha);
-      navigate('/');
-    } catch {
-      setLoading(false);
-    }
-  }
 
   async function handleGoogleLogin() {
     setLoading(true);
@@ -42,14 +27,14 @@ export default function Login() {
 
   return (
     <main className="fixed inset-0 grid grid-cols-1 lg:grid-cols-2 overflow-y-auto" style={{ backgroundColor: '#0B0C10' }}>
-      {/* Coluna Esquerda: Formulário */}
+      {/* Coluna Esquerda: Opções de Login */}
       <div className="flex flex-col justify-center items-center p-6 md:p-12 space-y-6">
         <div className="w-full max-w-sm space-y-6">
           {/* Header Marca */}
           <div className="flex flex-col items-center text-center space-y-2">
             <img src={logo} alt="WorshipFlow" style={{ height: '48px', width: 'auto', display: 'block' }} className="mb-1" />
-            <h1 className="text-xl font-bold text-white">Bem-vindo de volta!</h1>
-            <p className="text-xs text-white/40">Faça login para continuar</p>
+            <h1 className="text-xl font-bold text-white">Bem-vindo ao WorshipFlow</h1>
+            <p className="text-xs text-white/40">Escolha como deseja acessar</p>
           </div>
 
           {/* Botão Google */}
@@ -57,7 +42,7 @@ export default function Login() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full py-3 px-4 rounded-2xl bg-white text-slate-900 font-semibold text-xs flex items-center justify-center gap-3 hover:bg-white/90 transition-all shadow"
+            className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-white/90 text-slate-900 font-semibold text-xs flex items-center justify-center gap-3 transition-all shadow-lg shadow-white/5"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -87,106 +72,20 @@ export default function Login() {
             </div>
           </div>
 
-          {!modoEmail ? (
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={() => setModoEmail(true)}
-                className="w-full py-3 rounded-2xl bg-purple-600/30 hover:bg-purple-600/40 text-purple-300 font-semibold text-xs border border-purple-500/30 transition-all flex items-center justify-center gap-2"
-              >
-                <Mail size={16} />
-                <span>Entrar com e-mail</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                className="w-full py-3 rounded-2xl bg-[#141522]/80 hover:bg-[#141522] text-white/70 font-semibold text-xs border border-white/10 transition-all"
-              >
-                Criar conta
-              </button>
-            </div>
-          ) : (
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label className="text-xs font-medium text-white/60 block mb-1.5" htmlFor="email">E-mail</label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu@email.com"
-                    className="w-full bg-[#141522]/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-white/60 block mb-1.5" htmlFor="senha">Senha</label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
-                  <input
-                    id="senha"
-                    type={mostrarSenha ? 'text' : 'password'}
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-[#141522]/80 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors"
-                    onClick={() => setMostrarSenha((v) => !v)}
-                  >
-                    {mostrarSenha ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all"
-                disabled={loading}
-              >
-                {loading ? 'Entrando...' : 'Entrar'}
-              </button>
-
-              <div className="flex items-center justify-between text-xs pt-1">
-                <button type="button" onClick={() => setModoEmail(false)} className="text-white/40 hover:underline">
-                  Voltar às opções
-                </button>
-                <button type="button" onClick={() => navigate('/')} className="text-purple-400 hover:underline">
-                  Criar conta
-                </button>
-              </div>
-            </form>
-          )}
-
-          <div className="relative pt-2">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-wider text-white/30">
-              <span className="bg-[#0B0C10] px-3">ou</span>
-            </div>
-          </div>
-
-          {/* Entrar como Visitante / Anônimo */}
+          {/* Continuar sem login */}
           <button
             type="button"
             onClick={async () => {
               await signInAnon();
               navigate('/');
             }}
-            className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white/60 font-semibold text-xs border border-white/10 flex items-center justify-center gap-2 transition-all"
+            className="w-full py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-white/80 font-semibold text-xs border border-white/10 flex items-center justify-center gap-2 transition-all"
           >
             <User size={16} />
-            <span>Entrar como Visitante</span>
+            <span>Continuar sem login</span>
           </button>
 
-          <p className="text-[10px] text-center text-white/30 leading-relaxed pt-2">
+          <p className="text-[10px] text-center text-white/30 leading-relaxed pt-4">
             Ao continuar, você concorda com nossos <br />
             <a href="#" className="underline hover:text-white/50">Termos de Uso</a> e <a href="#" className="underline hover:text-white/50">Política de Privacidade</a>
           </p>
