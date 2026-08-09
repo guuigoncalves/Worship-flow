@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import { CapaMusica } from '../components/aurora';
 import { Search, ArrowLeft, Star, FileText, Filter } from 'lucide-react';
 
 type FiltroTipo = 'todas' | 'musicas' | 'cifras' | 'artistas';
@@ -43,55 +44,51 @@ export const BuscaRapida: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="app-page flex items-center justify-center min-h-[60vh]">
+      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: '#A259FF', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Carregando músicas…</p>
+          <div className="h-10 w-10 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+          <p className="text-xs text-white/40">Carregando repertório…</p>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="app-page space-y-5 pb-24 fade-in">
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="btn-ghost h-9 w-9 p-0">
-          <ArrowLeft size={16} />
+      <header className="flex items-center gap-3 pt-1">
+        <button
+          onClick={() => navigate(-1)}
+          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          type="button"
+          aria-label="Voltar"
+        >
+          <ArrowLeft size={18} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gradient">Busca Rápida</h1>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Encontre músicas, artistas e cifras no seu repertório
-          </p>
+          <h1 className="text-xl font-bold text-white">Busca Rápida</h1>
+          <p className="text-[10px] text-white/40">Pesquise músicas, cifras e artistas em tempo real</p>
         </div>
-      </div>
+      </header>
 
-      {/* Barra de busca destaque */}
+      {/* Input de Busca com Estilo Aurora */}
       <div className="relative">
         <Search
           size={18}
-          className="absolute left-4 top-1/2 -translate-y-1/2"
-          style={{ color: '#A259FF' }}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none"
         />
         <input
           type="text"
           value={termo}
           onChange={(e) => setTermo(e.target.value)}
-          placeholder="Digite título, artista ou palavra-chave…"
+          placeholder="Digite título, artista ou tag…"
           autoFocus
-          className="input pl-12 py-3.5 text-sm"
-          style={{
-            background: 'rgba(162,89,255,0.06)',
-            borderColor: termo ? 'rgba(162,89,255,0.5)' : 'rgba(162,89,255,0.2)',
-            boxShadow: termo ? '0 0 0 3px rgba(162,89,255,0.12)' : 'none',
-          }}
+          className="w-full bg-[#141522]/90 border border-white/10 rounded-2xl pl-12 pr-10 py-3.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all shadow-xl"
         />
         {termo && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-xs"
-            style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/60 hover:text-white text-xs"
             onClick={() => setTermo('')}
             aria-label="Limpar busca"
           >
@@ -100,13 +97,17 @@ export const BuscaRapida: React.FC = () => {
         )}
       </div>
 
-      {/* Filtros por chips */}
+      {/* Filtros em Chips */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         {filtros.map((f) => (
           <button
             key={f.id}
             type="button"
-            className={`chip shrink-0 text-sm ${filtro === f.id ? 'chip-active' : ''}`}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border shrink-0 flex items-center gap-1.5 ${
+              filtro === f.id
+                ? 'bg-purple-600/30 text-white border-purple-500/50 shadow-lg shadow-purple-950/50'
+                : 'bg-[#141522]/80 text-white/40 border-white/10 hover:text-white'
+            }`}
             onClick={() => setFiltro(f.id)}
           >
             <Filter size={12} />
@@ -115,83 +116,63 @@ export const BuscaRapida: React.FC = () => {
         ))}
       </div>
 
-      {/* Resultados */}
+      {/* Resultados da Pesquisa */}
       {!termo.trim() ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-16">
-          <div
-            className="flex h-16 w-16 items-center justify-center rounded-2xl"
-            style={{ background: 'rgba(162,89,255,0.1)', border: '1px solid rgba(162,89,255,0.2)' }}
-          >
-            <Search size={28} style={{ color: '#A259FF' }} />
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+          <div className="p-4 rounded-3xl bg-purple-600/10 text-purple-400 border border-purple-500/20">
+            <Search size={32} />
           </div>
-          <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Digite para pesquisar instantaneamente
-          </p>
+          <p className="text-xs text-white/40">Digite para pesquisar em todo o repertório</p>
         </div>
       ) : resultados.length === 0 ? (
         <EstadoVazio
           titulo="Nenhum resultado encontrado"
-          texto={`Não encontramos nada para "${termo}". Tente outras palavras.`}
+          texto={`Não encontramos correspondências para "${termo}".`}
         />
       ) : (
-        <div className="space-y-2">
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            {resultados.length} resultado{resultados.length !== 1 ? 's' : ''}
-          </p>
-          <div className="card divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">Resultados da busca</p>
+            <span className="text-xs font-semibold text-purple-400">{resultados.length} encontrados</span>
+          </div>
+
+          <div className="space-y-2">
             {resultados.map((m) => (
-              <div key={m.id} className="flex items-center gap-3 p-3">
-                {/* Capa / avatar */}
+              <div
+                key={m.id}
+                className="card p-3 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 hover:bg-[#1A1040]/50 transition-all rounded-2xl cursor-pointer"
+              >
                 <div
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-sm font-bold"
-                  style={{
-                    background: `hsl(${(m.titulo.charCodeAt(0) * 17) % 360}, 50%, 20%)`,
-                    color: `hsl(${(m.titulo.charCodeAt(0) * 17) % 360}, 80%, 70%)`,
-                    border: `1px solid hsl(${(m.titulo.charCodeAt(0) * 17) % 360}, 50%, 30%)`,
-                  }}
+                  className="flex items-center gap-3 min-w-0 flex-1"
+                  onClick={() => navigate(`/musica/${m.id}`)}
                 >
-                  {m.tom || m.titulo.slice(0, 2)}
+                  <CapaMusica tom={m.tom} titulo={m.titulo} tamanho="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-white truncate">{m.titulo}</p>
+                    <p className="text-xs text-white/40 truncate">{m.artista || 'Artista não informado'}</p>
+                  </div>
                 </div>
 
-                {/* Info */}
-                <div className="min-w-0 flex-1" onClick={() => navigate(`/musica/${m.id}`)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && navigate(`/musica/${m.id}`)}>
-                  <p className="truncate font-semibold text-sm">{m.titulo}</p>
-                  <p className="truncate text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                    {m.artista || 'Artista não informado'}
-                  </p>
-                </div>
-
-                {/* Badge tom */}
-                <span
-                  className="shrink-0 rounded-lg px-2 py-0.5 text-xs font-bold"
-                  style={{ background: 'rgba(162,89,255,0.18)', color: '#A259FF', border: '1px solid rgba(162,89,255,0.3)' }}
-                >
-                  {m.tom || '—'}
-                </span>
-
-                {/* Botões ação */}
-                <div className="flex shrink-0 gap-1">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 text-xs font-semibold border border-purple-500/20">
+                    {m.tom || 'C'}
+                  </span>
                   <button
                     type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
                     onClick={() => void alternarFavorita(m.id)}
-                    aria-label={m.eFavorita ? 'Remover favorito' : 'Favoritar'}
+                    className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white transition-colors"
                   >
                     <Star
-                      size={14}
-                      className={m.eFavorita ? 'fill-current' : ''}
-                      style={{ color: m.eFavorita ? '#E4B429' : 'rgba(255,255,255,0.35)' }}
+                      size={16}
+                      className={m.eFavorita ? 'fill-yellow-400 text-yellow-400' : ''}
                     />
                   </button>
                   <button
                     type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-                    style={{ background: 'rgba(162,89,255,0.12)' }}
                     onClick={() => navigate(`/musica/${m.id}`)}
-                    aria-label="Ver cifra"
+                    className="p-2 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-300 hover:bg-purple-600/30 transition-colors"
                   >
-                    <FileText size={14} style={{ color: '#A259FF' }} />
+                    <FileText size={16} />
                   </button>
                 </div>
               </div>
@@ -199,7 +180,7 @@ export const BuscaRapida: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
