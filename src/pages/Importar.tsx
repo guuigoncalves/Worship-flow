@@ -149,13 +149,15 @@ export const Importar: React.FC = () => {
 
     function renderTabSelector() {
         return (
-            <div className="grid grid-cols-4 gap-1 rounded-xl bg-elevada p-1.5 text-sm font-medium">
+            <div className="grid grid-cols-4 gap-1.5 rounded-2xl bg-[#141522]/80 p-1.5 border border-white/10">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         type="button"
-                        className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 transition-all ${
-                            aba === tab.id ? 'bg-primaria text-fundo' : 'text-textoSecundario hover:text-texto'
+                        className={`flex items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold transition-all border ${
+                            aba === tab.id
+                                ? 'bg-purple-600/30 text-white border-purple-500/50 shadow-lg shadow-purple-950/50'
+                                : 'bg-transparent text-white/40 border-transparent hover:text-white'
                         }`}
                         onClick={() => {
                             setAba(tab.id);
@@ -173,7 +175,7 @@ export const Importar: React.FC = () => {
                         }}
                     >
                         {tab.icone}
-                        {tab.label}
+                        <span>{tab.label}</span>
                     </button>
                 ))}
             </div>
@@ -182,35 +184,58 @@ export const Importar: React.FC = () => {
 
     function renderMetadataForm() {
         return (
-            <div className="card grid gap-3 p-4 sm:grid-cols-2">
-                <input className="input" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Título" />
-                <input className="input" value={artista} onChange={(e) => setArtista(e.target.value)} placeholder="Artista" />
-                <input className="input" value={tom} onChange={(e) => setTom(e.target.value)} placeholder="Tom (ex: C, G, Am...)" />
+            <div className="grid gap-3 sm:grid-cols-3">
+                <div>
+                    <label className="text-xs font-medium text-white/60 block mb-1">Título</label>
+                    <input
+                        className="w-full bg-[#141522]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                        value={titulo}
+                        onChange={(e) => setTitulo(e.target.value)}
+                        placeholder="Nome da música"
+                    />
+                </div>
+                <div>
+                    <label className="text-xs font-medium text-white/60 block mb-1">Artista</label>
+                    <input
+                        className="w-full bg-[#141522]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                        value={artista}
+                        onChange={(e) => setArtista(e.target.value)}
+                        placeholder="Artista / Banda"
+                    />
+                </div>
+                <div>
+                    <label className="text-xs font-medium text-white/60 block mb-1">Tom</label>
+                    <input
+                        className="w-full bg-[#141522]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                        value={tom}
+                        onChange={(e) => setTom(e.target.value)}
+                        placeholder="Tom (ex: C, G...)"
+                    />
+                </div>
             </div>
         );
     }
 
     function renderTextoContent() {
         return (
-            <>
-                <SectionHeader icone={<FileText size={16} />} titulo="Conteúdo da Cifra" />
+            <div className="space-y-2">
+                <label className="text-xs font-medium text-white/60 block">Conteúdo da Cifra</label>
                 <textarea
                     required
                     rows={12}
                     value={textoCifra}
                     onChange={(e) => setTextoCifra(e.target.value)}
-                    placeholder="Cole aqui a cifra com acordes e letra..."
-                    className="input font-mono text-xs w-full leading-relaxed p-3"
+                    placeholder="Cole aqui a letra com os acordes..."
+                    className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                 />
-            </>
+            </div>
         );
     }
 
     function renderPdfContent() {
         return (
-            <>
-                <SectionHeader icone={<FileSpreadsheet size={16} />} titulo="Upload de PDF" />
-                <label className="card flex min-h-[120px] cursor-pointer items-center justify-center border-2 border-dashed border-borda p-4 text-center transition-colors hover:border-primaria">
+            <div className="space-y-4">
+                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#141522]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#141522]/80">
                     <input
                         type="file"
                         accept="application/pdf"
@@ -223,40 +248,44 @@ export const Importar: React.FC = () => {
                             }
                         }}
                     />
-                    <div className="flex flex-col items-center gap-2 text-textoSecundario">
-                        <Upload className="h-8 w-8 text-primaria" />
-                        <span className="text-sm">Clique para selecionar um PDF</span>
-                        {arquivo ? <span className="text-xs">{arquivo.name}</span> : null}
+                    <div className="flex flex-col items-center gap-2 text-white/60">
+                        <div className="p-3 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+                            <Upload className="h-6 w-6" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">Clique para selecionar um PDF</span>
+                        <span className="text-[10px] text-white/40">Suporta arquivos PDF de cifras e partituras</span>
+                        {arquivo ? <span className="text-xs text-purple-400 font-medium mt-1">{arquivo.name}</span> : null}
                     </div>
                 </label>
 
                 {processando ? (
-                    <div className="card flex items-center justify-center gap-3 p-6 text-textoSecundario">
-                        <Loader2 className="h-6 w-6 animate-spin text-primaria" />
-                        <span>Extraindo texto do PDF…</span>
+                    <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-[#141522]/80 border border-white/10 text-white/60">
+                        <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                        <span className="text-xs">Extraindo texto do PDF…</span>
                     </div>
                 ) : resultadoLeitura?.texto ? (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {renderMetadataForm()}
-                        <SectionHeader icone={<FileText size={16} />} titulo="Texto extraído (revise antes de salvar)" />
-                        <textarea
-                            rows={12}
-                            value={textoCifra}
-                            onChange={(e) => setTextoCifra(e.target.value)}
-                            placeholder="Texto extraído do PDF…"
-                            className="input font-mono text-xs w-full leading-relaxed p-3"
-                        />
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium text-white/60 block">Texto Extraído</label>
+                            <textarea
+                                rows={12}
+                                value={textoCifra}
+                                onChange={(e) => setTextoCifra(e.target.value)}
+                                placeholder="Texto extraído do PDF…"
+                                className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                            />
+                        </div>
                     </div>
                 ) : null}
-            </>
+            </div>
         );
     }
 
     function renderImagemContent() {
         return (
-            <>
-                <SectionHeader icone={<Image size={16} />} titulo="Upload de Imagem (OCR)" />
-                <label className="card flex min-h-[120px] cursor-pointer items-center justify-center border-2 border-dashed border-borda p-4 text-center transition-colors hover:border-primaria">
+            <div className="space-y-4">
+                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#141522]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#141522]/80">
                     <input
                         type="file"
                         accept="image/*"
@@ -269,45 +298,49 @@ export const Importar: React.FC = () => {
                             }
                         }}
                     />
-                    <div className="flex flex-col items-center gap-2 text-textoSecundario">
-                        <Image className="h-8 w-8 text-primaria" />
-                        <span className="text-sm">Clique para selecionar uma imagem (PNG/JPG)</span>
-                        {arquivo ? <span className="text-xs">{arquivo.name}</span> : null}
+                    <div className="flex flex-col items-center gap-2 text-white/60">
+                        <div className="p-3 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+                            <Image className="h-6 w-6" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">Clique para selecionar uma Imagem</span>
+                        <span className="text-[10px] text-white/40">Suporta PNG, JPG e fotos de papéis com cifras</span>
+                        {arquivo ? <span className="text-xs text-purple-400 font-medium mt-1">{arquivo.name}</span> : null}
                     </div>
                 </label>
 
                 {processando ? (
-                    <div className="card flex items-center gap-3 p-4 text-textoSecundario">
-                        <Loader2 className="h-5 w-5 animate-spin text-primaria" />
-                        <span className="flex-1">Lendo imagem com OCR…</span>
-                        <span className="text-xs">{Math.round(progressoOCR * 100)}%</span>
+                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#141522]/80 border border-white/10 text-white/60">
+                        <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                        <span className="flex-1 text-xs">Reconhecendo texto com OCR…</span>
+                        <span className="text-xs font-bold text-purple-400">{Math.round(progressoOCR * 100)}%</span>
                     </div>
                 ) : null}
 
                 {revisando && rascunhoRevisao ? (
                     <FormRevisaoCifra rascunho={rascunhoRevisao} onCancelar={() => setRevisando(false)} onConfirmar={handleSalvarRascunho} />
                 ) : resultadoLeitura?.texto && !revisando ? (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {renderMetadataForm()}
-                        <SectionHeader icone={<FileText size={16} />} titulo="Texto extraído (revise antes de salvar)" />
-                        <textarea
-                            rows={12}
-                            value={textoCifra}
-                            onChange={(e) => setTextoCifra(e.target.value)}
-                            placeholder="Texto extraído da imagem…"
-                            className="input font-mono text-xs w-full leading-relaxed p-3"
-                        />
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium text-white/60 block">Texto Reconhecido (OCR)</label>
+                            <textarea
+                                rows={12}
+                                value={textoCifra}
+                                onChange={(e) => setTextoCifra(e.target.value)}
+                                placeholder="Texto extraído da imagem…"
+                                className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                            />
+                        </div>
                     </div>
                 ) : null}
-            </>
+            </div>
         );
     }
 
     function renderPlanilhaContent() {
         return (
-            <>
-                <SectionHeader icone={<FileSpreadsheet size={16} />} titulo="Upload de Planilha" />
-                <label className="card flex min-h-[120px] cursor-pointer items-center justify-center border-2 border-dashed border-borda p-4 text-center transition-colors hover:border-primaria">
+            <div className="space-y-4">
+                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#141522]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#141522]/80">
                     <input
                         type="file"
                         accept=".xlsx,.xls,.csv"
@@ -320,54 +353,63 @@ export const Importar: React.FC = () => {
                             }
                         }}
                     />
-                    <div className="flex flex-col items-center gap-2 text-textoSecundario">
-                        <FileSpreadsheet className="h-8 w-8 text-primaria" />
-                        <span className="text-sm">Clique para selecionar XLSX ou CSV</span>
-                        {arquivo ? <span className="text-xs">{arquivo.name}</span> : null}
+                    <div className="flex flex-col items-center gap-2 text-white/60">
+                        <div className="p-3 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+                            <FileSpreadsheet className="h-6 w-6" />
+                        </div>
+                        <span className="text-xs font-semibold text-white">Clique para selecionar uma Planilha</span>
+                        <span className="text-[10px] text-white/40">Suporta arquivos Excel (.xlsx) ou CSV em lote</span>
+                        {arquivo ? <span className="text-xs text-purple-400 font-medium mt-1">{arquivo.name}</span> : null}
                     </div>
                 </label>
 
                 {processando ? (
-                    <div className="card flex items-center justify-center gap-3 p-6 text-textoSecundario">
-                        <Loader2 className="h-6 w-6 animate-spin text-primaria" />
-                        <span>Lendo planilha…</span>
+                    <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-[#141522]/80 border border-white/10 text-white/60">
+                        <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                        <span className="text-xs">Processando planilha…</span>
                     </div>
                 ) : resultadosPlanilha.length > 0 ? (
                     <div className="space-y-3">
-                        <SectionHeader icone={<FileText size={16} />} titulo={`Músicas encontradas (${resultadosPlanilha.length})`} />
-                        <div className="card divide-y divide-borda max-h-[400px] overflow-y-auto">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Músicas na planilha</h3>
+                            <span className="text-xs font-semibold text-purple-400">{resultadosPlanilha.length} encontradas</span>
+                        </div>
+                        <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
                             {resultadosPlanilha.map((musica, index) => (
-                                <div key={`${musica.titulo}-${index}`} className="flex items-center justify-between gap-3 p-3">
+                                <div key={`${musica.titulo}-${index}`} className="p-3 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl">
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate font-semibold">{musica.titulo}</p>
-                                        <p className="truncate text-sm text-textoSecundario">{musica.artista} · {musica.tom}</p>
+                                        <p className="text-xs font-semibold text-white truncate">{musica.titulo}</p>
+                                        <p className="text-[10px] text-white/40 truncate">{musica.artista}</p>
                                     </div>
+                                    <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 text-xs font-semibold border border-purple-500/20">
+                                        {musica.tom}
+                                    </span>
                                 </div>
                             ))}
                         </div>
                         <button
-                            className="btn-primary w-full"
+                            className="w-full py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all"
                             type="button"
                             disabled={salvandoPlanilha}
                             onClick={() => void salvarTodasPlanilha()}
                         >
-                            {salvandoPlanilha ? 'Salvando…' : 'Salvar Todas'}
+                            {salvandoPlanilha ? 'Salvando...' : 'Salvar todas as músicas'}
                         </button>
                     </div>
                 ) : arquivo && !processando ? (
-                    <p className="text-sm text-textoSecundario">Nenhuma música encontrada na planilha.</p>
+                    <p className="text-xs text-white/40 text-center">Nenhuma música encontrada na planilha.</p>
                 ) : null}
-            </>
+            </div>
         );
     }
 
     function renderTabContent() {
         if (sucesso) {
             return (
-                <div className="card p-6 text-center space-y-3">
-                    <CheckCircle size={40} className="mx-auto text-sucesso" />
-                    <h2 className="text-base font-bold text-texto">Importado com Sucesso!</h2>
-                    <p className="text-xs text-textoSecundario">Redirecionando para a biblioteca…</p>
+                <div className="p-8 text-center space-y-3 rounded-3xl bg-[#141522]/90 border border-white/10 shadow-2xl">
+                    <CheckCircle size={48} className="mx-auto text-emerald-400" />
+                    <h2 className="text-lg font-bold text-white">Importação concluída!</h2>
+                    <p className="text-xs text-white/40">Redirecionando para a biblioteca…</p>
                 </div>
             );
         }
@@ -387,32 +429,33 @@ export const Importar: React.FC = () => {
     }
 
     return (
-        <div className="app-page space-y-6 pb-24 fade-in max-w-xl mx-auto">
-            <button
-                onClick={() => navigate(-1)}
-                className="btn-ghost text-xs flex items-center gap-2"
-            >
-                <ArrowLeft size={16} />
-                <span>Voltar</span>
-            </button>
-
-            <div>
-                <h1 className="text-2xl font-bold text-gradient">Importar Cifra</h1>
-                <p className="text-xs text-textoSecundario">
-                    Importe cifras de texto, PDF, imagem (OCR) ou planilhas
-                </p>
-            </div>
+        <main className="app-page space-y-6 pb-32 fade-in max-w-xl mx-auto" style={{ backgroundColor: '#0B0C10' }}>
+            {/* Header */}
+            <header className="flex items-center gap-3 pt-1">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+                    type="button"
+                    aria-label="Voltar"
+                >
+                    <ArrowLeft size={18} />
+                </button>
+                <div>
+                    <h1 className="text-xl font-bold text-white">Importar Cifra</h1>
+                    <p className="text-[10px] text-white/40">Adicione repertório via texto, PDF, foto ou planilha</p>
+                </div>
+            </header>
 
             {renderTabSelector()}
 
-            <form onSubmit={aba !== 'planilha' ? handleImportarTexto : undefined} className="space-y-4">
+            <form onSubmit={aba !== 'planilha' ? handleImportarTexto : undefined} className="space-y-5">
                 {(aba === 'texto' || (aba === 'pdf' && resultadoLeitura?.texto) || (aba === 'imagem' && resultadoLeitura?.texto && !revisando)) ? (
                     <>
                         {renderMetadataForm()}
-                        <div className="space-y-3">{renderTabContent()}</div>
+                        {renderTabContent()}
                         <button
                             type="submit"
-                            className="btn-primary w-full py-3 text-xs flex items-center justify-center gap-2"
+                            className="w-full py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition-all"
                             disabled={!titulo.trim() || !textoCifra.trim()}
                         >
                             <Upload size={16} />
@@ -420,10 +463,10 @@ export const Importar: React.FC = () => {
                         </button>
                     </>
                 ) : (
-                    <div className="space-y-3">{renderTabContent()}</div>
+                    renderTabContent()
                 )}
             </form>
-        </div>
+        </main>
     );
 };
 
