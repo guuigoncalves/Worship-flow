@@ -47,13 +47,32 @@ export function ExibicaoCifra({ letra, acordesProibidos, modo, tamanho, possuiCi
   return (
     <div className={`font-mono leading-[1.75] text-texto ${tamanhos[tamanho]}`}>
       {linhas.map((linha, linhaIndex) => {
+        const linhaTrim = linha.trim();
+        const isCabecalhoSecao = /^\[(Intro|Refrão|Refrão|Primeira Parte|Segunda Parte|Ponte|Outro|Final|Verso|Verso \d+|Solo|Pré-refrão|Pré-Refrão|Interlúdio|Tag)\]$/i.test(linhaTrim);
+
+        if (isCabecalhoSecao) {
+          const nomeSecao = linhaTrim.slice(1, -1);
+          return (
+            <div key={`${linha}-${linhaIndex}`} className="mt-4 mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-purple-400 font-sans px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20">
+                {nomeSecao}
+              </span>
+            </div>
+          );
+        }
+
         const { acordes, texto } = formatarBlocoCifra(linha);
         const isAmbos = modo === 'ambos';
+        const temAcordes = Boolean(acordes && acordes.trim());
+        const temTexto = Boolean(texto && texto.trim());
+
         return (
-          <div key={`${linha}-${linhaIndex}`} className="min-h-[2.5em]">
-            <div className="text-primaria leading-none">
-              <span className="whitespace-pre-wrap break-words">{acordes || '\u00A0'}</span>
-            </div>
+          <div key={`${linha}-${linhaIndex}`} className={temAcordes || temTexto ? 'min-h-[2.5em]' : 'h-4'}>
+            {temAcordes && (
+              <div className="text-primaria leading-none">
+                <span className="whitespace-pre-wrap break-words">{acordes}</span>
+              </div>
+            )}
             {isAmbos && (
               <div className="whitespace-pre-wrap break-words">{texto || '\u00A0'}</div>
             )}
