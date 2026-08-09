@@ -44,15 +44,24 @@ export const Player: React.FC = () => {
 
   if (!faixa) {
     return (
-      <div className="app-page space-y-6 pb-24 fade-in">
-        <button onClick={() => navigate(-1)} className="btn-ghost h-9 w-9 p-0">
-          <ArrowLeft size={16} />
-        </button>
+      <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+        <header className="flex items-center justify-between pt-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+            type="button"
+            aria-label="Voltar"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <h1 className="text-base font-bold text-white">Player</h1>
+          <div className="w-9" />
+        </header>
         <EstadoVazio
-          titulo="Nenhuma faixa selecionada"
-          texto="Selecione uma música da biblioteca para iniciar a reprodução."
+          titulo="Nenhuma faixa em reprodução"
+          texto="Selecione uma música no Hub Música ou na Biblioteca para tocar aqui."
         />
-      </div>
+      </main>
     );
   }
 
@@ -62,26 +71,46 @@ export const Player: React.FC = () => {
   const progPercent = duracao > 0 ? (progresso / duracao) * 100 : 0;
 
   return (
-    <div className="app-page space-y-5 pb-24 fade-in max-w-lg mx-auto">
-      {/* Back */}
-      <button onClick={() => navigate(-1)} className="btn-ghost h-9 w-9 p-0">
-        <ArrowLeft size={16} />
-      </button>
+    <main className="app-page space-y-6 pb-32 fade-in max-w-md mx-auto" style={{ backgroundColor: '#0B0C10' }}>
+      {/* Header */}
+      <header className="flex items-center justify-between pt-1">
+        <button
+          onClick={() => navigate(-1)}
+          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          type="button"
+          aria-label="Voltar"
+        >
+          <ArrowLeft size={18} />
+        </button>
+        <div className="text-center">
+          <span className="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Tocando agora</span>
+          <h1 className="text-sm font-bold text-white truncate max-w-[200px]">{faixa.titulo}</h1>
+        </div>
+        <button
+          onClick={() => setMostrarLetra(!mostrarLetra)}
+          disabled={!temLetra}
+          className={`btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl border transition-colors ${
+            mostrarLetra
+              ? 'bg-purple-600/30 border-purple-500/50 text-purple-300'
+              : 'bg-white/5 border-white/10 text-white/60 hover:text-white'
+          }`}
+          type="button"
+          title="Ver letra"
+        >
+          <FileText size={18} />
+        </button>
+      </header>
 
-      {/* Capa centralizada com glow */}
-      <div className="flex flex-col items-center justify-center pt-2">
+      {/* Capa Centralizada com Glow Aurora */}
+      <div className="flex flex-col items-center justify-center pt-2 space-y-4">
         <div className="relative">
-          {/* Glow */}
           {tocando && (
             <div
-              className="absolute -inset-6 rounded-full blur-2xl opacity-40 animate-pulse"
-              style={{ background: 'radial-gradient(circle, #A259FF 0%, transparent 70%)' }}
+              className="absolute -inset-8 rounded-full blur-3xl opacity-50 animate-pulse pointer-events-none"
+              style={{ background: 'radial-gradient(circle, #8B5CF6 0%, #4F46E5 50%, transparent 70%)' }}
             />
           )}
-          <div
-            className="relative h-52 w-52 overflow-hidden rounded-3xl"
-            style={{ boxShadow: '0 24px 60px -12px rgba(162,89,255,0.5)', border: '1px solid rgba(162,89,255,0.3)' }}
-          >
+          <div className="relative h-60 w-60 overflow-hidden rounded-3xl border border-white/15 shadow-2xl shadow-purple-950/50">
             <CapaMusica
               tom={faixaTom}
               titulo={faixa.titulo}
@@ -91,28 +120,24 @@ export const Player: React.FC = () => {
           </div>
         </div>
 
-        {/* Info */}
-        <div className="mt-5 w-full space-y-1 px-4 text-center">
-          <h1 className="text-xl font-bold truncate">{faixa.titulo}</h1>
-          <p className="text-sm truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {faixa.artista || 'Artista não informado'}
-          </p>
+        {/* Título e Artista */}
+        <div className="text-center space-y-1 w-full px-4">
+          <h2 className="text-xl font-extrabold text-white truncate">{faixa.titulo}</h2>
+          <p className="text-xs text-white/50 truncate">{faixa.artista || 'Artista não informado'}</p>
           {faixaTom && (
-            <span
-              className="inline-block mt-1 rounded-full px-3 py-0.5 text-xs font-bold"
-              style={{ background: 'rgba(162,89,255,0.2)', color: '#A259FF', border: '1px solid rgba(162,89,255,0.3)' }}
-            >
-              Tom: {faixaTom}
-            </span>
+            <div className="pt-1">
+              <span className="inline-block px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold font-mono">
+                Tom: {faixaTom}
+              </span>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Barra de progresso */}
+      {/* Barra de Progresso */}
       <div className="space-y-2 px-2">
         <div
-          className="relative h-1.5 w-full overflow-hidden rounded-full cursor-pointer"
-          style={{ background: 'rgba(255,255,255,0.1)' }}
+          className="relative h-2 w-full bg-white/10 rounded-full cursor-pointer overflow-hidden backdrop-blur-sm"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -121,109 +146,105 @@ export const Player: React.FC = () => {
           }}
         >
           <div
-            className="absolute left-0 top-0 h-full rounded-full transition-all duration-100"
-            style={{ width: `${progPercent}%`, background: 'linear-gradient(90deg, #A259FF, #5B8DEF)' }}
+            className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-400 transition-all duration-100"
+            style={{ width: `${progPercent}%` }}
           />
         </div>
-        <div className="flex justify-between text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <div className="flex justify-between text-[10px] font-mono text-white/40">
           <span>{formatarTempo(progresso)}</span>
           <span>{formatarTempo(duracao)}</span>
         </div>
       </div>
 
-      {/* Controles */}
-      <div
-        className="flex items-center justify-around rounded-2xl p-4"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        {/* PAD */}
+      {/* Controles Principais Aurora */}
+      <div className="bg-[#141522]/90 border border-white/10 rounded-3xl p-4 backdrop-blur-xl shadow-2xl flex items-center justify-around">
         <button
+          type="button"
           onClick={() => setModo(modo === 'pad' ? 'normal' : 'pad')}
-          className="rounded-lg px-3 py-1.5 text-xs font-bold transition-colors"
-          style={modo === 'pad'
-            ? { background: 'rgba(162,89,255,0.3)', color: '#A259FF', border: '1px solid rgba(162,89,255,0.4)' }
-            : { color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}
+          className={`px-3 py-1.5 rounded-xl text-xs font-black tracking-wider transition-all border ${
+            modo === 'pad'
+              ? 'bg-purple-600 text-white border-purple-400 shadow-lg shadow-purple-600/30'
+              : 'bg-white/5 text-white/40 border-white/10 hover:text-white'
+          }`}
           title="Modo Pad contínuo"
         >
           PAD
         </button>
 
-        {/* Anterior */}
-        <button onClick={() => {}} className="p-3 transition-colors" style={{ color: 'rgba(255,255,255,0.6)' }} title="Anterior">
+        <button
+          type="button"
+          onClick={() => {}}
+          className="p-3 text-white/60 hover:text-white transition-colors"
+          title="Anterior"
+        >
           <SkipBack size={22} />
         </button>
 
-        {/* Play/Pause principal */}
         <button
+          type="button"
           onClick={() => (tocando ? pausar() : tocar(faixa))}
-          className="flex h-14 w-14 items-center justify-center rounded-full transition-all hover:scale-105 active:scale-95"
-          style={{ background: 'linear-gradient(120deg, #A259FF, #5B8DEF)', boxShadow: '0 8px 24px -8px rgba(162,89,255,0.6)' }}
+          className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95 transition-all"
         >
-          {tocando ? <Pause size={26} style={{ color: 'white' }} /> : <Play size={26} className="ml-0.5" style={{ color: 'white' }} />}
+          {tocando ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-0.5" />}
         </button>
 
-        {/* Próxima */}
-        <button onClick={() => {}} className="p-3 transition-colors" style={{ color: 'rgba(255,255,255,0.6)' }} title="Próxima">
+        <button
+          type="button"
+          onClick={() => {}}
+          className="p-3 text-white/60 hover:text-white transition-colors"
+          title="Próxima"
+        >
           <SkipForward size={22} />
         </button>
 
-        {/* Volume e letra */}
-        <div className="flex items-center gap-1">
-          <button onClick={() => setVolume(volume === 0 ? 0.8 : 0)} className="p-2 transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
-          </button>
-          {temLetra && (
-            <button
-              onClick={() => setMostrarLetra((valor) => !valor)}
-              className="p-2 transition-colors"
-              style={{ color: mostrarLetra ? '#A259FF' : 'rgba(255,255,255,0.5)' }}
-              title={mostrarLetra ? 'Ocultar letra' : 'Exibir letra'}
-            >
-              <FileText size={18} />
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+          className="p-3 text-white/60 hover:text-white transition-colors"
+        >
+          {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </button>
       </div>
 
-      {/* Letra */}
+      {/* Exibição da Letra */}
       {mostrarLetra && temLetra && (
-        <div
-          className="max-h-[50vh] overflow-y-auto rounded-2xl p-5"
-          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)' }}
-        >
-          <div className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed">
+        <div className="bg-[#141522]/90 border border-white/10 rounded-3xl p-5 backdrop-blur-xl space-y-2">
+          <h3 className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Letra da Música</h3>
+          <div className="whitespace-pre-wrap font-mono text-xs text-white/80 leading-relaxed max-h-60 overflow-y-auto pr-2">
             {musica?.letra}
           </div>
         </div>
       )}
 
-      {/* Fila */}
+      {/* Fila de Reprodução */}
       {fila.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 px-1">
-            <List size={14} style={{ color: '#A259FF' }} />
-            <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.6)' }}>Fila ({fila.length})</span>
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider flex items-center gap-2">
+              <List size={14} className="text-purple-400" />
+              <span>Fila ({fila.length})</span>
+            </h3>
           </div>
-          <div className="card max-h-48 overflow-y-auto divide-y" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
             {fila.map((item, idx) => (
               <div
                 key={item.id + idx}
                 onClick={() => tocar(item)}
-                className="flex cursor-pointer items-center justify-between p-2.5 transition-colors hover:bg-white/5"
+                className="card p-3 flex items-center justify-between border border-white/10 bg-[#141522]/80 hover:bg-[#1A1040]/50 transition-all rounded-2xl cursor-pointer"
               >
-                <div className="flex min-w-0 items-center gap-2">
-                  <Music size={12} style={{ color: '#A259FF' }} className="shrink-0" />
-                  <span className="truncate text-sm">{item.titulo}</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <Music size={16} className="text-purple-400 shrink-0" />
+                  <span className="text-xs font-medium text-white truncate">{item.titulo}</span>
                 </div>
-                <span className="shrink-0 text-[10px] font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                  {(item as any).tom || ''}
+                <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                  {(item as any).tom || 'C'}
                 </span>
               </div>
             ))}
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
