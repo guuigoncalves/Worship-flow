@@ -1,87 +1,136 @@
 # ARQUITETURA.md — WorshipFlow
-> v1.6 atualiza v1.4 (checkpoint 07/08) com o estado real no ponto de pausa da sessão de
-> 08/08/2026, à noite: bateu a cota do Claude usado pelo Antigravity no meio da execução do
-> SI v22.0, na Fase P (setup de sessão autenticada para screenshots). Nenhum código da v22 foi
-> commitado ainda — a sessão travou em debug, sem chegar a alterar nenhum arquivo de produto.
+> v1.3 atualiza v1.2 (05/08/2026) com: `firestore.rules` corrigido e aplicado em produção
+> (06/08/2026), causa raiz da cor amarela identificada e corrigida (variável `--primaria`), bug de
+> duplicação do componente de saudação identificado (sem `Header` compartilhado — texto repetido em
+> 3 arquivos), e introdução do Antigravity como agente executor para a etapa de redesign visual,
+> substituindo/complementando o fluxo Google AI Studio + Kilo Code nessa frente específica.
 
 ---
 
-## 1. Stack real — sem mudança de v1.4
+## 1. Stack real (confirmado no `package.json`, sem mudança de v1.2)
 
-## 2. Ferramental de execução — ATUALIZADO nesta revisão
-Antigravity segue como executor da frente visual. **Nota de cota (nova, 08/08 noite):** a cota do
-modelo Claude usado internamente pelo Antigravity nesta conta se esgotou durante a Fase P do
-SI v22.0. Diferente da pausa anterior (cota do browser subagent/Playwright, 07/08), desta vez é a
-cota do próprio modelo de raciocínio — o agente não consegue continuar gerando código até resetar
-ou até trocar de conta/modelo.
+| Camada | Tecnologia | Versão |
+|---|---|---|
+| Frontend | React + Vite + TypeScript | React 19, Vite 6, TS ~5.7 |
+| Estilo | Tailwind CSS 3 + CSS Variables | — |
+| Roteamento | React Router DOM | 6.28 |
+| Backend | Firebase (Auth + Firestore) | firebase 11.10 |
+| Player de áudio | Howler.js | 2.2.4 |
+| Metrônomo | Web Audio API própria (`utils/metronomo.ts`) | — |
+| PWA | vite-plugin-pwa (Workbox, `generateSW`, `registerType: 'prompt'`) | 0.21 |
+| Export PDF | jsPDF | 4.2 |
+| Export planilha | xlsx (SheetJS) | 0.18 |
+| i18n | i18next + react-i18next | 24.2 / 15.4 |
+| Ícones | lucide-react | 0.469 |
 
-## 3-7. Sem mudança de v1.4 (Firestore, modelo de dado, rotas, Camada Privada, PWA/SW)
+`chordsheetjs` e `@dnd-kit` continuam ausentes, sem mudança.
 
-## 8. Redesign Visual — ESTADO REAL NO PONTO DE PAUSA (08/08/2026, noite)
+## 2. Ferramental de execução — ATUALIZADO
 
-### Commitado e aprovado (sem mudança da v1.4)
-9 telas originais: Início, Música, Hub Cifra, Espaços, Biblioteca, Álbuns, Artistas, Playlists,
-Comunidade.
+| Etapa | Ferramenta | Papel |
+|---|---|---|
+| Governança/decisão | Claude Gestão (este chat) | Dá o plano, revisa segurança/schema, não executa código |
+| Backend/infra (bugs técnicos, regras, proxy) | Google AI Studio + Kilo Code (fluxo original) | Segue funcionando aqui enquanto estiver eficaz — sem motivo pra trocar o que não está quebrado |
+| Redesign visual (frontend, telas) | **Antigravity** (novo, a partir de 06/08/2026) | Assume o papel combinado de "Dev + IDE": recebe o plano completo, comanda a si mesmo, executa, se autoverifica por screenshot comparado ao mockup, avança de fase sem round-trip obrigatório pelo Claude Gestão |
 
-### Commitado nesta leva (SI v20/v21), com hash confirmado
-| Fase | Tela/mudança | Hash | Verificação visual |
-|---|---|---|---|
-| L | `NavegacaoInferior` montada no `Shell` + fix `navigate('/tocar')` → `/player` | `752130f` | Confirmada por leitura de código, não por clique real — pendente teste manual do Guilherme quando houver tempo |
-| F5 | Perfil (`/perfil`) — redesign mockup #16 | `b61a915` | ⚠️ Screenshot automatizado falhou (caiu em `/login`) — **não confirmada visualmente**, código presumido correto mas não provado |
-| F6 | Configurações (`/configuracoes`) — redesign mockup #17 | `e00258a` | Build verde, verificação visual não confirmada explicitamente no relatório |
-| F7 | Painel Admin (`/adm`) — redesign mockups #18/#19 | `28e879c` | Build verde; **bug conhecido**: botões de ação sem ícone (só um ponto), reportado pelo Guilherme, correção pendente (era a Fase N do SI v21, execução não confirmada nos relatórios recebidos) |
-| F8 | Login (`/login`) — redesign mockup #19 | `b11c527` | Build verde, verificação visual não confirmada |
-| O | Estilo Aurora na `NavegacaoInferior` mobile | `69f1cd9` | ✅ **Confirmada pelo Guilherme via screenshot real** (fundo escuro vítreo, roxo no ativo) |
+Modelos dentro do Antigravity e quando usar cada um: ver AGENTS.md v1.3, regra #16.
 
-### Correções pendentes de confirmação de execução (pedidas na SI v21, sem relatório de conclusão recebido)
-- **Fase N (v21)** — ícones ausentes nos botões do Painel Admin. Guilherme reportou depois que o
-  bug **persiste** em `/perfil` também — ou seja, mesmo se a Fase N do Admin tiver sido feita, o
-  mesmo problema não foi replicado/corrigido no Perfil. Está reincluída como Fase R no SI v22.
-- **Regressão nova, ainda não corrigida**: o nome/logo do app sumiu do topo do Header, notada pelo
-  Guilherme após as Fases O/M1. Suspeita: efeito colateral da limpeza de código duplicado via `sed`
-  em `DetalheMusica.tsx` (Fase M1) ou algo quebrado no `Shell`/`Header.tsx` entre as Fases L-O.
-  Incluída como Fase Q (urgente) no SI v22 — **não executada ainda**, sessão pausou antes de
-  chegar nela.
+**Por que a troca:** o gargalo identificado nas últimas rodadas não era o "Dev" ser ruim, era o
+pipeline ser cego — nenhuma ferramenta anterior via o resultado renderizado antes de reportar
+"pronto". Antigravity tem testagem de browser embutida e reporta via screenshots, o que ataca
+diretamente a causa raiz dos relatórios "testado" que não batiam com a realidade.
 
-### Logo oficial — CONFIRMADA visualmente pelo Guilherme, commit deveria estar liberado
-Guilherme confirmou em `localhost:5175`: logo sem fundo, correta. SI v21 liberou o commit da
-Fase K logo no início da execução daquela SI. **Não há confirmação explícita nos relatórios
-recebidos de que esse commit de fato aconteceu** — hash não identificado em nenhum log visto até
-agora. Verificar com `git log --oneline --all -- src/assets/logo.png Header.tsx index.html` na
-retomada, antes de assumir que está commitado.
+## 3. Firebase — estrutura real do Firestore (confirmado por leitura direta do zip, 06/08/2026)
 
-### Lacuna de navegação global — RESOLVIDA (não é mais lacuna)
-Diagnóstico do agente confirmou: `NavegacaoInferior` já existia completa e fiel aos mockups, só
-não estava montada no `Shell`. Montada na Fase L (`752130f`). As 6 rotas (`/perfil`,
-`/configuracoes`, `/comunidade`, `/playlists`, `/espacos`, `/adm`) estão navegáveis. Confirmado
-parcialmente pelo Guilherme (abriu no PC, funcionou). Item fechado, não é mais pendência aberta.
+```
+users/{uid}                                — perfil
+users/{uid}/musicas/{musicaId}              — subcoleção privada (useMusicas)
+users/{uid}/favoritos/{musicaId}
+users/{uid}/historico/{entradaId}
+users/{uid}/estatisticas/geral
+users/{uid}/medleys/{medleyId}
+users/{uid}/playlists/{playlistId}
+users/{uid}/espacos/{espacoId}              — mirror local (useEspacos)
+espacos/{espacoId}                          — donoUid, codigo, observacoesEnsaio?
+espacos/{espacoId}/membros/{uid}            — papel: dono/admin/editor/leitor
+espacos/{espacoId}/musicas/{musicaId}
+comunidade/{musicaComunidadeId}             — coleção FLAT, campo de autor real: enviadaPor
+codigos/{codigo}                            — campo real: espacoId, criadoPor, ativo
+```
 
-### 🔴 NOVO — Sessão travou na Fase P do SI v22 (setup de autenticação automatizada)
-Não existe conta de teste documentada no projeto. O agente tentou usar o fluxo de "Continuar sem
-login" (auth anônima do Firebase, `signInAnon`) via Playwright pra gerar uma sessão reutilizável
-(`storageState`) e parar de precisar de login manual do Guilherme a cada screenshot. O clique no
-botão não estava navegando pra fora de `/login` — investigação do `useAuth.tsx` em andamento
-quando a cota do Claude (Antigravity) se esgotou. **Nenhum arquivo de produto foi alterado nesta
-tentativa** — só um script de diagnóstico (`.auth/`, adicionado ao `.gitignore`) e leitura de
-código. Nada a reverter.
+**⚠️ Nomes de coleção que NÃO existem, apesar de terem sido reportados como existentes em algum
+momento — não confiar em relato, só em leitura direta do código:** `usuarios/`, `cifras/`,
+`espacos/{id}/repertorios`, `espacos/{id}/anotacoes`, `solicitacoesComunidade/`. Confirmado por
+`grep -rn "collection(db|doc(db" src/hooks/*.tsx` em 06/08/2026.
 
-### Telas ainda NÃO tocadas — Fase M do SI v22 (M1 parcialmente pronto)
-- **M1 — Detalhe da Música (`/musica/:id`)**: código já reescrito seguindo mockup #8, `tsc -b` e
-  `vite build` limpos, **mas NÃO commitado** — travou em STOP parcial por falta de verificação
-  visual (mesmo problema de sessão da Fase P). Ao retomar: ou completar a Fase P primeiro, ou
-  pedir confirmação visual manual do Guilherme uma vez, então commitar.
-- **M2-M7 — não iniciadas**: Player (`/player`), Modo Palco (`/tocar/:id` — cuidado, relatório
-  anterior alegou "já pronto" sem prova, não confiar sem screenshot real), Busca Rápida
-  (`/busca-rapida`), Importar (`/importar`), Medleys (`/medleys`, `/medley/:id`), Entrar em Espaço
-  (`/entrar/:codigo`).
-- **Fase S (SI v22, não iniciada)**: simplificar `/login` para apenas "Entrar com Google" e
-  "Continuar sem login" (remover e-mail/senha da UI, manter o hook se já existir).
+### `firestore.rules` — RESOLVIDO (06/08/2026)
+Estava fora de controle de versão até 05/08. Nessa data foi escrito pelo Claude Gestão a partir de
+leitura direta dos hooks, corrigindo uma tentativa anterior que usava `allow read, write: if
+isAuthenticated()` como regra curinga (abria qualquer documento pra qualquer usuário logado — furo
+de privacidade real, não só bug de permissão). Versão final:
+- `users/{uid}` e subcoleções: só o dono.
+- `espacos`: leitura/edição por papel real lido de `/membros`; delete só dono/admin do espaço.
+- `comunidade`: create só como `pendente` e só o remetente; update/delete só admin
+  (`Fy360vBRHeSmuMtzNJzn4jwZAKD2`).
+- `codigos`: get-only sem list; create valida contra `donoUid` do doc de `espacos` (não contra
+  `/membros`, que ainda não existe no instante da criação do espaço).
+- Fallback nega tudo não listado.
+Aplicado (commit `f460e94`), publicado no Console. **Pendente de confirmação com evidência real**
+(print de erro, não só relato) dos testes de permissão cruzada entre contas — ver SI vigente.
 
-### Fases G-J — continuam corretamente intocadas (STOP obrigatório)
-Editor de Cifra, Camada Privada/infraestrutura de rede, `firestore.rules`, Fase 19 do produto.
+## 4. Modelo de dado — `Musica`, `MusicaComunidade`, `Espaco` (sem mudança de campo desde v1.2)
 
-## 9-10. Sem mudança de v1.4
+Campo de autor real em `MusicaComunidade` é **`enviadaPor`** (confirmado em `types/index.ts`),
+não `autorUid` como chegou a ser reportado incorretamente. `Espaco.donoUid` existe e é usado nas
+regras de segurança (Seção 3). Resto sem mudança — ver v1.2 para os tipos completos.
+
+## 5. Rotas (`src/App.tsx`)
+27 rotas, sem mudança de lista — ver `INVENTARIO_TELAS.md`.
+
+## 6. Camada Privada — sem mudança de mérito desde v1.2
+Câmera confirmada correta, não mexer. Navidrome: CORS corrigido, credenciais cadastradas na Vercel
+pelo Guilherme. Acesso no celular depende do app Tailscale ativo — confirmado como causa da falha
+de acesso durante teste em 05/08 (não é bug de código). **Proposta de Cloudflare Tunnel para
+expor o Navidrome via HTTPS público está REGISTRADA, NÃO AUTORIZADA** — decisão de infraestrutura
+da Camada Privada, pendente de decisão explícita do Claude Gestão (AGENTS.md regra #7).
+
+## 7. PWA / Service Worker — RESOLVIDO
+`registerType: 'prompt'` aplicado, `NetworkOnly` nas rotas de API (`/proxy`, `/n8n`,
+`firestore.googleapis.com`). Reportado como corrigido; comportamento "offline sozinho" não
+reapareceu nos relatos mais recentes — considerar fechado até evidência em contrário.
+
+## 8. Redesign Visual — estado atual (atualiza Seção 8 da v1.2)
+
+- **Causa raiz da cor amarela identificada e corrigida**: variável `--primaria` em
+  `src/index.css` estava `#E4B429`, alterada para `#8B5CF6` (roxo Aurora). Resolver na variável
+  central foi a abordagem certa — evita ter que caçar classe `amber-*`/`yellow-*` espalhada pelo
+  código, e deve ser o padrão para qualquer ajuste de cor futuro.
+- **Barra de navegação inferior antiga removida** da Tela Inicial — confirmado nos prints de
+  produção enviados pelo Guilherme.
+- **Bug de duplicação identificado**: não existe componente `Header`/`Saudacao` compartilhado — o
+  texto "Olá, Guilherme" está duplicado em `pages/Inicio.tsx`, `pages/Musica.tsx` e
+  `pages/Cifra.tsx`. Fix precisa tocar os 3 arquivos; extração pra componente reusável é
+  recomendada mas não obrigatória na rodada atual.
+- **Telas ainda pendentes de redesign**: Hub Cifra (`/cifra`), Espaços (`/espacos` — bug técnico
+  do loop já resolvido, falta só visual), Biblioteca, e demais da lista original — ver SI vigente
+  para ordem e detalhamento.
+- Regra de execução revisada: ver AGENTS.md v1.3 regra #13 — uma tela por commit continua, mas
+  avanço entre telas agora é autônomo (autoverificação por screenshot substitui o checkpoint
+  humano intermediário).
+
+## 9. Lição confirmada: build verde não garante produção funcional (mantida da v1.2)
+Sem mudança de princípio. Reforçada pela descoberta do furo de segurança nas regras do Firestore,
+que também não quebrava build nenhum.
+
+## 10. Convenções obrigatórias (sem mudança)
+- Nomes em português. `export default NomeDaPagina`. `EstadoVazio` usa prop `texto`.
+- `useTransposicao()` só tem funções puras. Sistema visual Aurora em `src/index.css`.
+- Ambiente: CachyOS, Fish Shell, Kate. `touch`/`truncate -s 0`/`kate`.
+- Erro de infraestrutura/configuração nunca renderiza como "nenhum dado encontrado".
+- Redesign = substituir, nunca mesclar (Seção 8).
+- Nome de coleção/campo do Firestore: sempre confirmar por leitura direta do código-fonte antes de
+  escrever qualquer regra de segurança ou documentação — relato de terceiro já causou erro real
+  mais de uma vez neste projeto (Seção 3).
 
 ---
-*ARQUITETURA.md v1.6 | Claude (Gestão) | 08/Ago/2026 — checkpoint de pausa por esgotamento de*
-*cota do Claude (Antigravity), meio da Fase P do SI v22.0*
+*ARQUITETURA.md v1.3 | Claude (Gestão) | 06/Ago/2026*
