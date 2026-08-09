@@ -26,7 +26,7 @@ export default function Perfil() {
       {/* Header */}
       <header className="flex items-center justify-between pt-1">
         <button
-          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white transition-colors"
           type="button"
           onClick={() => navigate(-1)}
           aria-label="Voltar"
@@ -35,12 +35,12 @@ export default function Perfil() {
         </button>
         <h1 className="text-lg font-bold text-white">Meu perfil</h1>
         <button
-          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white transition-colors"
           type="button"
           onClick={() => navigate('/configuracoes')}
           aria-label="Editar configurações"
         >
-          <Edit3 size={16} />
+          <Edit3 size={18} />
         </button>
       </header>
 
