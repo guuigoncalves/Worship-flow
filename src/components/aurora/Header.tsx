@@ -15,9 +15,14 @@ export function Header({ subtitulo }: HeaderProps) {
 
   return (
     <header className="flex items-center justify-between pt-1">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <img src={logo} alt="WorshipFlow" style={{ height: '44px', width: 'auto', display: 'block' }} />
-        {subtitulo && <p className="text-[10px] text-white/40 mt-1">{subtitulo}</p>}
+        <div className="flex flex-col justify-center">
+          <span className="text-base font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent leading-none">
+            WorshipFlow
+          </span>
+          {subtitulo && <p className="text-[10px] text-white/40 mt-0.5">{subtitulo}</p>}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <div className="text-right">

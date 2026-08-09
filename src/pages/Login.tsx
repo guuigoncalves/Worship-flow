@@ -6,7 +6,7 @@ import logo from '../assets/logo-worshipflow.png';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInGoogle, signInEmail, user } = useAuth();
+  const { signInGoogle, signInEmail, signInAnon, user } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -173,14 +173,17 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Continuar como visitante */}
+          {/* Entrar como Visitante / Anônimo */}
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={async () => {
+              await signInAnon();
+              navigate('/');
+            }}
             className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white/60 font-semibold text-xs border border-white/10 flex items-center justify-center gap-2 transition-all"
           >
             <User size={16} />
-            <span>Continuar como visitante</span>
+            <span>Entrar como Visitante</span>
           </button>
 
           <p className="text-[10px] text-center text-white/30 leading-relaxed pt-2">
