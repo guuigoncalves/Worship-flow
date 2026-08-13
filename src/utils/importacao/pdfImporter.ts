@@ -11,8 +11,28 @@ export async function extrairTextoPDF(file: File): Promise<ResultadoLeitura> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const texto = content.items.map((item: any) => ('str' in item ? item.str : '')).filter(Boolean).join(' ');
-    textos.push(texto);
+    const itens = content.items as any[];
+
+    const linhas: string[] = [];
+    let ultimaY: number | null = null;
+
+    for (const item of itens) {
+      const str: string = 'str' in item ? item.str : '';
+      if (!str) continue;
+
+      const transform: number[] = item.transform || [];
+      const y: number = transform[5] ?? 0;
+
+      if (ultimaY !== null && Math.abs(ultimaY - y) > 5) {
+        linhas.push('\n');
+      }
+
+      linhas.push(str);
+      ultimaY = y;
+    }
+
+    const texto = linhas.join('');
+    textos.push(texto.trim());
   }
   return { texto: textos.join('\n\n'), confianca: 0.95 };
 }

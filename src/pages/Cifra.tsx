@@ -15,7 +15,8 @@ import {
   ArrowLeft,
   FileText,
   FolderOpen,
-  Sparkles
+  Sparkles,
+  Users
 } from 'lucide-react';
 
 function diaRelativo(iso: string): string {
@@ -80,24 +81,42 @@ export default function Cifra() {
 
       <p className="text-xs text-white/50 -mt-3">Hub Cifra: tudo o que você precisa para criar, organizar e compartilhar cifras.</p>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 gap-3 min-w-0">
         <button
           onClick={() => navigate('/biblioteca')}
-          className="flex-1 p-4 flex items-center gap-3 border border-white/10 bg-transparent hover:bg-white/5 transition-all cursor-pointer group rounded-2xl"
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
         >
-          <div className="p-2.5 rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] group-hover:scale-110 transition-transform">
+          <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
             <BookOpen size={20} />
           </div>
           <span className="text-sm font-semibold text-white">Biblioteca</span>
         </button>
         <button
           onClick={() => navigate('/editor')}
-          className="flex-1 p-4 flex items-center gap-3 border border-white/10 bg-transparent hover:bg-white/5 transition-all cursor-pointer group rounded-2xl"
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
         >
-          <div className="p-2.5 rounded-xl bg-[var(--primaria-dim)] text-[var(--primaria)] group-hover:scale-110 transition-transform">
+          <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
             <Plus size={20} />
           </div>
           <span className="text-sm font-semibold text-white">Nova Cifra</span>
+        </button>
+        <button
+          onClick={() => navigate('/importar')}
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
+        >
+          <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+            <Download size={20} />
+          </div>
+          <span className="text-sm font-semibold text-white">Importar</span>
+        </button>
+        <button
+          onClick={() => navigate('/comunidade')}
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
+        >
+          <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+            <Users size={20} />
+          </div>
+          <span className="text-sm font-semibold text-white">Comunidade</span>
         </button>
       </div>
 

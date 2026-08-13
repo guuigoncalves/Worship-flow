@@ -265,7 +265,6 @@ export const Importar: React.FC = () => {
                     </div>
                 ) : resultadoLeitura?.texto ? (
                     <div className="space-y-4">
-                        {renderMetadataForm()}
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-white/60 block">Texto Extraído</label>
                             <textarea
@@ -320,7 +319,6 @@ export const Importar: React.FC = () => {
                     <FormRevisaoCifra rascunho={rascunhoRevisao} onCancelar={() => setRevisando(false)} onConfirmar={handleSalvarRascunho} />
                 ) : resultadoLeitura?.texto && !revisando ? (
                     <div className="space-y-4">
-                        {renderMetadataForm()}
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-white/60 block">Texto Reconhecido (OCR)</label>
                             <textarea
@@ -429,7 +427,7 @@ export const Importar: React.FC = () => {
     }
 
     return (
-        <main className="app-page space-y-6 pb-32 fade-in max-w-xl mx-auto" style={{ backgroundColor: '#0B0C10' }}>
+        <main className="app-page space-y-6 pb-32 fade-in w-full max-w-full overflow-x-hidden max-w-xl mx-auto" style={{ backgroundColor: '#0B0C10' }}>
             {/* Header */}
             <header className="flex items-center gap-3 pt-1">
                 <button
