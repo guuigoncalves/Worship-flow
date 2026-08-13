@@ -158,9 +158,9 @@ export default function Cifra() {
                       e.stopPropagation();
                       alternarFavorita(m.id);
                     }}
-                    className="p-1 rounded-lg hover:bg-white/10 text-white/40 hover:text-amber-400 transition-colors"
+                    className="p-1 rounded-lg hover:bg-white/10 text-white/40 hover:text-purple-400 transition-colors"
                   >
-                    <Star size={14} fill={m.eFavorita ? 'currentColor' : 'none'} className={m.eFavorita ? 'text-amber-400' : ''} />
+                    <Star size={14} fill={m.eFavorita ? 'currentColor' : 'none'} className={m.eFavorita ? 'text-purple-400' : ''} />
                   </button>
                 </div>
               </div>
