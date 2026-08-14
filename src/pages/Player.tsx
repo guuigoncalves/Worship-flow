@@ -34,6 +34,7 @@ export const Player: React.FC = () => {
     progresso,
     duracao,
     volume,
+    volumePercent,
     modo,
     tocar,
     pausar,
@@ -45,7 +46,6 @@ export const Player: React.FC = () => {
   const [favorito, setFavorito] = React.useState(false);
   const [shuffleAtivo, setShuffleAtivo] = React.useState(false);
   const [repeatAtivo, setRepeatAtivo] = React.useState(false);
-  const [boostVolume, setBoostVolume] = React.useState<'100%' | '150%' | '200%' | '300%'>('100%');
   const [mostrarMixer, setMostrarMixer] = React.useState(false);
 
   const formatarTempo = (segundos: number) => {
@@ -96,16 +96,9 @@ export const Player: React.FC = () => {
     if (idx >= 0 && idx < fila.length - 1) {
       tocar(fila[idx + 1]);
     }
-  };
+   };
 
-  const alternarBoost = () => {
-    if (boostVolume === '100%') setBoostVolume('150%');
-    else if (boostVolume === '150%') setBoostVolume('200%');
-    else if (boostVolume === '200%') setBoostVolume('300%');
-    else setBoostVolume('100%');
-  };
-
-    const modos = [
+   const modos = [
       { id: 'normal', label: 'Normal', icon: Music },
       { id: 'fundo', label: 'Fundo', icon: Users },
       { id: 'pad', label: 'Pad', icon: Sliders },
@@ -273,7 +266,7 @@ export const Player: React.FC = () => {
       <div className="flex items-center gap-2.5 px-1 pt-1">
       <button
       type="button"
-      onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+      onClick={() => setVolume(volumePercent === 0 ? 80 : 0)}
       className="text-[#796e9c] hover:text-white transition-colors shrink-0"
       >
       <Volume1 size={18} />
@@ -281,35 +274,38 @@ export const Player: React.FC = () => {
       <input
       type="range"
       min={0}
-      max={1}
-      step={0.01}
-      value={volume}
+      max={300}
+      step={1}
+      value={volumePercent}
       onChange={(e) => setVolume(Number(e.target.value))}
-      className="flex-1 accent-[#8b5cf6] h-1 bg-white/10 rounded-lg cursor-pointer"
+      className="flex-1 h-1 rounded-lg cursor-pointer"
+      style={{
+        accentColor: volumePercent > 100 ? '#7c3aed' : '#8b5cf6',
+        background: 'linear-gradient(to right, rgba(139,92,246,0.35) 0%, rgba(139,92,246,0.35) 100%)',
+      }}
       />
       <button
       type="button"
-      onClick={() => setVolume(1)}
+      onClick={() => setVolume(100)}
       className="text-[#796e9c] hover:text-white transition-colors shrink-0"
       >
       <Volume2 size={18} />
       </button>
 
-      {/* Botão de Boost 100% - 300% */}
-      <button
-      type="button"
-      onClick={alternarBoost}
+      <span
       className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all shrink-0 ${
-        boostVolume !== '100%'
-        ? 'bg-[#7c3aed] text-white shadow-[0_0_10px_rgba(124,58,237,0.5)]'
-        : 'text-[#796e9c] hover:text-white'
+        volumePercent > 100 ? 'text-amber-300' : 'text-[#796e9c]'
       }`}
-      style={{ backgroundColor: boostVolume !== '100%' ? '#7c3aed' : '#120c28', borderColor: '#26194d', borderWidth: '1px' }}
-      title="Amplificador de Som (Boost)"
+      style={{
+        backgroundColor: volumePercent > 100 ? '#7c3aed' : '#120c28',
+        borderColor: '#26194d',
+        borderWidth: '1px',
+        boxShadow: volumePercent > 100 ? '0 0 10px rgba(124,58,237,0.5)' : 'none',
+      }}
       >
-      <Zap size={10} className={boostVolume !== '100%' ? 'fill-current text-amber-300' : ''} />
-      <span>{boostVolume}</span>
-      </button>
+      {volumePercent > 100 && <Zap size={10} className="fill-current" />}
+      <span>{volumePercent > 100 ? `${volumePercent}% ⚡` : `${volumePercent}%`}</span>
+      </span>
       </div>
 
       {/* Modo de Reprodução (4 cards lado a lado) */}

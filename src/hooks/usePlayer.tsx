@@ -22,6 +22,7 @@ interface PlayerContextValue {
   progresso: number;
   duracao: number;
   volume: number;
+  volumePercent: number;
   modo: ModoPlayer;
   tocar: (faixa?: FaixaAudio) => void;
   pausar: () => void;
@@ -64,8 +65,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [tocando, setTocando] = useState(false);
   const [progresso, setProgresso] = useState(restaurado.progresso ?? 0);
   const [duracao, setDuracao] = useState(0);
-  const [volume, setVolumeState] = useState(restaurado.volume ?? 0.8);
+  const [volume, setVolumeState] = useState(() => Math.round((restaurado.volume ?? 0.8) * 100));
   const [modo, setModo] = useState<ModoPlayer>(restaurado.modo ?? 'normal');
+  const volumePercent = Math.max(0, Math.min(300, volume));
+  const howlVolume = volumePercent <= 100 ? volumePercent / 100 : 1;
+  const boostVolume = volumePercent > 100 ? volumePercent / 100 : 1;
   const [graves, setGravesState] = useState(restauradoEq.graves ?? 0);
   const [medios, setMediosState] = useState(restauradoEq.medios ?? 0);
   const [agudos, setAgudosState] = useState(restauradoEq.agudos ?? 0);
@@ -81,7 +85,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const { showToast } = useToast();
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify({ faixa, progresso, volume, modo }));
+    localStorage.setItem(key, JSON.stringify({ faixa, progresso, volume: volume / 100, modo }));
   }, [faixa, progresso, volume, modo]);
 
   useEffect(() => {
@@ -188,7 +192,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     const howl = new Howl({
       src: [proxima.audioUrl],
       html5: true,
-      volume,
+      volume: volumePercent <= 100 ? volumePercent / 100 : 1,
       onload: () => setDuracao(howl.duration()),
       onend: () => setTocando(false)
     });
@@ -200,8 +204,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       howl.once('load', () => configurarEqualizador(howl));
     }
 
+    if (boostGainRef.current) {
+      boostGainRef.current.gain.value = volumePercent > 100 ? volumePercent / 100 : 1;
+    }
+
     return howl;
-  }, [volume, showToast, configurarEqualizador]);
+  }, [volumePercent, showToast, configurarEqualizador]);
 
   const tocar = useCallback((proxima?: FaixaAudio) => {
     const alvo = proxima ?? faixa;
@@ -227,8 +235,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [duracao]);
 
   const setVolume = useCallback((valor: number) => {
-    setVolumeState(valor);
-    howlRef.current?.volume(valor);
+    const percentual = Math.max(0, Math.min(300, Math.round(valor)));
+    setVolumeState(percentual);
+    const howlVolume = percentual <= 100 ? percentual / 100 : 1;
+    const boostGain = percentual > 100 ? percentual / 100 : 1;
+    howlRef.current?.volume(howlVolume);
+    if (boostGainRef.current) boostGainRef.current.gain.value = boostGain;
   }, []);
 
   const adicionarFila = useCallback((nova: FaixaAudio) => setFila((atuais) => [...atuais, nova]), []);
@@ -253,7 +265,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     if (boostGainRef.current) boostGainRef.current.gain.value = boostValores[valor];
   }, []);
 
-  const value = useMemo(() => ({ faixa, fila, tocando, progresso, duracao, volume, modo, tocar, pausar, seek, setVolume, setModo, adicionarFila, graves, medios, agudos, setGraves, setMedios, setAgudos, boost, setBoost }), [adicionarFila, agudos, boost, duracao, faixa, fila, graves, medios, modo, pausar, progresso, seek, setAgudos, setGraves, setMedios, setBoost, setModo, setVolume, tocar, tocando, volume]);
+  const value = useMemo(() => ({ faixa, fila, tocando, progresso, duracao, volume, volumePercent, modo, tocar, pausar, seek, setVolume, setModo, adicionarFila, graves, medios, agudos, setGraves, setMedios, setAgudos, boost, setBoost }), [adicionarFila, agudos, boost, duracao, faixa, fila, graves, medios, modo, pausar, progresso, seek, setAgudos, setGraves, setMedios, setBoost, setModo, setVolume, tocar, tocando, volume, volumePercent]);
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
 }
 
