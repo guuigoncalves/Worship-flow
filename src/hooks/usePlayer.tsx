@@ -1,6 +1,7 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Howl } from 'howler';
 import { useToast } from './useToast';
+import type { Tom } from '../types';
 
 export interface FaixaAudio {
   id: string;
@@ -9,6 +10,7 @@ export interface FaixaAudio {
   capaUrl?: string;
   audioUrl?: string;
   musicaId?: string;
+  tom?: Tom;
 }
 
 type ModoPlayer = 'normal' | 'fundo' | 'pad' | 'metronomo';

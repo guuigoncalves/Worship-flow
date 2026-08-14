@@ -1,6 +1,6 @@
 import { BookOpen, Globe, Home, ListMusic, Lock, LogOut, Menu, Music2, Settings, ShieldCheck, User, Users } from 'lucide-react';
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { PainelDeslizante } from './PainelDeslizante';
 
@@ -22,6 +22,8 @@ const extras = [
 ];
 
 export function NavegacaoInferior() {
+  const { pathname } = useLocation();
+  if (pathname === '/player') return null;
   const [maisAberto, setMaisAberto] = useState(false);
   const [expandida, setExpandida] = useState(false);
   const navigate = useNavigate();

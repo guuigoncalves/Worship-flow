@@ -1,268 +1,294 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Check, Pencil, Plus, Trash2, ArrowUp, ArrowDown, Music, Clock } from 'lucide-react';
 import { useMedleys } from '../hooks/useMedleys';
-import { ArrowLeft, Save, Plus, Trash2, ChevronUp, ChevronDown, Music, Clock } from 'lucide-react';
+import { SectionHeader } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
+import type { BlocoMedley } from '../types';
 
-const TOMS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+type TipoBloco = BlocoMedley['tipo'];
 
-export const EditorMedley: React.FC = () => {
+const rotuloTipo: Record<TipoBloco, string> = {
+  musica: 'Música',
+  verso: 'Verso',
+  refrao: 'Refrão',
+  ponte: 'Ponte',
+  instrumental: 'Instrumental',
+  pausa: 'Pausa',
+  transicao: 'Transição',
+  espontaneo: 'Espontâneo',
+  'subida-tom': 'Subida de Tom',
+};
+
+export default function EditorMedley() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { obterMedley, salvarMedley } = useMedleys();
 
   const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [blocos, setBlocos] = useState<any[]>([]);
+  const [blocos, setBlocos] = useState<BlocoMedley[]>([]);
   const [salvando, setSalvando] = useState(false);
+  const [editandoTitulo, setEditandoTitulo] = useState(false);
 
   useEffect(() => {
     if (id && id !== 'novo') {
       const medley = obterMedley(id);
       if (medley) {
-        setTitulo(medley.titulo || (medley as any).nome || '');
-        setDescricao((medley as any).descricao || '');
+        setTitulo(medley.titulo);
         setBlocos(medley.blocos || []);
       }
     }
   }, [id, obterMedley]);
 
   function handleAdicionarBloco() {
-    const novo = {
-      id: String(Date.now()),
+    const novo: BlocoMedley = {
+      id: crypto.randomUUID(),
       tipo: 'musica',
-      titulo: 'Novo Bloco',
+      tituloMusica: 'Nova seção',
+      repeticoes: 1,
       tom: 'G',
-      compasso: '4/4',
     };
-    setBlocos([...blocos, novo]);
+    setBlocos((prev) => [...prev, novo]);
   }
 
   function handleRemoverBloco(blocoId: string) {
-    setBlocos(blocos.filter((b) => b.id !== blocoId));
+    setBlocos((prev) => prev.filter((b) => b.id !== blocoId));
   }
 
-  function handleMoverCima(idx: number) {
-    if (idx === 0) return;
-    const copia = [...blocos];
-    [copia[idx - 1], copia[idx]] = [copia[idx], copia[idx - 1]];
-    setBlocos(copia);
+  function handleMoverCima(index: number) {
+    if (index === 0) return;
+    setBlocos((prev) => {
+      const copia = [...prev];
+      [copia[index - 1], copia[index]] = [copia[index], copia[index - 1]];
+      return copia;
+    });
   }
 
-  function handleMoverBaixo(idx: number) {
-    if (idx === blocos.length - 1) return;
-    const copia = [...blocos];
-    [copia[idx], copia[idx + 1]] = [copia[idx + 1], copia[idx]];
-    setBlocos(copia);
+  function handleMoverBaixo(index: number) {
+    if (index === blocos.length - 1) return;
+    setBlocos((prev) => {
+      const copia = [...prev];
+      [copia[index], copia[index + 1]] = [copia[index + 1], copia[index]];
+      return copia;
+    });
   }
 
-  const handleSalvar = async () => {
+  function handleSalvar() {
     if (!titulo.trim()) return;
     setSalvando(true);
-    try {
-      await salvarMedley({
-        id: id === 'novo' ? String(Date.now()) : id,
-        titulo,
-        blocos,
-      } as any);
+    salvarMedley({
+      id: id === 'novo' ? crypto.randomUUID() : id,
+      titulo: titulo.trim(),
+      blocos,
+    }).then(() => {
       navigate('/medleys');
-    } finally {
+    }).finally(() => {
       setSalvando(false);
-    }
-  };
+    });
+  }
 
-  const tempoTotal = blocos.length > 0 ? Math.round(blocos.length * 3.5) : 0;
+  const tempoTotalMinutos = useMemo(() => {
+    const totalSegundos = blocos.reduce((acc, bloco) => acc + (bloco.duracaoSegundos || 210), 0);
+    return Math.round(totalSegundos / 60);
+  }, [blocos]);
+
+  const tempoTotalFormatado = useMemo(() => {
+    const horas = Math.floor(tempoTotalMinutos / 60);
+    const minutos = tempoTotalMinutos % 60;
+    if (horas > 0) {
+      return `${horas}h ${minutos.toString().padStart(2, '0')}min`;
+    }
+    return `${minutos} min`;
+  }, [tempoTotalMinutos]);
+
+  if (!id) {
+    return (
+      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0b0819' }}>
+        <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </main>
+    );
+  }
 
   return (
-    <div className="app-page space-y-5 pb-32 fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/medleys')} className="btn-ghost h-9 w-9 p-0">
-            <ArrowLeft size={16} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-gradient">
-              {id === 'novo' ? 'Novo Medley' : 'Editar Medley'}
-            </h1>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              {blocos.length} bloco{blocos.length !== 1 ? 's' : ''} · ~{tempoTotal} min
-            </p>
-          </div>
-        </div>
+    <main className="app-page fade-in space-y-5 pb-32" style={{ backgroundColor: '#0b0819' }}>
+      <header className="flex items-center justify-between gap-3">
         <button
-          onClick={() => void handleSalvar()}
-          disabled={!titulo.trim() || salvando}
-          className="btn-primary py-2 px-4 text-sm flex items-center gap-2 disabled:opacity-50"
+          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-[#2d264f] text-white hover:bg-white/10 transition-colors"
+          type="button"
+          onClick={() => navigate('/medleys')}
+          aria-label="Voltar"
         >
-          <Save size={16} />
-          {salvando ? 'Salvando…' : 'Salvar'}
+          <ArrowLeft size={18} />
         </button>
-      </div>
+        <h1 className="text-sm font-bold uppercase tracking-wider text-[#a78bfa]">Editar medley</h1>
+        <button
+          className="btn-ghost h-9 px-3 flex items-center gap-1.5 text-xs font-bold text-white border border-[#2d264f] hover:border-purple-500/30 disabled:opacity-50"
+          type="button"
+          onClick={handleSalvar}
+          disabled={!titulo.trim() || salvando}
+        >
+          <Check size={14} />
+          <span>{salvando ? 'Salvando...' : 'Salvar'}</span>
+        </button>
+      </header>
 
-      {/* Campos do medley */}
-      <div className="card p-4 space-y-3">
-        <div>
-          <label className="mb-1.5 block text-xs font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            Título do Medley *
-          </label>
-          <input
-            type="text"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            placeholder="Ex: Medley de Celebração"
-            className="input text-sm w-full"
-          />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            Descrição (opcional)
-          </label>
-          <input
-            type="text"
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-            placeholder="Observações do arranjo…"
-            className="input text-sm w-full"
-          />
-        </div>
-      </div>
-
-      {/* Seção de blocos */}
-      <div>
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Music size={16} style={{ color: '#A259FF' }} />
-            <span className="font-semibold text-sm">Blocos do Medley</span>
-          </div>
-          <button
-            onClick={handleAdicionarBloco}
-            className="btn-ghost py-1.5 px-3 text-xs flex items-center gap-1.5"
-          >
-            <Plus size={14} />
-            Adicionar Bloco
-          </button>
-        </div>
-
-        {blocos.length === 0 ? (
+      <div className="card p-4 border border-[#2d264f] bg-[#120f24] rounded-2xl">
+        <div className="flex items-start gap-3">
           <div
-            className="rounded-2xl p-8 flex flex-col items-center gap-3 text-center"
-            style={{ border: '1px dashed rgba(162,89,255,0.3)', background: 'rgba(162,89,255,0.04)' }}
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white border border-white/10"
+            style={{ background: 'linear-gradient(135deg, rgba(162,89,255,0.35), rgba(96,165,250,0.15))' }}
           >
-            <Music size={28} style={{ color: 'rgba(162,89,255,0.5)' }} />
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              Nenhum bloco adicionado.<br />Clique em "Adicionar Bloco" acima.
-            </p>
+            <Music size={24} className="text-purple-300" />
           </div>
-        ) : (
-          <div className="space-y-2">
-            {blocos.map((bloco, idx) => (
-              <div
-                key={bloco.id}
-                className="card flex items-center gap-3 p-3"
-              >
-                {/* Número */}
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
-                  style={{ background: 'rgba(162,89,255,0.18)', color: '#A259FF' }}
-                >
-                  {idx + 1}
-                </span>
-
-                {/* Título */}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              {editandoTitulo ? (
                 <input
                   type="text"
-                  value={bloco.titulo}
-                  onChange={(e) => {
-                    const copia = [...blocos];
-                    copia[idx] = { ...copia[idx], titulo: e.target.value };
-                    setBlocos(copia);
-                  }}
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  onBlur={() => setEditandoTitulo(false)}
+                  autoFocus
                   className="input flex-1 py-1.5 text-sm"
-                  placeholder="Nome do bloco"
+                  placeholder="Nome do medley"
                 />
-
-                {/* Tom */}
-                <select
-                  value={bloco.tom || 'G'}
-                  onChange={(e) => {
-                    const copia = [...blocos];
-                    copia[idx] = { ...copia[idx], tom: e.target.value };
-                    setBlocos(copia);
-                  }}
-                  className="input w-16 py-1.5 text-xs"
-                  style={{ background: 'rgba(162,89,255,0.1)', borderColor: 'rgba(162,89,255,0.25)', color: '#A259FF' }}
-                >
-                  {TOMS.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-
-                {/* Compasso */}
-                <select
-                  value={bloco.compasso || '4/4'}
-                  onChange={(e) => {
-                    const copia = [...blocos];
-                    copia[idx] = { ...copia[idx], compasso: e.target.value };
-                    setBlocos(copia);
-                  }}
-                  className="input w-16 py-1.5 text-xs hidden sm:block"
-                >
-                  {['4/4', '3/4', '6/8', '2/4'].map((c) => <option key={c}>{c}</option>)}
-                </select>
-
-                {/* Botões reordenar */}
-                <div className="flex flex-col gap-0.5">
+              ) : (
+                <>
+                  <h2 className="truncate text-base font-bold text-white">{titulo || 'Sem título'}</h2>
                   <button
-                    onClick={() => handleMoverCima(idx)}
-                    disabled={idx === 0}
-                    className="flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:opacity-25"
-                    style={{ background: 'rgba(255,255,255,0.06)' }}
-                    aria-label="Mover para cima"
+                    type="button"
+                    className="btn-ghost h-7 w-7 p-0 shrink-0"
+                    onClick={() => setEditandoTitulo(true)}
+                    aria-label="Editar título"
                   >
-                    <ChevronUp size={12} />
+                    <Pencil size={12} className="text-purple-400" />
                   </button>
-                  <button
-                    onClick={() => handleMoverBaixo(idx)}
-                    disabled={idx === blocos.length - 1}
-                    className="flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:opacity-25"
-                    style={{ background: 'rgba(255,255,255,0.06)' }}
-                    aria-label="Mover para baixo"
-                  >
-                    <ChevronDown size={12} />
-                  </button>
+                </>
+              )}
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-300 border border-purple-500/20">
+                {blocos.length} {blocos.length === 1 ? 'bloco' : 'blocos'}
+              </span>
+              <span className="flex items-center gap-1 text-[10px] text-[#8f85b8]">
+                <Clock size={12} />
+                {tempoTotalFormatado}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <SectionHeader
+          icone={<Music size={16} />}
+          titulo="Blocos do medley"
+          acaoTexto="Adicionar bloco"
+          onAcao={handleAdicionarBloco}
+        />
+
+        {blocos.length === 0 ? (
+          <EstadoVazio titulo="Nenhum bloco" texto="Clique em 'Adicionar bloco' para montar seu medley." />
+        ) : (
+          <div className="card divide-y divide-[#2d264f] border border-[#2d264f] bg-[#120f24] rounded-2xl overflow-hidden">
+            {blocos.map((bloco, index) => (
+              <div key={bloco.id} className="p-3 hover:bg-white/5 transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold text-[#8f85b8]">
+                    {index + 1}
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <p className="truncate text-xs font-semibold text-white">
+                        {bloco.tituloMusica || rotuloTipo[bloco.tipo] || bloco.tipo}
+                      </p>
+                      <span className="shrink-0 rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-purple-300 border border-purple-500/20">
+                        {bloco.tom ? `Tom ${bloco.tom}` : 'Tom G'}
+                      </span>
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <span className="text-[10px] text-[#8f85b8] capitalize">{rotuloTipo[bloco.tipo]}</span>
+                      {bloco.repeticoes > 1 && (
+                        <span className="text-[10px] text-[#8f85b8]">×{bloco.repeticoes}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <span className="shrink-0 text-[10px] font-mono text-[#8f85b8]">
+                    {bloco.duracaoSegundos ? formatarDuracao(bloco.duracaoSegundos) : '02:15'}
+                  </span>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors disabled:opacity-25"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                      onClick={() => handleMoverCima(index)}
+                      disabled={index === 0}
+                      aria-label="Mover para cima"
+                    >
+                      <ArrowUp size={12} className="text-white/70" />
+                    </button>
+                    <button
+                      type="button"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors disabled:opacity-25"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                      onClick={() => handleMoverBaixo(index)}
+                      disabled={index === blocos.length - 1}
+                      aria-label="Mover para baixo"
+                    >
+                      <ArrowDown size={12} className="text-white/70" />
+                    </button>
+                    <button
+                      type="button"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
+                      style={{ background: 'rgba(224,64,64,0.08)', color: '#E04040' }}
+                      onClick={() => handleRemoverBloco(bloco.id)}
+                      aria-label="Remover bloco"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
-
-                {/* Excluir */}
-                <button
-                  onClick={() => handleRemoverBloco(bloco.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-                  style={{ background: 'rgba(224,64,64,0.1)', color: '#E04040' }}
-                  aria-label="Remover bloco"
-                >
-                  <Trash2 size={14} />
-                </button>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Rodapé: tempo total */}
+      {blocos.length > 0 && (
+        <button
+          className="w-full btn-primary text-xs py-3 flex items-center justify-center gap-2"
+          type="button"
+          onClick={handleAdicionarBloco}
+        >
+          <Plus size={14} />
+          <span>Adicionar bloco</span>
+        </button>
+      )}
+
       {blocos.length > 0 && (
         <div
           className="fixed bottom-0 left-0 right-0 flex items-center justify-center gap-2 px-4 py-3 z-20"
-          style={{ background: 'rgba(11,12,16,0.92)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(162,89,255,0.15)' }}
+          style={{ background: 'rgba(11,8,25,0.92)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(162,89,255,0.15)' }}
         >
           <Clock size={14} style={{ color: '#A259FF' }} />
-          <span className="text-sm font-medium">
-            Tempo total estimado:
-            <span style={{ color: '#A259FF' }} className="ml-1 font-bold">~{tempoTotal} min</span>
+          <span className="text-sm font-medium text-white">
+            Tempo total:
+            <span style={{ color: '#A259FF' }} className="ml-1 font-bold">{tempoTotalFormatado}</span>
           </span>
-          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-            ({blocos.length} blocos × 3,5 min)
+          <span className="text-xs text-[#8f85b8]">
+            ({blocos.length} {blocos.length === 1 ? 'bloco' : 'blocos'})
           </span>
         </div>
       )}
-    </div>
+    </main>
   );
-};
+}
 
-export default EditorMedley;
+function formatarDuracao(segundos: number): string {
+  const minutos = Math.floor(segundos / 60);
+  const segundosRestantes = Math.round(segundos % 60);
+  return `${minutos.toString().padStart(2, '0')}:${segundosRestantes.toString().padStart(2, '0')}`;
+}

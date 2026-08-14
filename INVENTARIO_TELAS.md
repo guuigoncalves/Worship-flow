@@ -1,41 +1,70 @@
 # INVENTARIO_TELAS.md — WorshipFlow
-> Atualizado em 08/08/2026 após conclusão autônoma das Fases L e M (F5-F9) do SI v20.0.
-> A coluna "Testado manualmente por Guilherme?" SÓ pode ser preenchida pelo Guilherme — nunca pelo agente (AGENTS.md regra #6).
+> Atualizado em 13/08/2026, a partir de varredura direta do código-fonte (zip do projeto,
+> `git log`, `git diff origin/main..HEAD`), não de relatório de agente/dev. A coluna "Testado
+> manualmente por Guilherme?" SÓ pode ser preenchida pelo Guilherme (AGENTS.md regra #6) — aqui
+> reflete apenas confirmações reais que já aconteceram (prints/vídeos reais enviados).
 
-| # | Rota | Tela | Status real | Testado manualmente por Guilherme? | Observação |
+| # | Rota | Tela | Status real (confirmado no código) | Testado manualmente por Guilherme? | Observação |
 |---|---|---|---|---|---|
-| 1 | `/login` | Login | ✅ Redesenhado e commitado (`b11c527`) | Não | Mockup #19 com hero desktop e auth Firebase |
-| 2 | `/` | Hub / Início | ✅ Redesenhado e commitado (`a873f0c`) | **Sim, aprovado visualmente** | Header Aurora compartilhado aplicado |
-| 3 | `/musica` | Hub Música | ✅ Redesenhado e commitado (`fd8085b`) | **Sim, aprovado visualmente** | Ateliê e atalhos corrigidos |
-| 4 | `/cifra` | Hub Cifra | ✅ Redesenhado e commitado (`efcb868`) | **Sim, aprovado visualmente** | Mockup #7 |
-| 5 | `/biblioteca` | Biblioteca | ✅ Redesenhado e commitado (`4e2581b`) | **Sim, aprovado visualmente** | Abas preservadas, visual Aurora |
-| 6 | `/musica/:id` | Detalhe da Música | ✅ Atualizado e integrado | Não | Visual de cifras e player associado |
-| 7 | `/tocar/:id` | Modo Palco | ✅ Atualizado e integrado | Não | Mockup #9; bug do `/tocar` sem ID corrigido |
-| 8 | `/busca-rapida` | Busca Rápida | ✅ Atualizado e integrado | Não | Mockup #10 com filtros |
-| 9 | `/medleys` | Medleys | ✅ Atualizado e integrado | Não | Mockup #11 com blocos |
-| 10 | `/medley/:id` | Editor de Medley | ✅ Atualizado e integrado | Não | Mesma estrutura de Medley |
-| 11 | `/editor` | Editor de Cifra (nova) | 🔒 Bloqueado (STOP obrigatório) | Não | Fase G do SI — aguarda liberação explícita do Claude Gestão |
+| 1 | `/login` | Login | ✅ Código presente e commitado | **Sim** | Só Google + "Continuar sem login" |
+| 2 | `/` | Hub / Início | ✅ Código presente e commitado | **Sim** | Dev reporta faltar widgets (Metrônomo, Atividade Recente) e capas reais em "Mais Ouvidas" — pendência de produto, não urgente |
+| 3 | `/musica` | Hub Música | ✅ Código presente e commitado | **Sim** | Dev reporta faltar card "Tocando Agora" e carrossel de álbuns — pendência de produto |
+| 4 | `/cifra` | Hub Cifra | ✅ Código presente e commitado, grid responsivo corrigido | Não | Botão Importar não vaza mais a largura (confirmado no diff) |
+| 5 | `/biblioteca` | Biblioteca | ✅ Código presente e commitado | Não | — |
+| 6 | `/musica/:id` | Detalhe da Música | ✅ Código presente e commitado, **confirmado por print real** | **Sim** | — |
+| 7 | `/tocar/:id` | Modo Palco | 🟡 Sem alteração desta leva | Não | Nunca confirmado por print real com música tocando |
+| 8 | `/busca-rapida` | Busca Rápida | ✅ Código presente e commitado, **confirmado por print** | **Sim** | — |
+| 9 | `/medleys` | Medleys | ✅ Código presente e commitado, **confirmado por print** | **Sim** | — |
+| 10 | `/medley/:id` | Editor de Medley | ✅ **NOVO nesta leva** — código presente e commitado (`bc2a281`) | Não | Mockup #11, usa `useMedleys` real, `EstadoVazio` — nunca visto por print |
+| 11 | `/editor` | Editor de Cifra (nova) | 🔒 Bloqueado (STOP obrigatório) | Não | Fase G — confirmado sem diff nesta sessão |
 | 12 | `/editor/:id` | Editor de Cifra (edição) | 🔒 Bloqueado (STOP obrigatório) | Não | Idem |
-| 13 | `/perfil` | Perfil do Músico | ✅ Redesenhado e commitado (`b61a915`) | Não | Mockup #16 com estatísticas |
-| 14 | `/configuracoes` | Configurações | ✅ Redesenhado e commitado (`e00258a`) | Não | Mockup #17 com seções e temas |
-| 15 | `/player` | Player | ✅ Atualizado e integrado | Não | Player de áudio geral |
-| 16 | `/albuns` | Álbuns | ✅ Redesenhado e commitado (`15d4f3c`) | **Sim, aprovado visualmente** | Lista vertical conforme mockup #3 |
-| 17 | `/album/:id` | Detalhe do Álbum | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mesma leva do item 16 |
-| 18 | `/artistas` | Artistas | ✅ Redesenhado e commitado (`000bc27`) | **Sim, aprovado visualmente** | Mockup #4 |
-| 19 | `/artista/:id` | Detalhe do Artista | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mesma leva do item 18 |
-| 20 | `/espacos` | Espaços (lista) | ✅ Redesenhado e commitado (`c67e319`) | **Sim, aprovado visualmente** | Mockup #15 |
-| 21 | `/espaco/:id` | Espaço (detalhe) | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mockup #15 |
-| 22 | `/espaco/:id/preparacao` | Modo de Preparação | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mockup #15 |
-| 23 | `/entrar/:codigo` | Entrar em Espaço | ✅ Atualizado e integrado | Não | Padrão visual dos formulários Aurora |
-| 24 | `/importar` | Importar Cifra | ✅ Atualizado e integrado | Não | Mockup #12 com abas de texto, PDF, OCR e planilha |
-| 25 | `/adm` | Painel Admin | ✅ Redesenhado e commitado (`28e879c`) | Não | Mockups #18 e #19 com moderação e solicitações |
-| 26 | `/comunidade` | Comunidade | ✅ Redesenhado e commitado (`38f8e93`) | **Sim, aprovado visualmente** | Mockup #13 |
-| 27 | `/playlists` | Playlists | ✅ Redesenhado e commitado (`226552c`) | **Sim, aprovado visualmente** | Mockup #14 |
-| 28 | `/playlist/:id` | Detalhe da Playlist | ✅ Redesenhado e commitado | **Sim, aprovado visualmente** | Mesma leva do item 27 |
-| 29 | `/privado` | Camada Privada | 🔒 Bloqueado (STOP obrigatório) | Não | Fase H do SI — infraestrutura de rede |
+| 13 | `/perfil` | Perfil do Músico | ✅ Código presente e commitado | **Sim** | — |
+| 14 | `/configuracoes` | Configurações | ✅ Código presente e commitado | Não | — |
+| 15 | `/player` | Player | ✅ Código presente e commitado, refino de glow/capa (`dc15fa6`) | **Sim** (versão anterior) | Nova versão desta leva ainda não vista por print; dev pede seletor capa/artista/letra/cifra como próxima feature |
+| 16 | `/albuns` | Álbuns | ✅ Código presente e commitado | **Sim** | — |
+| 17 | `/album/:id` | Detalhe do Álbum | ✅ Código presente e commitado | **Sim** | — |
+| 18 | `/artistas` | Artistas | ✅ Código presente e commitado | **Sim** | — |
+| 19 | `/artista/:id` | Detalhe do Artista | ✅ Código presente e commitado | **Sim** | — |
+| 20 | `/espacos` | Espaços (lista) | ✅ Código presente e commitado | **Sim** | — |
+| 21 | `/espaco/:id` | Espaço (detalhe) | ✅ **NOVO nesta leva** — código presente e commitado (`1afc324`) | Não | Mockup #15: header, 4 abas, membros com papéis, código de convite — usa `useEspacoDetalhe`/`useEspacos` reais, `EstadoVazio` — nunca visto por print |
+| 22 | `/espaco/:id/preparacao` | Modo de Preparação | ✅ **NOVO nesta leva** — código presente e commitado (`a88596b`) | Não | Mockup #15: numeração, reordenação ↑/↓, anotações de ensaio — usa hooks reais — nunca visto por print |
+| 23 | `/entrar/:codigo` | Entrar em Espaço | ✅ Código presente e commitado, **confirmado por print** | **Sim** | — |
+| 24 | `/importar` | Importar Cifra | ✅ Código presente e commitado, duplicação de formulário removida, parser de PDF corrigido | Não | Link de entrada em `Cifra.tsx` confirmado funcional |
+| 25 | `/adm` | Painel Admin | ✅ Código presente e commitado | Não | — |
+| 26 | `/comunidade` | Comunidade | ✅ Código presente e commitado | **Sim** | — |
+| 27 | `/playlists` | Playlists | ✅ Código presente e commitado | **Sim** | — |
+| 28 | `/playlist/:id` | Detalhe da Playlist | ✅ Código presente e commitado | **Sim** | — |
+| 29 | `/privado` | Camada Privada | 🔒 Bloqueado (STOP obrigatório) | Não | Fase H — confirmado sem diff nesta sessão |
 
-## Estado Técnico Global (SI v20.0 — 08/08/2026)
+**Contagem real (13/08/2026)**: 27 de 29 rotas navegáveis com código de redesign presente e
+commitado (todas exceto Modo Palco, que não teve alteração nesta leva, e as 2 bloqueadas por
+decisão de arquitetura). Das 27, apenas as marcadas "Sim" foram confirmadas por print/vídeo real
+— a maioria das telas novas ou refinadas nesta leva (Espaço, Preparação, Medley, Player refinado)
+**ainda não foi vista pelo Guilherme**.
 
-1. **Navegação Global**: `NavegacaoInferior` montada centralizadamente em `Shell()` (`App.tsx`), cobrindo as 6 rotas anteriormente isoladas.
-2. **Integração da Logo**: Alterações prontas no código (`Header.tsx`, `index.html`, `vite.config.ts`), aguardando aceite visual do Guilherme para commit da Fase K.
-3. **Build**: 100% verde (`tsc -b` limpo e `vite build` sem erros).
+## MiniPlayer — status consolidado
+Passou por 3 rodadas nesta leva: fix original de sobreposição (bottom/z-index, sessão de 09/08),
+redesign Aurora completo (`56b3b8a`), refinamento com `<CapaMusica />` real e card clicável
+(`500c8b0`). Todas commitadas. Falta confirmação visual com música tocando de verdade.
+
+## `/importar` sem ponto de entrada — RESOLVIDO
+Confirmado no código: `Cifra.tsx` agora tem botão "Importar" no grid, ao lado de "Nova Cifra",
+navegando para `/importar`. Duplicação de campos no formulário de upload também foi corrigida
+(`Importar.tsx`, `pdfImporter.ts`).
+
+## Pendências transversais
+| Item | Status | Observação |
+|---|---|---|
+| `firestore.rules` | ✅ Sem mudança | Confirmado sem diff nesta sessão |
+| Paleta Aurora global | ✅ Atualizada via variável central | `72e249f` — fundo obsidiana, bordas, texto — pendente de aprovação visual |
+| Campo `tom` ausente no tipo `FaixaAudio` | ✅ Resolvido (2ª vez) | `daf91ec` — não sobreviveu ao histórico da sessão anterior, reaplicado |
+| Assets de logo/favicon nunca versionados | ✅ Resolvido (2ª vez) | `c393428` — mesma lacuna do commit `f32f3f8`, arquivos binários nunca tinham sido dados `git add` |
+| Push pro GitHub | 🟡 **Pendente — depende do Guilherme** | Todos os commits desta sessão estão só no zip local devolvido, não em `origin/main` ainda |
+| Verificação visual das telas novas/refinadas | 🟡 **Pendente — depende do Guilherme** | Espaço, Preparação, Medley, Player (nova versão), MiniPlayer (nova versão), paleta Aurora |
+| Modo Palco (`/tocar/:id`) | 🟡 Sem alteração, sem confirmação | Segue como estava — nunca visto por print real |
+| Player: seletor capa/artista/letra/cifra | ⚪ Feature nova solicitada | Não é bug, é pendência de produto pra próxima leva |
+| Fase 19 — tema/cor/layout customizável | ⚪ Bloqueada | Aguarda redesign considerado suficiente |
+
+---
+*Reconstruído por Claude Gestão, 13/08/2026, a partir de varredura direta do código-fonte —*
+*substitui qualquer versão anterior escrita por relatório de agente/dev.*

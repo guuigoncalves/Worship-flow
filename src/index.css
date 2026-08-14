@@ -7,10 +7,10 @@
    =================================================================== */
 :root,
 .tema-eclipse {
-  --fundo:#07070F; --superficie:#0E0E1C; --superficie-alta:#161628;
-  --borda:#1C1C34; --primaria:#8B5CF6; --primaria-dim:rgba(139,92,246,0.14);
-  --acento:#5B8DEF; --perigo:#E04040; --sucesso:#36B876;
-  --texto:#ECEDF8; --texto-sec:#6A6A88; --texto-ter:#2E2E4A;
+  --fundo:#080711; --superficie:#120f26; --superficie-alta:#16122e;
+  --borda:#2a224f; --primaria:#8B5CF6; --primaria-dim:rgba(139,92,246,0.14);
+  --acento:#8b72ee; --perigo:#E04040; --sucesso:#36B876;
+  --texto:#ffffff; --texto-sec:#94a3b8; --texto-ter:#3b2d6b;
   --font-body:'DM Sans',sans-serif; --font-display:'Syne',sans-serif; --font-mono:'JetBrains Mono',monospace;
   --cor-fundo:var(--fundo); --cor-superficie:var(--superficie); --cor-superficie-elevada:var(--superficie-alta);
   --cor-primaria:var(--primaria); --cor-primaria-dim:var(--primaria-dim); --cor-acento:var(--acento);
@@ -44,7 +44,7 @@ h1,h2,h3,.font-display { font-family: var(--font-display); letter-spacing: -0.01
 .aurora-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .aurora-bg::before, .aurora-bg::after {
   content: ''; position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
-  filter: blur(90px); opacity: 0.28; will-change: transform;
+  filter: blur(90px); opacity: 0.12; will-change: transform;
 }
 .aurora-bg::before { background: var(--primaria); top: -20vmax; left: -15vmax; animation: aurora-drift-a 26s ease-in-out infinite; }
 .aurora-bg::after { background: var(--acento); bottom: -25vmax; right: -15vmax; animation: aurora-drift-b 32s ease-in-out infinite; }

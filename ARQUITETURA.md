@@ -1,136 +1,84 @@
 # ARQUITETURA.md — WorshipFlow
-> v1.3 atualiza v1.2 (05/08/2026) com: `firestore.rules` corrigido e aplicado em produção
-> (06/08/2026), causa raiz da cor amarela identificada e corrigida (variável `--primaria`), bug de
-> duplicação do componente de saudação identificado (sem `Header` compartilhado — texto repetido em
-> 3 arquivos), e introdução do Antigravity como agente executor para a etapa de redesign visual,
-> substituindo/complementando o fluxo Google AI Studio + Kilo Code nessa frente específica.
+> v1.8 atualiza v1.7. Escrita a partir de **varredura direta do código-fonte** (zip enviado pelo
+> Guilherme em 13/08/2026) — `git log`, `git diff origin/main..HEAD`, `grep` nos arquivos reais,
+> não relatório de agente/dev. Onde um item diz "confirmado no código", significa que eu (Claude
+> Gestão) li o arquivo real.
 
 ---
 
-## 1. Stack real (confirmado no `package.json`, sem mudança de v1.2)
+## 1. Stack — sem mudança
+React 19 + Vite + TypeScript + Firebase (Auth, Firestore). Design system Aurora.
 
-| Camada | Tecnologia | Versão |
+## 2. Ferramental de execução — MUDANÇA DE MÉTODO (13/08/2026)
+Guilherme abandonou o fluxo formal "SI v26 → dev (AI Studio) → Kilo Code → só volta em gatilhos" e
+passou a trabalhar direto com o dev + Kilo Code, ajustando layout ponto a ponto via prints/vídeo
+reais, sem intermediário formal e sem consultar o Claude Gestão a cada tela. Isso completou a fila
+inteira da SI v26 na prática (ver Seção 8), mas o retorno ao Gestão só aconteceu quando o dev
+"estourou os tokens" do chat — não por um gatilho formal da Seção 6 da SI.
+
+**Achado crítico desta sessão**: o relatório de encerramento do dev marcava itens como "✅
+Commitado e enviado" que na verdade só existiam como alterações não commitadas no zip (ver Seção
+8). Corrigido nesta sessão — todos os itens têm commit real agora, aguardando `git push` do
+Guilherme.
+
+## 3-7. Sem mudança estrutural de v1.7 (Firestore, modelo de dado, rotas, Camada Privada, PWA/SW)
+`firestore.rules` confirmado sem diff nesta sessão — nenhuma mudança de regra de segurança.
+29 rotas registradas em `App.tsx`, sem mudança de contagem.
+
+## 8. Redesign Visual — ESTADO REAL CONFIRMADO NO CÓDIGO (13/08/2026)
+
+### Commits confirmados por `git log` desde o checkpoint de 09/08
+| Commit | Descrição | Status no GitHub (`origin/main`) |
 |---|---|---|
-| Frontend | React + Vite + TypeScript | React 19, Vite 6, TS ~5.7 |
-| Estilo | Tailwind CSS 3 + CSS Variables | — |
-| Roteamento | React Router DOM | 6.28 |
-| Backend | Firebase (Auth + Firestore) | firebase 11.10 |
-| Player de áudio | Howler.js | 2.2.4 |
-| Metrônomo | Web Audio API própria (`utils/metronomo.ts`) | — |
-| PWA | vite-plugin-pwa (Workbox, `generateSW`, `registerType: 'prompt'`) | 0.21 |
-| Export PDF | jsPDF | 4.2 |
-| Export planilha | xlsx (SheetJS) | 0.18 |
-| i18n | i18next + react-i18next | 24.2 / 15.4 |
-| Ícones | lucide-react | 0.469 |
+| `56b3b8a`, `411924e` | MiniPlayer (1ª leva), Cifra grid responsivo, Importar sem duplicação, pdfImporter preserva quebras | Já estava no GitHub antes desta sessão |
+| `1afc324` | Espaço detalhe (`/espaco/:id`) — mockup #15 | Commitado nesta sessão, aguarda `git push` |
+| `a88596b` | Modo de Preparação (`/espaco/:id/preparacao`) — mockup #15 | Idem |
+| `bc2a281` | Editor de Medley (`/medley/:id`) — mockup #11 | Idem |
+| `dc15fa6` | Player — refino glow/capa, mockup #2 | Idem |
+| `95a06e0` | NavegacaoInferior — ajuste acompanhando Player | Idem |
+| `500c8b0` | MiniPlayer — refinamento adicional, `<CapaMusica />` real, card inteiro clicável | Idem |
+| `72e249f` | Paleta Aurora global (fundo obsidiana `#080711`, bordas `#2a224f`, texto `#ffffff`) via variáveis CSS centrais | Idem |
+| `daf91ec` | Fix de tipo: campo opcional `tom` em `FaixaAudio` | Idem (2ª vez que esse fix precisou ser reaplicado — não sobreviveu ao histórico da sessão de 09/08) |
+| `c393428` | Assets de logo/favicons faltantes (referenciados desde `f32f3f8`, nunca versionados) | Idem (2ª vez — mesma lacuna da sessão de 09/08) |
+| `887714e` | `.gitignore`: ignorar `test-results/` | Idem |
 
-`chordsheetjs` e `@dnd-kit` continuam ausentes, sem mudança.
+**IMPORTANTE**: os commits marcados "idem" existem no repositório local do zip que devolvi ao
+Guilherme, mas dependem dele rodar `git push` na própria máquina para chegarem ao GitHub. Até lá,
+`origin/main` só tem os dois primeiros commits desta leva.
 
-## 2. Ferramental de execução — ATUALIZADO
+### Verificação técnica feita nesta sessão (não substitui verificação visual)
+- `rm -rf node_modules && npm install` limpo (o `node_modules` do zip veio corrompido — comum em
+  zip/unzip de binários, sempre reinstalar antes de confiar em build de um zip recebido).
+- `tsc -b` + `vite build`: **0 erros**, com tudo aplicado.
+- `git diff` em `firestore.rules`, `Editor.tsx`, `CamadaPrivada.tsx`: **sem alteração** — nenhuma
+  fase bloqueada foi tocada.
+- `chordsheetjs`, `@dnd-kit`: confirmados ausentes, sem regressão.
+- `Espaco.tsx`, `ModoPreparacao.tsx`, `EditorMedley.tsx`: usam hooks reais (`useEspacoDetalhe`,
+  `useMusicas`, `useMedleys`) e `EstadoVazio` para dados vazios — sem dado inventado (R1).
 
-| Etapa | Ferramenta | Papel |
-|---|---|---|
-| Governança/decisão | Claude Gestão (este chat) | Dá o plano, revisa segurança/schema, não executa código |
-| Backend/infra (bugs técnicos, regras, proxy) | Google AI Studio + Kilo Code (fluxo original) | Segue funcionando aqui enquanto estiver eficaz — sem motivo pra trocar o que não está quebrado |
-| Redesign visual (frontend, telas) | **Antigravity** (novo, a partir de 06/08/2026) | Assume o papel combinado de "Dev + IDE": recebe o plano completo, comanda a si mesmo, executa, se autoverifica por screenshot comparado ao mockup, avança de fase sem round-trip obrigatório pelo Claude Gestão |
+### Telas — status por rota (29 rotas)
+Todas as 29 rotas têm código de redesign presente e commitado localmente (ver `INVENTARIO_TELAS.md`
+para a tabela completa, coluna "Testado manualmente" continua sendo preenchida só pelo Guilherme,
+nunca por mim). **Nenhuma tela desta leva de 13/08 foi confirmada por print/vídeo real ainda** —
+verificação visual é sempre responsabilidade do Guilherme; meu ambiente não tem acesso a
+`cdn.playwright.dev` (fora da allowlist de rede), então não consigo tirar screenshot real de
+nenhuma tela deste projeto no meu sandbox.
 
-Modelos dentro do Antigravity e quando usar cada um: ver AGENTS.md v1.3, regra #16.
+### Bloqueadas — sem mudança
+Editor de Cifra (`/editor`, `/editor/:id`), Camada Privada (`/privado`), `firestore.rules`, Fase 19
+(tema/cor/layout customizável). Confirmado sem diff nesta sessão.
 
-**Por que a troca:** o gargalo identificado nas últimas rodadas não era o "Dev" ser ruim, era o
-pipeline ser cego — nenhuma ferramenta anterior via o resultado renderizado antes de reportar
-"pronto". Antigravity tem testagem de browser embutida e reporta via screenshots, o que ataca
-diretamente a causa raiz dos relatórios "testado" que não batiam com a realidade.
+## 9. Pendências de produto reportadas pelo dev nesta sessão (não urgentes, não bloqueiam)
+- Player (`/player`): seletor de conteúdo central (capa / foto do artista / letra sincronizada /
+  cifra com transposição) — feature nova, não um bug. Decisão de produto, não urgente.
+- Home (`/`) e Hub Música (`/musica`): ainda usam placeholders de letra (`C`, `D`, `G`) em vez de
+  capas reais de álbum (`<CapaMusica />`) em algumas listagens — inconsistência visual, não bug
+  funcional.
+- Aviso de domínio Firebase Auth para `127.0.0.1` no console do navegador — é configuração
+  (adicionar `127.0.0.1` aos domínios autorizados no Firebase Console), não um bug de código.
 
-## 3. Firebase — estrutura real do Firestore (confirmado por leitura direta do zip, 06/08/2026)
-
-```
-users/{uid}                                — perfil
-users/{uid}/musicas/{musicaId}              — subcoleção privada (useMusicas)
-users/{uid}/favoritos/{musicaId}
-users/{uid}/historico/{entradaId}
-users/{uid}/estatisticas/geral
-users/{uid}/medleys/{medleyId}
-users/{uid}/playlists/{playlistId}
-users/{uid}/espacos/{espacoId}              — mirror local (useEspacos)
-espacos/{espacoId}                          — donoUid, codigo, observacoesEnsaio?
-espacos/{espacoId}/membros/{uid}            — papel: dono/admin/editor/leitor
-espacos/{espacoId}/musicas/{musicaId}
-comunidade/{musicaComunidadeId}             — coleção FLAT, campo de autor real: enviadaPor
-codigos/{codigo}                            — campo real: espacoId, criadoPor, ativo
-```
-
-**⚠️ Nomes de coleção que NÃO existem, apesar de terem sido reportados como existentes em algum
-momento — não confiar em relato, só em leitura direta do código:** `usuarios/`, `cifras/`,
-`espacos/{id}/repertorios`, `espacos/{id}/anotacoes`, `solicitacoesComunidade/`. Confirmado por
-`grep -rn "collection(db|doc(db" src/hooks/*.tsx` em 06/08/2026.
-
-### `firestore.rules` — RESOLVIDO (06/08/2026)
-Estava fora de controle de versão até 05/08. Nessa data foi escrito pelo Claude Gestão a partir de
-leitura direta dos hooks, corrigindo uma tentativa anterior que usava `allow read, write: if
-isAuthenticated()` como regra curinga (abria qualquer documento pra qualquer usuário logado — furo
-de privacidade real, não só bug de permissão). Versão final:
-- `users/{uid}` e subcoleções: só o dono.
-- `espacos`: leitura/edição por papel real lido de `/membros`; delete só dono/admin do espaço.
-- `comunidade`: create só como `pendente` e só o remetente; update/delete só admin
-  (`Fy360vBRHeSmuMtzNJzn4jwZAKD2`).
-- `codigos`: get-only sem list; create valida contra `donoUid` do doc de `espacos` (não contra
-  `/membros`, que ainda não existe no instante da criação do espaço).
-- Fallback nega tudo não listado.
-Aplicado (commit `f460e94`), publicado no Console. **Pendente de confirmação com evidência real**
-(print de erro, não só relato) dos testes de permissão cruzada entre contas — ver SI vigente.
-
-## 4. Modelo de dado — `Musica`, `MusicaComunidade`, `Espaco` (sem mudança de campo desde v1.2)
-
-Campo de autor real em `MusicaComunidade` é **`enviadaPor`** (confirmado em `types/index.ts`),
-não `autorUid` como chegou a ser reportado incorretamente. `Espaco.donoUid` existe e é usado nas
-regras de segurança (Seção 3). Resto sem mudança — ver v1.2 para os tipos completos.
-
-## 5. Rotas (`src/App.tsx`)
-27 rotas, sem mudança de lista — ver `INVENTARIO_TELAS.md`.
-
-## 6. Camada Privada — sem mudança de mérito desde v1.2
-Câmera confirmada correta, não mexer. Navidrome: CORS corrigido, credenciais cadastradas na Vercel
-pelo Guilherme. Acesso no celular depende do app Tailscale ativo — confirmado como causa da falha
-de acesso durante teste em 05/08 (não é bug de código). **Proposta de Cloudflare Tunnel para
-expor o Navidrome via HTTPS público está REGISTRADA, NÃO AUTORIZADA** — decisão de infraestrutura
-da Camada Privada, pendente de decisão explícita do Claude Gestão (AGENTS.md regra #7).
-
-## 7. PWA / Service Worker — RESOLVIDO
-`registerType: 'prompt'` aplicado, `NetworkOnly` nas rotas de API (`/proxy`, `/n8n`,
-`firestore.googleapis.com`). Reportado como corrigido; comportamento "offline sozinho" não
-reapareceu nos relatos mais recentes — considerar fechado até evidência em contrário.
-
-## 8. Redesign Visual — estado atual (atualiza Seção 8 da v1.2)
-
-- **Causa raiz da cor amarela identificada e corrigida**: variável `--primaria` em
-  `src/index.css` estava `#E4B429`, alterada para `#8B5CF6` (roxo Aurora). Resolver na variável
-  central foi a abordagem certa — evita ter que caçar classe `amber-*`/`yellow-*` espalhada pelo
-  código, e deve ser o padrão para qualquer ajuste de cor futuro.
-- **Barra de navegação inferior antiga removida** da Tela Inicial — confirmado nos prints de
-  produção enviados pelo Guilherme.
-- **Bug de duplicação identificado**: não existe componente `Header`/`Saudacao` compartilhado — o
-  texto "Olá, Guilherme" está duplicado em `pages/Inicio.tsx`, `pages/Musica.tsx` e
-  `pages/Cifra.tsx`. Fix precisa tocar os 3 arquivos; extração pra componente reusável é
-  recomendada mas não obrigatória na rodada atual.
-- **Telas ainda pendentes de redesign**: Hub Cifra (`/cifra`), Espaços (`/espacos` — bug técnico
-  do loop já resolvido, falta só visual), Biblioteca, e demais da lista original — ver SI vigente
-  para ordem e detalhamento.
-- Regra de execução revisada: ver AGENTS.md v1.3 regra #13 — uma tela por commit continua, mas
-  avanço entre telas agora é autônomo (autoverificação por screenshot substitui o checkpoint
-  humano intermediário).
-
-## 9. Lição confirmada: build verde não garante produção funcional (mantida da v1.2)
-Sem mudança de princípio. Reforçada pela descoberta do furo de segurança nas regras do Firestore,
-que também não quebrava build nenhum.
-
-## 10. Convenções obrigatórias (sem mudança)
-- Nomes em português. `export default NomeDaPagina`. `EstadoVazio` usa prop `texto`.
-- `useTransposicao()` só tem funções puras. Sistema visual Aurora em `src/index.css`.
-- Ambiente: CachyOS, Fish Shell, Kate. `touch`/`truncate -s 0`/`kate`.
-- Erro de infraestrutura/configuração nunca renderiza como "nenhum dado encontrado".
-- Redesign = substituir, nunca mesclar (Seção 8).
-- Nome de coleção/campo do Firestore: sempre confirmar por leitura direta do código-fonte antes de
-  escrever qualquer regra de segurança ou documentação — relato de terceiro já causou erro real
-  mais de uma vez neste projeto (Seção 3).
+## 10. Sem mudança de v1.7 (demais seções)
 
 ---
-*ARQUITETURA.md v1.3 | Claude (Gestão) | 06/Ago/2026*
+*ARQUITETURA.md v1.8 | Claude (Gestão) | 13/Ago/2026 — reconstruída a partir de varredura direta*
+*do código-fonte (zip enviado pelo Guilherme), incluindo `git log`/`git diff origin/main..HEAD`.*
