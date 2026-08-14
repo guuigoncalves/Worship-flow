@@ -29,14 +29,34 @@ interface PlayerContextValue {
   setVolume: (volume: number) => void;
   setModo: (modo: ModoPlayer) => void;
   adicionarFila: (faixa: FaixaAudio) => void;
+  graves: number;
+  medios: number;
+  agudos: number;
+  setGraves: (valor: number) => void;
+  setMedios: (valor: number) => void;
+  setAgudos: (valor: number) => void;
+  boost: '100%' | '150%' | '200%' | '300%';
+  setBoost: (valor: '100%' | '150%' | '200%' | '300%') => void;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
 const key = 'worshipflow:player';
+const eqKey = 'worshipflow:player:eq';
+
+const boostValores: Record<'100%' | '150%' | '200%' | '300%', number> = {
+  '100%': 1,
+  '150%': 1.5,
+  '200%': 2,
+  '300%': 3,
+};
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const restaurado = useMemo(() => {
     try { return JSON.parse(localStorage.getItem(key) || '{}') as { faixa?: FaixaAudio; progresso?: number; volume?: number; modo?: ModoPlayer }; }
+    catch { return {}; }
+  }, []);
+  const restauradoEq = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem(eqKey) || '{}') as { graves?: number; medios?: number; agudos?: number; boost?: '100%' | '150%' | '200%' | '300%' }; }
     catch { return {}; }
   }, []);
   const [faixa, setFaixa] = useState<FaixaAudio | null>(restaurado.faixa ?? null);
@@ -46,8 +66,101 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [duracao, setDuracao] = useState(0);
   const [volume, setVolumeState] = useState(restaurado.volume ?? 0.8);
   const [modo, setModo] = useState<ModoPlayer>(restaurado.modo ?? 'normal');
+  const [graves, setGravesState] = useState(restauradoEq.graves ?? 0);
+  const [medios, setMediosState] = useState(restauradoEq.medios ?? 0);
+  const [agudos, setAgudosState] = useState(restauradoEq.agudos ?? 0);
+  const [boost, setBoostState] = useState<'100%' | '150%' | '200%' | '300%'>(restauradoEq.boost ?? '100%');
   const howlRef = useRef<Howl | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const gravesFilterRef = useRef<BiquadFilterNode | null>(null);
+  const mediosFilterRef = useRef<BiquadFilterNode | null>(null);
+  const agudosFilterRef = useRef<BiquadFilterNode | null>(null);
+  const compressorRef = useRef<DynamicsCompressorNode | null>(null);
+  const boostGainRef = useRef<GainNode | null>(null);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify({ faixa, progresso, volume, modo }));
+  }, [faixa, progresso, volume, modo]);
+
+  useEffect(() => {
+    localStorage.setItem(eqKey, JSON.stringify({ graves, medios, agudos, boost }));
+  }, [graves, medios, agudos, boost]);
+
+  const getAudioContext = useCallback(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioContextRef.current;
+  }, []);
+
+  const configurarEqualizador = useCallback((howl: Howl) => {
+    try {
+      const ctx = getAudioContext();
+      const audioElement = (howl as any)?._sounds?.[0]?._node as HTMLAudioElement | undefined;
+      if (!audioElement) return false;
+
+      if (sourceRef.current) {
+        try { sourceRef.current.disconnect(); } catch {}
+        sourceRef.current = null;
+      }
+
+      const source = ctx.createMediaElementSource(audioElement);
+      sourceRef.current = source;
+
+      const gravesFilter = ctx.createBiquadFilter();
+      gravesFilter.type = 'lowshelf';
+      gravesFilter.frequency.value = 100;
+      gravesFilter.gain.value = graves;
+
+      const mediosFilter = ctx.createBiquadFilter();
+      mediosFilter.type = 'peaking';
+      mediosFilter.frequency.value = 1000;
+      mediosFilter.Q.value = 1;
+      mediosFilter.gain.value = medios;
+
+      const agudosFilter = ctx.createBiquadFilter();
+      agudosFilter.type = 'highshelf';
+      agudosFilter.frequency.value = 8000;
+      agudosFilter.gain.value = agudos;
+
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -24;
+      compressor.knee.value = 30;
+      compressor.ratio.value = 12;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.25;
+
+      const boostGain = ctx.createGain();
+      boostGain.gain.value = boostValores[boost];
+
+      source.connect(gravesFilter);
+      gravesFilter.connect(mediosFilter);
+      mediosFilter.connect(agudosFilter);
+      agudosFilter.connect(compressor);
+      compressor.connect(boostGain);
+      boostGain.connect(ctx.destination);
+
+      gravesFilterRef.current = gravesFilter;
+      mediosFilterRef.current = mediosFilter;
+      agudosFilterRef.current = agudosFilter;
+      compressorRef.current = compressor;
+      boostGainRef.current = boostGain;
+
+      return true;
+    } catch (e) {
+      console.warn('Falha ao configurar equalizador:', e);
+      return false;
+    }
+  }, [getAudioContext, graves, medios, agudos, boost]);
+
+  const atualizarFiltros = useCallback(() => {
+    if (gravesFilterRef.current) gravesFilterRef.current.gain.value = graves;
+    if (mediosFilterRef.current) mediosFilterRef.current.gain.value = medios;
+    if (agudosFilterRef.current) agudosFilterRef.current.gain.value = agudos;
+    if (boostGainRef.current) boostGainRef.current.gain.value = boostValores[boost];
+  }, [graves, medios, agudos, boost]);
 
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify({ faixa, progresso, volume, modo }));
@@ -81,8 +194,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     });
     howlRef.current = howl;
     setFaixa(proxima);
+
+    const configurou = configurarEqualizador(howl);
+    if (!configurou) {
+      howl.once('load', () => configurarEqualizador(howl));
+    }
+
     return howl;
-  }, [volume, showToast]);
+  }, [volume, showToast, configurarEqualizador]);
 
   const tocar = useCallback((proxima?: FaixaAudio) => {
     const alvo = proxima ?? faixa;
@@ -114,7 +233,27 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const adicionarFila = useCallback((nova: FaixaAudio) => setFila((atuais) => [...atuais, nova]), []);
 
-  const value = useMemo(() => ({ faixa, fila, tocando, progresso, duracao, volume, modo, tocar, pausar, seek, setVolume, setModo, adicionarFila }), [adicionarFila, duracao, faixa, fila, modo, pausar, progresso, seek, tocar, tocando, volume, setVolume]);
+  const setGraves = useCallback((valor: number) => {
+    setGravesState(valor);
+    if (gravesFilterRef.current) gravesFilterRef.current.gain.value = valor;
+  }, []);
+
+  const setMedios = useCallback((valor: number) => {
+    setMediosState(valor);
+    if (mediosFilterRef.current) mediosFilterRef.current.gain.value = valor;
+  }, []);
+
+  const setAgudos = useCallback((valor: number) => {
+    setAgudosState(valor);
+    if (agudosFilterRef.current) agudosFilterRef.current.gain.value = valor;
+  }, []);
+
+  const setBoost = useCallback((valor: '100%' | '150%' | '200%' | '300%') => {
+    setBoostState(valor);
+    if (boostGainRef.current) boostGainRef.current.gain.value = boostValores[valor];
+  }, []);
+
+  const value = useMemo(() => ({ faixa, fila, tocando, progresso, duracao, volume, modo, tocar, pausar, seek, setVolume, setModo, adicionarFila, graves, medios, agudos, setGraves, setMedios, setAgudos, boost, setBoost }), [adicionarFila, agudos, boost, duracao, faixa, fila, graves, medios, modo, pausar, progresso, seek, setAgudos, setGraves, setMedios, setBoost, setModo, setVolume, tocar, tocando, volume]);
   return <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>;
 }
 
