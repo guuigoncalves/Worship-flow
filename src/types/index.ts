@@ -38,6 +38,7 @@ export interface Musica {
   possuiCifra?: boolean;
   solicitacaoExclusao?: boolean;
   dataSolicitacaoExclusao?: string;
+  capaUrl?: string;
 }
 
 export interface BlocoMedley {
