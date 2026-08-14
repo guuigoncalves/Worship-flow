@@ -224,5 +224,53 @@ export function useEspacoDetalhe(espacoId: string | undefined) {
     [espacoId, podeEditar]
   );
 
-  return { membros, musicas, meuPapel, podeEditar, podeGerenciarMembros, loading, compartilharMusica, removerMusica, alterarPapel, removerMembro, observacoesEnsaio, salvarObservacaoEnsaio };
+  const adicionarMusicaAoCulto = useCallback(
+    async (musicaId: string, tom?: string) => {
+      if (!espacoId || !podeEditar) return;
+      const existente = musicas.find((item) => item.id === musicaId);
+      if (!existente) return;
+      await updateDoc(doc(db, 'espacos', espacoId, 'musicas', musicaId), {
+        ...existente,
+        tom: tom || existente.tom
+      });
+    },
+    [espacoId, musicas, podeEditar]
+  );
+
+  const removerMusicaDoCulto = useCallback(
+    async (musicaId: string) => {
+      if (!espacoId || !podeEditar) return;
+      await deleteDoc(doc(db, 'espacos', espacoId, 'musicas', musicaId));
+    },
+    [espacoId, podeEditar]
+  );
+
+  const alterarTomMusicaCulto = useCallback(
+    async (musicaId: string, novoTom: string) => {
+      if (!espacoId || !podeEditar) return;
+      const existente = musicas.find((item) => item.id === musicaId);
+      if (!existente) return;
+      await updateDoc(doc(db, 'espacos', espacoId, 'musicas', musicaId), {
+        ...existente,
+        tom: novoTom
+      });
+    },
+    [espacoId, musicas, podeEditar]
+  );
+
+  const reordenarSetlist = useCallback(
+    async (novaOrdemIds: string[]) => {
+      if (!espacoId || !podeEditar) return;
+      const mapa = new Map(musicas.map((item) => [item.id, item]));
+      const reordenadas = novaOrdemIds
+        .map((id) => mapa.get(id))
+        .filter(Boolean)
+        .map((item, idx) => ({ ...item!, ordem: idx }));
+      const batch = reordenadas.map((item) => updateDoc(doc(db, 'espacos', espacoId, 'musicas', item.id), { ordem: item.ordem }));
+      await Promise.all(batch);
+    },
+    [espacoId, musicas, podeEditar]
+  );
+
+  return { membros, musicas, meuPapel, podeEditar, podeGerenciarMembros, loading, compartilharMusica, removerMusica, alterarPapel, removerMembro, observacoesEnsaio, salvarObservacaoEnsaio, adicionarMusicaAoCulto, removerMusicaDoCulto, alterarTomMusicaCulto, reordenarSetlist };
 }

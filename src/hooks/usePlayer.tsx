@@ -2,6 +2,7 @@ import { createContext, type ReactNode, useCallback, useContext, useEffect, useM
 import { Howl } from 'howler';
 import { useToast } from './useToast';
 import type { Tom } from '../types';
+import { iniciarPad, pararPad } from '../utils/sintetizadorPad';
 
 export interface FaixaAudio {
   id: string;
@@ -169,6 +170,15 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify({ faixa, progresso, volume, modo }));
   }, [faixa, progresso, volume, modo]);
+
+  useEffect(() => {
+    if (modo === 'pad' && tocando && faixa) {
+      const tom = (faixa.tom as string) || 'C';
+      iniciarPad(tom);
+    } else {
+      pararPad();
+    }
+  }, [modo, tocando, faixa]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
