@@ -9,16 +9,18 @@ import {
   Pause,
   SkipBack,
   SkipForward,
+  Volume1,
   Volume2,
-  VolumeX,
   Music,
   ArrowLeft,
-  List,
-  FileText,
   Heart,
   MoreVertical,
   Shuffle,
-  Repeat
+  Repeat,
+  Users,
+  Sliders,
+  Bell,
+  GripVertical
 } from 'lucide-react';
 
 export const Player: React.FC = () => {
@@ -38,44 +40,41 @@ export const Player: React.FC = () => {
     setModo
   } = usePlayer();
   const { obterMusica } = useMusicas();
-  const [mostrarLetra, setMostrarLetra] = React.useState(false);
   const [favorito, setFavorito] = React.useState(false);
   const [shuffleAtivo, setShuffleAtivo] = React.useState(false);
   const [repeatAtivo, setRepeatAtivo] = React.useState(false);
-  const [filaVisivel, setFilaVisivel] = React.useState(false);
 
   const formatarTempo = (segundos: number) => {
+    if (!segundos || isNaN(segundos)) return '00:00';
     const min = Math.floor(segundos / 60);
     const seg = Math.floor(segundos % 60);
-    return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+    return `${min < 10 ? '0' : ''}${min}:${seg < 10 ? '0' : ''}${seg}`;
   };
 
   if (!faixa) {
     return (
-      <main className="app-page space-y-6 pb-32 fade-in bg-gradient-to-b from-[#181236]/40 via-[#080711] to-[#080711]">
-        <header className="flex items-center justify-between pt-1">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#120f26] border border-[#2a224f] text-white hover:bg-white/10 transition-colors"
-            type="button"
-            aria-label="Voltar"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-base font-bold text-white">Player</h1>
-          <div className="w-9" />
-        </header>
-        <EstadoVazio
-          titulo="Nenhuma faixa em reprodução"
-          texto="Selecione uma música no Hub Música ou na Biblioteca para tocar aqui."
-        />
+      <main className="app-page space-y-6 pb-32 fade-in bg-gradient-to-b from-[#16102e] via-[#0a0814] to-[#0a0814] min-h-screen px-4 pt-4">
+      <header className="flex items-center justify-between pt-1">
+      <button
+      onClick={() => navigate(-1)}
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-[#16122c]/80 border border-[#2d2454] text-white hover:bg-white/10 transition-colors"
+      type="button"
+      aria-label="Voltar"
+      >
+      <ArrowLeft className="w-5 h-5" />
+      </button>
+      <h1 className="text-sm font-semibold text-white/90">Player</h1>
+      <div className="w-10" />
+      </header>
+      <EstadoVazio
+      titulo="Nenhuma faixa em reprodução"
+      texto="Selecione uma música no Hub Música ou na Biblioteca para tocar aqui."
+      />
       </main>
     );
   }
 
-  const faixaTom = (faixa as any)?.tom;
-  const musica = faixa.musicaId ? obterMusica(faixa.musicaId) : null;
-  const temLetra = Boolean(musica?.letra);
+  const faixaTom = (faixa as any)?.tom || 'C';
   const progPercent = duracao > 0 ? (progresso / duracao) * 100 : 0;
 
   const handlePrev = () => {
@@ -92,228 +91,285 @@ export const Player: React.FC = () => {
     }
   };
 
-  const handleMoverFila = (_index: number, _direcao: -1 | 1) => {
-    // Reordenação da fila não exposta pelo hook atual.
-  };
+  const modos = [
+    { id: 'normal', label: 'Normal', icon: Music },
+    { id: 'fundo', label: 'Fundo', icon: Users },
+    { id: 'pad', label: 'Pad', icon: Sliders },
+    { id: 'metronomo', label: 'Metrônomo', icon: Bell },
+  ] as const;
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in max-w-md mx-auto bg-gradient-to-b from-[#181236]/40 via-[#080711] to-[#080711]">
-      <header className="flex items-center justify-between pt-1">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#120f26] border border-[#2a224f] text-white hover:bg-white/10 transition-colors"
-          type="button"
-          aria-label="Voltar"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-base font-bold text-white">Player</h1>
-        <button
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#120f26] border border-[#2a224f] text-white hover:bg-white/10 transition-colors"
-          type="button"
-          aria-label="Mais opções"
-        >
-          <MoreVertical className="w-5 h-5" />
-        </button>
-      </header>
+    <main className="app-page space-y-5 pb-28 fade-in max-w-md mx-auto bg-gradient-to-b from-[#181136] via-[#0c0919] to-[#080612] min-h-screen px-4 pt-3 text-white">
+    {/* Top Header */}
+    <header className="flex items-center justify-between pt-1">
+    <button
+    onClick={() => navigate(-1)}
+    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#181335]/60 border border-[#2e2353] text-white/90 hover:bg-white/10 transition-colors"
+    type="button"
+    aria-label="Voltar"
+    >
+    <ArrowLeft className="w-5 h-5" />
+    </button>
+    <h1 className="text-sm font-medium text-white/90">Player</h1>
+    <button
+    className="flex h-9 w-9 items-center justify-center rounded-full bg-[#181335]/60 border border-[#2e2353] text-white/90 hover:bg-white/10 transition-colors"
+    type="button"
+    aria-label="Mais opções"
+    >
+    <MoreVertical className="w-5 h-5" />
+    </button>
+    </header>
 
-      <div className="flex flex-col items-center justify-center pt-2 space-y-4">
-        <div className="relative">
-          {tocando && (
-            <div
-              className="absolute -inset-8 rounded-full blur-3xl opacity-50 animate-pulse pointer-events-none"
-              style={{ background: 'radial-gradient(circle, #8B5CF6 0%, #4F46E5 50%, transparent 70%)' }}
-            />
-          )}
-          <div className="relative h-60 w-60 overflow-hidden rounded-2xl border border-[#2a224f] shadow-[0_0_35px_rgba(139,114,238,0.25)] bg-gradient-to-br from-[#1d163d] via-[#2a1b54] to-[#120f26]">
-            {faixa.capaUrl ? (
-              <img className="h-full w-full object-cover" src={faixa.capaUrl} alt={faixa.titulo} />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <Music className="w-16 h-16 text-[#8b72ee]" />
-              </div>
-            )}
-          </div>
-        </div>
+    {/* Album Artwork Card */}
+    <div className="pt-2 flex justify-center">
+    <div className="relative w-full aspect-square max-w-[320px]">
+    {/* Ambient Purple Glow */}
+    <div
+    className="absolute -inset-4 rounded-3xl blur-2xl opacity-40 pointer-events-none transition-all duration-700"
+    style={{
+      background: tocando
+      ? 'radial-gradient(circle, #7c3aed 0%, #4c1d95 60%, transparent 100%)'
+      : 'radial-gradient(circle, #4c1d95 0%, transparent 70%)',
+    }}
+    />
 
-        <div className="text-center space-y-1 w-full px-4">
-          <div className="flex items-center justify-center gap-2">
-            <h2 className="text-xl font-extrabold text-white truncate">{faixa.titulo}</h2>
-            <button
-              type="button"
-              onClick={() => setFavorito(!favorito)}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${favorito ? 'text-red-400 border-red-500/30' : 'text-[#8f85b8] border-[#2d264f] hover:text-red-500'}`}
-              aria-label="Favorito"
-            >
-              <Heart className="w-6 h-6" fill={favorito ? 'currentColor' : 'none'} />
-            </button>
-          </div>
-          <p className="text-xs text-[#8f85b8] truncate">{faixa.artista || 'Artista não informado'}</p>
-          {faixaTom && (
-            <div className="pt-1">
-              <span className="inline-block px-3 py-1 rounded-full bg-[#1e1b4b] border border-[#3730a3] text-[#c4b5fd] text-xs font-bold font-mono">
-                {faixaTom}
-              </span>
-            </div>
-          )}
-        </div>
+    <div className="relative h-full w-full overflow-hidden rounded-3xl border border-[#32255d]/60 shadow-2xl bg-[#140e2d]">
+    {faixa.capaUrl ? (
+      <img className="h-full w-full object-cover" src={faixa.capaUrl} alt={faixa.titulo} />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#24174d] via-[#150f33] to-[#0c081f]">
+      <Music className="w-20 h-20 text-[#8b5cf6]/60" />
       </div>
+    )}
+    </div>
+    </div>
+    </div>
 
-      <div className="space-y-2 px-2">
-        <div
-          className="relative h-2 w-full bg-white/10 rounded-full cursor-pointer overflow-hidden"
-          onClick={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const pct = x / rect.width;
-            seek(pct * duracao);
-          }}
+    {/* Title, Artist, Heart & Tom Badge */}
+    <div className="pt-2 space-y-2">
+    <div className="flex items-start justify-between gap-3">
+    <div className="min-w-0 flex-1">
+    <h2 className="text-xl font-semibold text-white truncate tracking-tight">{faixa.titulo}</h2>
+    <p className="text-sm text-white/60 truncate mt-0.5">{faixa.artista || 'Artista não informado'}</p>
+    </div>
+    <button
+    type="button"
+    onClick={() => setFavorito(!favorito)}
+    className="p-1.5 text-white/70 hover:text-red-400 transition-colors mt-0.5 shrink-0"
+    aria-label="Favorito"
+    >
+    <Heart className={`w-6 h-6 ${favorito ? 'text-red-500 fill-red-500' : ''}`} />
+    </button>
+    </div>
+
+    {/* Tom Badge Pill */}
+    <div>
+    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#271952]/80 border border-[#4c3585] text-purple-200 text-xs font-medium tracking-wide">
+    <span className="font-semibold">{faixaTom}</span>
+    <span className="text-white/50 text-[10px]">Tom</span>
+    </span>
+    </div>
+    </div>
+
+    {/* Progress Bar & Timers */}
+    <div className="space-y-1.5 pt-1">
+    <div
+    className="relative h-1.5 w-full bg-white/10 rounded-full cursor-pointer group"
+    onClick={(e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = x / rect.width;
+      seek(pct * duracao);
+    }}
+    >
+    <div
+    className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#a78bfa] to-[#7c3aed] transition-all duration-100"
+    style={{ width: `${progPercent}%` }}
+    >
+    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md scale-0 group-hover:scale-100 transition-transform" />
+    </div>
+    </div>
+    <div className="flex justify-between text-[11px] font-mono text-white/50">
+    <span>{formatarTempo(progresso)}</span>
+    <span>{formatarTempo(duracao)}</span>
+    </div>
+    </div>
+
+    {/* Playback Controls */}
+    <div className="flex items-center justify-between px-2 pt-1">
+    <button
+    type="button"
+    onClick={() => setShuffleAtivo(!shuffleAtivo)}
+    className={`p-2 transition-colors ${shuffleAtivo ? 'text-[#a78bfa]' : 'text-white/50 hover:text-white'}`}
+    title="Aleatório"
+    >
+    <Shuffle size={18} />
+    </button>
+
+    <button
+    type="button"
+    onClick={handlePrev}
+    className="p-2 text-white/80 hover:text-white transition-colors"
+    title="Anterior"
+    >
+    <SkipBack size={22} fill="currentColor" />
+    </button>
+
+    {/* Central Circular Play/Pause Button */}
+    <button
+    type="button"
+    onClick={() => (tocando ? pausar() : tocar(faixa))}
+    className="h-16 w-16 rounded-full bg-gradient-to-tr from-[#6d28d9] to-[#8b5cf6] text-white flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.5)] hover:scale-105 active:scale-95 transition-all"
+    >
+    {tocando ? (
+      <Pause size={26} fill="currentColor" />
+    ) : (
+      <Play size={26} fill="currentColor" className="ml-1" />
+    )}
+    </button>
+
+    <button
+    type="button"
+    onClick={handleNext}
+    className="p-2 text-white/80 hover:text-white transition-colors"
+    title="Próximo"
+    >
+    <SkipForward size={22} fill="currentColor" />
+    </button>
+
+    <button
+    type="button"
+    onClick={() => setRepeatAtivo(!repeatAtivo)}
+    className={`p-2 transition-colors ${repeatAtivo ? 'text-[#a78bfa]' : 'text-white/50 hover:text-white'}`}
+    title="Repetir"
+    >
+    <Repeat size={18} />
+    </button>
+    </div>
+
+    {/* Volume Bar */}
+    <div className="flex items-center gap-3 px-1 pt-1">
+    <button
+    type="button"
+    onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+    className="text-white/50 hover:text-white transition-colors shrink-0"
+    >
+    <Volume1 size={18} />
+    </button>
+    <input
+    type="range"
+    min={0}
+    max={1}
+    step={0.01}
+    value={volume}
+    onChange={(e) => setVolume(Number(e.target.value))}
+    className="flex-1 accent-[#8b5cf6] h-1 bg-white/10 rounded-lg cursor-pointer"
+    />
+    <button
+    type="button"
+    onClick={() => setVolume(1)}
+    className="text-white/50 hover:text-white transition-colors shrink-0"
+    >
+    <Volume2 size={18} />
+    </button>
+    </div>
+
+    {/* Modo de Reprodução (4 horizontal cards) */}
+    <div className="space-y-2 pt-2">
+    <h3 className="text-xs font-medium text-white/70">Modo de reprodução</h3>
+    <div className="grid grid-cols-4 gap-2">
+    {modos.map((m) => {
+      const Icon = m.icon;
+      const ativo = modo === m.id;
+      return (
+        <button
+        key={m.id}
+        type="button"
+        onClick={() => setModo(modo === m.id ? 'normal' : m.id)}
+        className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-2xl border transition-all duration-200 gap-1.5 ${
+          ativo
+          ? 'bg-[#291757] border-[#8b5cf6] text-white shadow-lg shadow-purple-900/40'
+          : 'bg-[#120e26]/60 border-[#2b214f]/80 text-white/50 hover:text-white/80 hover:bg-[#181335]'
+        }`}
         >
-          <div
-            className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#8b72ee] to-[#6d4aff] transition-all duration-100"
-            style={{ width: `${progPercent}%` }}
-          />
-        </div>
-        <div className="flex justify-between text-[10px] font-mono text-white/40">
-          <span>{formatarTempo(progresso)}</span>
-          <span>{formatarTempo(duracao)}</span>
-        </div>
+        <Icon size={18} className={ativo ? 'text-[#a78bfa]' : 'text-white/50'} />
+        <span className="text-[11px] font-medium">{m.label}</span>
+        </button>
+      );
+    })}
+    </div>
+    </div>
+
+    {/* Fila de Reprodução */}
+    <div className="space-y-2.5 pt-2">
+    <div className="flex items-center justify-between">
+    <h3 className="text-xs font-medium text-white/70">Fila de reprodução</h3>
+    {fila.length > 0 && (
+      <button
+      type="button"
+      onClick={() => {}}
+      className="text-xs text-purple-400 hover:text-purple-300 font-medium transition-colors"
+      >
+      Limpar fila
+      </button>
+    )}
+    </div>
+
+    {fila.length === 0 ? (
+      <div className="p-4 rounded-2xl bg-[#120e26]/40 border border-[#2b214f]/60 text-center text-xs text-white/40">
+      Fila vazia
       </div>
-
-      <div className="flex items-center justify-center gap-4">
-        <button
-          type="button"
-          onClick={() => setShuffleAtivo(!shuffleAtivo)}
-          className={`p-2 transition-colors ${shuffleAtivo ? 'text-[#a78bfa]' : 'text-white/60 hover:text-white'}`}
-          title="Shuffle"
-        >
-          <Shuffle size={20} />
-        </button>
-        <button
-          type="button"
-          onClick={handlePrev}
-          className="p-3 text-white/60 hover:text-white transition-colors"
-          title="Anterior"
-        >
-          <SkipBack size={24} />
-        </button>
-        <button
-          type="button"
-          onClick={() => (tocando ? pausar() : tocar(faixa))}
-          className="h-16 w-16 rounded-2xl bg-gradient-to-r from-[#8b72ee] to-[#6d4aff] text-white flex items-center justify-center shadow-[0_0_25px_rgba(139,114,238,0.5)] hover:scale-105 active:scale-95 transition-all"
-        >
-          {tocando ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
-        </button>
-        <button
-          type="button"
-          onClick={handleNext}
-          className="p-3 text-white/60 hover:text-white transition-colors"
-          title="Próximo"
-        >
-          <SkipForward size={24} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setRepeatAtivo(!repeatAtivo)}
-          className={`p-2 transition-colors ${repeatAtivo ? 'text-[#a78bfa]' : 'text-white/60 hover:text-white'}`}
-          title="Repeat"
-        >
-          <Repeat size={20} />
-        </button>
-      </div>
-
-      <div className="flex items-center gap-3 px-2">
-        <button
-          type="button"
-          onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-          className="text-white/60 hover:text-white transition-colors"
-        >
-          {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          className="flex-1 accent-[#8b72ee] h-1"
-        />
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Modo de reprodução</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          {(['normal', 'fundo', 'pad', 'metronomo'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setModo(modo === m ? 'normal' : m)}
-              className={`py-2 rounded-xl text-xs font-bold border transition-all ${
-                modo === m
-                  ? 'bg-purple-600 text-white border-purple-400 shadow-lg shadow-purple-600/30'
-                  : 'bg-white/5 text-white/40 border-[#2a224f] hover:text-white'
-              }`}
-            >
-              {m === 'fundo' ? 'Fundo' : m.toUpperCase()}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    ) : (
       <div className="space-y-2">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider flex items-center gap-2">
-            <List size={14} className="text-[#a78bfa]" />
-            <span>Fila de reprodução ({fila.length})</span>
-          </h3>
-          <button
-            type="button"
-            onClick={() => setFilaVisivel(!filaVisivel)}
-            className="text-[10px] text-purple-400 hover:text-purple-300"
-          >
-            {filaVisivel ? 'Ocultar' : 'Exibir'}
-          </button>
-        </div>
-        {filaVisivel && fila.length > 0 && (
-          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-            {fila.map((item, idx) => (
-              <div
-                key={item.id + idx}
-                onClick={() => tocar(item)}
-                className="card p-3 flex items-center justify-between border border-[#2a224f] bg-[#120f26] hover:bg-white/5 transition-all rounded-2xl cursor-pointer"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#2a224f]">
-                    {item.capaUrl ? (
-                      <img className="h-full w-full object-cover" src={item.capaUrl} alt="" />
-                    ) : (
-                      <CapaMusica titulo={item.titulo} tom={item.tom} tamanho="sm" />
-                    )}
-                  </div>
-                  <span className="text-xs font-medium text-white truncate">{item.titulo}</span>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-[#2a224f]">
-                    {(item as any).tom || 'C'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      {fila.map((item, idx) => {
+        const eAtiva = item.id === faixa.id;
+        const itemTom = (item as any)?.tom || 'D';
+      return (
+        <div
+        key={item.id + idx}
+        onClick={() => tocar(item)}
+        className={`p-2.5 flex items-center justify-between border rounded-2xl transition-all cursor-pointer ${
+          eAtiva
+          ? 'bg-[#211545]/90 border-[#8b5cf6]/60 shadow-md shadow-purple-950/50'
+          : 'bg-[#120e26]/70 border-[#291f4a]/70 hover:bg-[#1a1436]'
+        }`}
+        >
+        <div className="flex items-center gap-3 min-w-0">
+        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-[#32255d]/80 bg-[#171033]">
+        {item.capaUrl ? (
+          <img className="h-full w-full object-cover" src={item.capaUrl} alt="" />
+        ) : (
+          <CapaMusica titulo={item.titulo} tom={itemTom} tamanho="sm" />
         )}
-      </div>
-
-      {mostrarLetra && temLetra && (
-        <div className="bg-[#120f26]/90 border border-[#2a224f] rounded-3xl p-5 backdrop-blur-xl space-y-2">
-          <h3 className="text-xs font-semibold text-[#a78bfa] uppercase tracking-wider">Letra da Música</h3>
-          <div className="whitespace-pre-wrap font-mono text-xs text-white/80 leading-relaxed max-h-60 overflow-y-auto pr-2">
-            {musica?.letra}
-          </div>
         </div>
-      )}
+        <div className="min-w-0">
+        <p className={`text-xs font-medium truncate ${eAtiva ? 'text-white font-semibold' : 'text-white/90'}`}>
+        {item.titulo}
+        </p>
+        <p className="text-[11px] text-white/50 truncate mt-0.5">
+        {item.artista || 'Artista não informado'}
+        </p>
+        </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 pl-2">
+        {eAtiva && tocando ? (
+          /* Equalizer Animated Wave Bars */
+          <div className="flex items-end gap-0.5 h-4 px-1">
+          <span className="w-0.5 h-3 bg-[#a78bfa] rounded-full animate-pulse" />
+          <span className="w-0.5 h-4 bg-[#8b5cf6] rounded-full animate-bounce" />
+          <span className="w-0.5 h-2 bg-[#a78bfa] rounded-full animate-pulse" />
+          </div>
+        ) : (
+          <GripVertical size={16} className="text-white/30 hover:text-white/60" />
+        )}
+        </div>
+        </div>
+      );
+      })}
+      </div>
+    )}
+    </div>
     </main>
   );
 };
