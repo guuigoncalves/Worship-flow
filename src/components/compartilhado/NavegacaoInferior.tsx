@@ -44,7 +44,7 @@ export function NavegacaoInferior() {
     <>
       {/* Dock flutuante — mobile */}
       <nav className="fixed inset-x-3 bottom-3 z-40 md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-4 gap-1 p-1.5 rounded-3xl bg-[#141522]/90 border border-white/10 backdrop-blur-2xl shadow-2xl shadow-purple-950/40">
+        <div className="mx-auto grid max-w-md grid-cols-4 gap-1 p-1.5 rounded-3xl bg-[#12142B]/90 border border-white/10 backdrop-blur-2xl shadow-2xl shadow-purple-950/40">
           {principais.map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} end={to === '/'} className="flex min-w-0 flex-col items-center">
               {({ isActive }) => (

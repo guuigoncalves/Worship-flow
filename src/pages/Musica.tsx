@@ -84,14 +84,14 @@ export default function Musica() {
 
   if (loading) {
     return (
-      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <Header />
 
 
@@ -102,7 +102,7 @@ export default function Musica() {
           value={termoBusca}
           onChange={(e) => setTermoBusca(e.target.value)}
           placeholder="Buscar músicas, artistas, álbuns..."
-          className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white placeholder-white/40 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/50 backdrop-blur-xl transition-all shadow-inner"
+          className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white placeholder-white/40 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/50 backdrop-blur-xl transition-all shadow-inner"
         />
       </div>
 
@@ -160,7 +160,7 @@ export default function Musica() {
               <div
                 key={playlist.id}
                 onClick={() => navigate(`/playlist/${playlist.id}`)}
-                className="card overflow-hidden rounded-2xl border border-purple-500/20 bg-[#141522]/90 hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg shrink-0 w-44"
+                className="card overflow-hidden rounded-2xl border border-purple-500/20 bg-[#12142B]/90 hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg shrink-0 w-44"
               >
                 <div className="relative">
                   <div className="flex h-24 items-center justify-center bg-gradient-to-br from-purple-500/20 to-indigo-500/20 p-2 text-center">
@@ -182,7 +182,7 @@ export default function Musica() {
         {maisTocadas.length === 0 ? (
           <EstadoVazio titulo="Nenhuma música" texto="Nenhuma música encontrada." />
         ) : (
-          <div className="card divide-y divide-white/5 rounded-2xl border border-purple-500/20 bg-[#141522]/90 overflow-hidden shadow-xl">
+          <div className="card divide-y divide-white/5 rounded-2xl border border-purple-500/20 bg-[#12142B]/90 overflow-hidden shadow-xl">
             {maisTocadas.map((m) => (
               <div
                 key={m.id}
@@ -190,7 +190,7 @@ export default function Musica() {
                 className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <CapaMusica tom={m.tom} titulo={m.titulo} tamanho="sm" />
+                  <CapaMusica tom={m.tom} titulo={m.titulo} capaUrl={m.capaUrl} tamanho="sm" />
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-white truncate group-hover:text-purple-400 transition-colors">{m.titulo}</p>
                     <p className="text-[10px] text-white/50 truncate">{m.artista || 'Artista não informado'}</p>
@@ -222,7 +222,7 @@ export default function Musica() {
               <div
                 key={album.artista}
                 onClick={() => navigate(`/album/${encodeURIComponent(album.artista)}`)}
-                className="card overflow-hidden rounded-2xl border border-purple-500/20 bg-[#141522]/90 hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg shrink-0 w-40"
+                className="card overflow-hidden rounded-2xl border border-purple-500/20 bg-[#12142B]/90 hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg shrink-0 w-40"
               >
                 <div className="flex h-28 items-center justify-center bg-gradient-to-br from-purple-500/20 to-indigo-500/20 p-2">
                   <CapaMusica tom={album.artista ? undefined : undefined} titulo={album.artista} tamanho="lg" />
@@ -247,7 +247,7 @@ export default function Musica() {
               <div
                 key={artista.nome}
                 onClick={() => navigate(`/artista/${encodeURIComponent(artista.nome)}`)}
-                className="card min-w-[110px] rounded-2xl border border-purple-500/20 bg-[#141522]/90 p-3 text-center shadow-lg hover:border-purple-500/40 transition-all group shrink-0"
+                className="card min-w-[110px] rounded-2xl border border-purple-500/20 bg-[#12142B]/90 p-3 text-center shadow-lg hover:border-purple-500/40 transition-all group shrink-0"
               >
                 <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-gradient-to-tr from-purple-500/40 to-indigo-500/40 text-white font-bold text-xs border border-purple-500/20">
                   {artista.nome[0].toUpperCase()}
@@ -265,7 +265,7 @@ export default function Musica() {
         {pastasLocais.length === 0 ? (
           <EstadoVazio titulo="Nenhuma pasta" texto="Nenhuma pasta de áudio local encontrada." />
         ) : (
-          <div className="card divide-y divide-white/5 rounded-2xl border border-purple-500/20 bg-[#141522]/90 overflow-hidden shadow-xl">
+          <div className="card divide-y divide-white/5 rounded-2xl border border-purple-500/20 bg-[#12142B]/90 overflow-hidden shadow-xl">
             {pastasLocais.map((pasta) => (
               <div
                 key={pasta.nome}

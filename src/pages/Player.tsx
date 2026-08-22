@@ -65,7 +65,7 @@ export const Player: React.FC = () => {
       <button
       onClick={() => navigate(-1)}
       className="flex h-10 w-10 items-center justify-center rounded-full text-white hover:bg-white/10 transition-colors"
-      style={{ backgroundColor: '#120c28', borderColor: '#26194d', borderWidth: '1px' }}
+      style={{ backgroundColor: 'var(--superficie)', borderColor: 'var(--borda)', borderWidth: '1px' }}
       type="button"
       aria-label="Voltar"
       >
@@ -118,7 +118,7 @@ export const Player: React.FC = () => {
       <button
       onClick={() => navigate(-1)}
       className="flex h-9 w-9 items-center justify-center rounded-full text-white/90 hover:bg-white/10 transition-colors"
-      style={{ backgroundColor: '#120c28', borderColor: '#26194d', borderWidth: '1px' }}
+      style={{ backgroundColor: 'var(--superficie)', borderColor: 'var(--borda)', borderWidth: '1px' }}
       type="button"
       aria-label="Voltar"
       >
@@ -128,7 +128,7 @@ export const Player: React.FC = () => {
       <button
       onClick={() => setMostrarMixer(!mostrarMixer)}
       className="flex h-9 w-9 items-center justify-center rounded-full text-white/90 hover:bg-white/10 transition-colors"
-      style={{ backgroundColor: mostrarMixer ? '#7c3aed' : '#120c28', borderColor: '#26194d', borderWidth: '1px' }}
+      style={{ backgroundColor: mostrarMixer ? '#7c3aed' : 'var(--superficie)', borderColor: 'var(--borda)', borderWidth: '1px' }}
       type="button"
       aria-label="Mixer de Áudio"
       title="Mixer & Stems"
@@ -297,8 +297,8 @@ export const Player: React.FC = () => {
         volumePercent > 100 ? 'text-amber-300' : 'text-[#796e9c]'
       }`}
       style={{
-        backgroundColor: volumePercent > 100 ? '#7c3aed' : '#120c28',
-        borderColor: '#26194d',
+        backgroundColor: volumePercent > 100 ? '#7c3aed' : 'var(--superficie)',
+        borderColor: 'var(--borda)',
         borderWidth: '1px',
         boxShadow: volumePercent > 100 ? '0 0 10px rgba(124,58,237,0.5)' : 'none',
       }}
@@ -326,8 +326,8 @@ export const Player: React.FC = () => {
             : 'text-[#8c82ab] hover:text-white'
           }`}
           style={{
-            backgroundColor: ativo ? '#291757' : '#120c28',
-            borderColor: ativo ? '#8b5cf6' : '#26194d',
+            backgroundColor: ativo ? '#291757' : 'var(--superficie)',
+            borderColor: ativo ? '#8b5cf6' : 'var(--borda)',
             borderWidth: '1px',
           }}
           >
@@ -367,8 +367,8 @@ export const Player: React.FC = () => {
             onClick={() => tocar(item)}
             className="p-2 flex items-center justify-between rounded-2xl transition-all cursor-pointer"
             style={{
-              backgroundColor: eAtiva ? '#1d123d' : '#120c28',
-              borderColor: eAtiva ? '#8b5cf6' : '#26194d',
+              backgroundColor: eAtiva ? '#1d123d' : 'var(--superficie)',
+              borderColor: eAtiva ? '#8b5cf6' : 'var(--borda)',
               borderWidth: '1px',
             }}
             >

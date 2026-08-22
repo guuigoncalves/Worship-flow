@@ -26,7 +26,7 @@ export default function Login() {
   }
 
   return (
-    <main className="fixed inset-0 grid grid-cols-1 lg:grid-cols-2 overflow-y-auto" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="fixed inset-0 grid grid-cols-1 lg:grid-cols-2 overflow-y-auto" style={{ backgroundColor: 'var(--fundo)' }}>
       {/* Coluna Esquerda: Opções de Login */}
       <div className="flex flex-col justify-center items-center p-6 md:p-12 space-y-6">
         <div className="w-full max-w-sm space-y-6">
@@ -68,7 +68,7 @@ export default function Login() {
           <div className="relative">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-wider text-white/30">
-              <span className="bg-[#0B0C10] px-3">ou</span>
+              <span className="bg-[var(--fundo)] px-3">ou</span>
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export default function Login() {
       </div>
 
       {/* Coluna Direita: Display Visual Hero (Desktop) */}
-      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-gradient-to-br from-purple-900/30 via-indigo-950/40 to-[#0B0C10] border-l border-white/10 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col items-center justify-center p-12 bg-gradient-to-br from-purple-900/30 via-indigo-950/40 to-[var(--fundo)] border-l border-white/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-purple-600/10 blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col items-center text-center space-y-4 max-w-md">
           <div className="p-4 rounded-3xl bg-purple-600/20 text-purple-400 border border-purple-500/30 animate-pulse">

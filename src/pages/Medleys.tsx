@@ -10,7 +10,7 @@ export const Medleys: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
           <p className="text-xs text-white/40">Carregando medleys…</p>
@@ -20,7 +20,7 @@ export const Medleys: React.FC = () => {
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       {/* Header */}
       <header className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-3">
@@ -48,7 +48,7 @@ export const Medleys: React.FC = () => {
       </header>
 
       {/* Banner info */}
-      <div className="rounded-2xl p-4 flex items-center gap-3 bg-[#141522]/80 border border-purple-500/20 shadow-lg">
+      <div className="rounded-2xl p-4 flex items-center gap-3 bg-[#12142B]/80 border border-purple-500/20 shadow-lg">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
           <Layers size={20} />
         </div>
@@ -73,7 +73,7 @@ export const Medleys: React.FC = () => {
             <div
               key={m.id}
               onClick={() => navigate(`/medley/${m.id}`)}
-              className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg"
+              className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#12142B]/80 rounded-2xl hover:border-purple-500/40 transition-all cursor-pointer group shadow-lg"
             >
               {/* Ícone */}
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30">

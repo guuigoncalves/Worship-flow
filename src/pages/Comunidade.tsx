@@ -57,14 +57,14 @@ export default function Comunidade() {
 
   if (!user) {
     return (
-      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <EstadoVazio titulo="Faça login" texto="Você precisa estar logado para acessar a comunidade." />
       </main>
     );
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <Header subtitulo="Compartilhamento e Feed" />
 
       <div className="flex items-center justify-between gap-3 pt-1">
@@ -91,7 +91,7 @@ export default function Comunidade() {
             className={`chip shrink-0 text-xs px-4 py-2 transition-all font-medium ${
               aba === a.id
                 ? 'bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-fundo border-transparent font-bold'
-                : 'bg-[#141522]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
+                : 'bg-[#12142B]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
             }`}
             onClick={() => setAba(a.id as AbaAtiva)}
           >
@@ -107,7 +107,7 @@ export default function Comunidade() {
           value={consulta}
           onChange={(e) => setConsulta(e.target.value)}
           placeholder="Buscar no feed..."
-          className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
+          className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
         />
       </div>
 

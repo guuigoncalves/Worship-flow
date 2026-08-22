@@ -43,7 +43,7 @@ export default function Playlists() {
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <Header subtitulo="Suas listas de reprodução" />
 
       <div className="flex items-center justify-between gap-3 pt-1">

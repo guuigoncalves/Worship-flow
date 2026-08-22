@@ -22,7 +22,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: ['offline.html', 'icons/icon.svg'],
       manifest: {
         name: 'WorshipFlow',

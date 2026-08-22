@@ -164,7 +164,7 @@ export const DetalheMusica: React.FC = () => {
             </div>
 
             {/* ── Banner principal ────────────────────────────────────── */}
-            <div className="rounded-3xl bg-gradient-to-br from-[#141522] via-[#141522] to-purple-950/40 border border-white/10 p-5 space-y-4 shadow-2xl">
+            <div className="rounded-3xl bg-gradient-to-br from-[var(--superficie)] via-[var(--superficie)] to-purple-950/40 border border-white/10 p-5 space-y-4 shadow-2xl">
 
                 {/* Capa + título + tom */}
                 <div className="flex items-center gap-4">
@@ -284,7 +284,7 @@ export const DetalheMusica: React.FC = () => {
             {/* ── Toolbar inferior flutuante ───────────────────────────── */}
             <div
                 id="detalhe-musica-toolbar"
-                className="fixed bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-lg bg-[#141522]/95 border border-white/15 backdrop-blur-2xl rounded-2xl p-2 shadow-2xl shadow-purple-950/80"
+                className="fixed bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-lg bg-[#12142B]/95 border border-white/15 backdrop-blur-2xl rounded-2xl p-2 shadow-2xl shadow-purple-950/80"
             >
                 <div className="grid grid-cols-5 gap-1">
                     {/* Ouvir */}

@@ -2,8 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMusicas } from '../hooks/useMusicas';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
-import { CapaMusica } from '../components/aurora';
-import { Search, ArrowLeft, Star, FileText, Filter } from 'lucide-react';
+import { CapaMusica, Header } from '../components/aurora';
+import { Search, Star, FileText, Filter } from 'lucide-react';
 
 type FiltroTipo = 'todas' | 'musicas' | 'cifras' | 'artistas';
 
@@ -44,7 +44,7 @@ export const BuscaRapida: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <main className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
           <p className="text-xs text-white/40">Carregando repertório…</p>
@@ -54,22 +54,9 @@ export const BuscaRapida: React.FC = () => {
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       {/* Header */}
-      <header className="flex items-center gap-3 pt-1">
-        <button
-          onClick={() => navigate(-1)}
-          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
-          type="button"
-          aria-label="Voltar"
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-white">Busca Rápida</h1>
-          <p className="text-[10px] text-white/40">Pesquise músicas, cifras e artistas em tempo real</p>
-        </div>
-      </header>
+      <Header titulo="Busca Rápida" subtitulo="Pesquise músicas, cifras e artistas" voltar />
 
       {/* Input de Busca com Estilo Aurora */}
       <div className="relative">
@@ -83,7 +70,7 @@ export const BuscaRapida: React.FC = () => {
           onChange={(e) => setTermo(e.target.value)}
           placeholder="Digite título, artista ou tag…"
           autoFocus
-          className="w-full bg-[#141522]/90 border border-white/10 rounded-2xl pl-12 pr-10 py-3.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all shadow-xl"
+          className="w-full bg-[#12142B]/90 border border-white/10 rounded-2xl pl-12 pr-10 py-3.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all shadow-xl"
         />
         {termo && (
           <button
@@ -106,7 +93,7 @@ export const BuscaRapida: React.FC = () => {
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border shrink-0 flex items-center gap-1.5 ${
               filtro === f.id
                 ? 'bg-purple-600/30 text-white border-purple-500/50 shadow-lg shadow-purple-950/50'
-                : 'bg-[#141522]/80 text-white/40 border-white/10 hover:text-white'
+                : 'bg-[#12142B]/80 text-white/40 border-white/10 hover:text-white'
             }`}
             onClick={() => setFiltro(f.id)}
           >
@@ -140,7 +127,7 @@ export const BuscaRapida: React.FC = () => {
             {resultados.map((m) => (
               <div
                 key={m.id}
-                className="card p-3 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 hover:bg-[#1A1040]/50 transition-all rounded-2xl cursor-pointer"
+                className="card p-3 flex items-center justify-between gap-3 border border-white/10 bg-[#12142B]/80 hover:bg-[#181B36]/50 transition-all rounded-2xl cursor-pointer"
               >
                 <div
                   className="flex items-center gap-3 min-w-0 flex-1"

@@ -7,6 +7,7 @@ interface CapaMusicaProps {
     titulo?: string;
     tamanho?: 'sm' | 'md' | 'lg';
     className?: string;
+    capaUrl?: string;
 }
 
 export const CapaMusica: React.FC<CapaMusicaProps> = ({
@@ -14,6 +15,7 @@ export const CapaMusica: React.FC<CapaMusicaProps> = ({
     titulo = '',
     tamanho = 'md',
     className = '',
+    capaUrl,
 }) => {
     const tamanhos = {
         sm: 'w-9 h-9 text-xs rounded-lg',
@@ -23,6 +25,16 @@ export const CapaMusica: React.FC<CapaMusicaProps> = ({
 
     const corHex = tom && COR_TOM[tom as Tom] ? COR_TOM[tom as Tom] : '#8B5CF6';
     const inicial = titulo ? titulo.charAt(0).toUpperCase() : (tom || '♪');
+
+    if (capaUrl) {
+        return (
+            <img
+                src={capaUrl}
+                alt={titulo || tom || ''}
+                className={`${tamanhos[tamanho]} object-cover rounded-xl border border-white/10 shadow-md shrink-0 ${className}`}
+            />
+        );
+    }
 
     return (
         <div

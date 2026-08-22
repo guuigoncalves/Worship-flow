@@ -35,7 +35,7 @@ export default function Artista() {
 
   if (loading) {
     return (
-      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <div className="w-8 h-8 border-2 border-[var(--primaria)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -43,7 +43,7 @@ export default function Artista() {
 
   if (musicasDoArtista.length === 0) {
     return (
-      <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+      <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
         <header className="flex items-center gap-3 pt-1">
           <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate('/artistas')} aria-label="Voltar">
             <ArrowLeft size={18} />
@@ -62,7 +62,7 @@ export default function Artista() {
   const totalCifras = musicasDoArtista.filter((m) => m.possuiCifra).length;
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <header className="flex items-center gap-3 pt-1">
         <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate('/artistas')} aria-label="Voltar">
           <ArrowLeft size={18} />
@@ -139,7 +139,7 @@ export default function Artista() {
               <div
                 key={album.artista}
                 onClick={() => navigate(`/album/${encodeURIComponent(album.artista)}`)}
-                className="card overflow-hidden rounded-2xl border border-white/10 bg-[#141522]/90 hover:border-[var(--primaria)]/40 transition-all cursor-pointer group shadow-lg shrink-0 w-40"
+                className="card overflow-hidden rounded-2xl border border-white/10 bg-[#12142B]/90 hover:border-[var(--primaria)]/40 transition-all cursor-pointer group shadow-lg shrink-0 w-40"
               >
                 <div className="flex h-24 items-center justify-center bg-gradient-to-br from-[var(--primaria)]/20 to-[var(--acento)]/20 p-2">
                   <CapaMusica tom={undefined} titulo={album.artista} tamanho="lg" />

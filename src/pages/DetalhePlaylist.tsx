@@ -24,7 +24,7 @@ export default function DetalhePlaylist() {
 
   if (!playlist) {
     return (
-      <main className="app-page fade-in" style={{ backgroundColor: '#0B0C10' }}>
+      <main className="app-page fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
         <EstadoVazio titulo="Playlist não encontrada" texto="Volte para as playlists e selecione outra." />
       </main>
     );
@@ -63,7 +63,7 @@ export default function DetalhePlaylist() {
   });
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <header className="flex items-center justify-between gap-3">
         <button className="btn-ghost h-9 w-9 p-0" type="button" onClick={() => navigate(-1)} aria-label="Voltar">
           <ArrowLeft size={18} />

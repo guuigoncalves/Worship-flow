@@ -63,7 +63,7 @@ export default function Espacos() {
   }
 
   return (
-    <main className="app-page fade-in space-y-5 pb-32" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page fade-in space-y-5 pb-32" style={{ backgroundColor: 'var(--fundo)' }}>
       {/* Header Aurora */}
       <Header subtitulo="Colaboração e Ministério" />
 

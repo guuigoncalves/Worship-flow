@@ -149,7 +149,7 @@ export const Importar: React.FC = () => {
 
     function renderTabSelector() {
         return (
-            <div className="grid grid-cols-4 gap-1.5 rounded-2xl bg-[#141522]/80 p-1.5 border border-white/10">
+            <div className="grid grid-cols-4 gap-1.5 rounded-2xl bg-[#12142B]/80 p-1.5 border border-white/10">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -188,7 +188,7 @@ export const Importar: React.FC = () => {
                 <div>
                     <label className="text-xs font-medium text-white/60 block mb-1">Título</label>
                     <input
-                        className="w-full bg-[#141522]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                        className="w-full bg-[#12142B]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                         value={titulo}
                         onChange={(e) => setTitulo(e.target.value)}
                         placeholder="Nome da música"
@@ -197,7 +197,7 @@ export const Importar: React.FC = () => {
                 <div>
                     <label className="text-xs font-medium text-white/60 block mb-1">Artista</label>
                     <input
-                        className="w-full bg-[#141522]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                        className="w-full bg-[#12142B]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                         value={artista}
                         onChange={(e) => setArtista(e.target.value)}
                         placeholder="Artista / Banda"
@@ -206,7 +206,7 @@ export const Importar: React.FC = () => {
                 <div>
                     <label className="text-xs font-medium text-white/60 block mb-1">Tom</label>
                     <input
-                        className="w-full bg-[#141522]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                        className="w-full bg-[#12142B]/80 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                         value={tom}
                         onChange={(e) => setTom(e.target.value)}
                         placeholder="Tom (ex: C, G...)"
@@ -226,7 +226,7 @@ export const Importar: React.FC = () => {
                     value={textoCifra}
                     onChange={(e) => setTextoCifra(e.target.value)}
                     placeholder="Cole aqui a letra com os acordes..."
-                    className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                    className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                 />
             </div>
         );
@@ -235,7 +235,7 @@ export const Importar: React.FC = () => {
     function renderPdfContent() {
         return (
             <div className="space-y-4">
-                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#141522]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#141522]/80">
+                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#12142B]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#12142B]/80">
                     <input
                         type="file"
                         accept="application/pdf"
@@ -259,7 +259,7 @@ export const Importar: React.FC = () => {
                 </label>
 
                 {processando ? (
-                    <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-[#141522]/80 border border-white/10 text-white/60">
+                    <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-[#12142B]/80 border border-white/10 text-white/60">
                         <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
                         <span className="text-xs">Extraindo texto do PDF…</span>
                     </div>
@@ -272,7 +272,7 @@ export const Importar: React.FC = () => {
                                 value={textoCifra}
                                 onChange={(e) => setTextoCifra(e.target.value)}
                                 placeholder="Texto extraído do PDF…"
-                                className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                                className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                             />
                         </div>
                     </div>
@@ -284,7 +284,7 @@ export const Importar: React.FC = () => {
     function renderImagemContent() {
         return (
             <div className="space-y-4">
-                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#141522]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#141522]/80">
+                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#12142B]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#12142B]/80">
                     <input
                         type="file"
                         accept="image/*"
@@ -308,7 +308,7 @@ export const Importar: React.FC = () => {
                 </label>
 
                 {processando ? (
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#141522]/80 border border-white/10 text-white/60">
+                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#12142B]/80 border border-white/10 text-white/60">
                         <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
                         <span className="flex-1 text-xs">Reconhecendo texto com OCR…</span>
                         <span className="text-xs font-bold text-purple-400">{Math.round(progressoOCR * 100)}%</span>
@@ -326,7 +326,7 @@ export const Importar: React.FC = () => {
                                 value={textoCifra}
                                 onChange={(e) => setTextoCifra(e.target.value)}
                                 placeholder="Texto extraído da imagem…"
-                                className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
+                                className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl p-4 font-mono text-xs text-white leading-relaxed placeholder-white/30 focus:outline-none focus:border-purple-500 transition-all"
                             />
                         </div>
                     </div>
@@ -338,7 +338,7 @@ export const Importar: React.FC = () => {
     function renderPlanilhaContent() {
         return (
             <div className="space-y-4">
-                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#141522]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#141522]/80">
+                <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#12142B]/50 p-6 text-center transition-all hover:border-purple-500/50 hover:bg-[#12142B]/80">
                     <input
                         type="file"
                         accept=".xlsx,.xls,.csv"
@@ -362,7 +362,7 @@ export const Importar: React.FC = () => {
                 </label>
 
                 {processando ? (
-                    <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-[#141522]/80 border border-white/10 text-white/60">
+                    <div className="flex items-center justify-center gap-3 p-6 rounded-2xl bg-[#12142B]/80 border border-white/10 text-white/60">
                         <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
                         <span className="text-xs">Processando planilha…</span>
                     </div>
@@ -374,7 +374,7 @@ export const Importar: React.FC = () => {
                         </div>
                         <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
                             {resultadosPlanilha.map((musica, index) => (
-                                <div key={`${musica.titulo}-${index}`} className="p-3 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl">
+                                <div key={`${musica.titulo}-${index}`} className="p-3 flex items-center justify-between gap-3 border border-white/10 bg-[#12142B]/80 rounded-2xl">
                                     <div className="min-w-0 flex-1">
                                         <p className="text-xs font-semibold text-white truncate">{musica.titulo}</p>
                                         <p className="text-[10px] text-white/40 truncate">{musica.artista}</p>
@@ -404,7 +404,7 @@ export const Importar: React.FC = () => {
     function renderTabContent() {
         if (sucesso) {
             return (
-                <div className="p-8 text-center space-y-3 rounded-3xl bg-[#141522]/90 border border-white/10 shadow-2xl">
+                <div className="p-8 text-center space-y-3 rounded-3xl bg-[#12142B]/90 border border-white/10 shadow-2xl">
                     <CheckCircle size={48} className="mx-auto text-emerald-400" />
                     <h2 className="text-lg font-bold text-white">Importação concluída!</h2>
                     <p className="text-xs text-white/40">Redirecionando para a biblioteca…</p>
@@ -427,7 +427,7 @@ export const Importar: React.FC = () => {
     }
 
     return (
-        <main className="app-page space-y-6 pb-32 fade-in w-full max-w-full overflow-x-hidden max-w-xl mx-auto" style={{ backgroundColor: '#0B0C10' }}>
+        <main className="app-page space-y-6 pb-32 fade-in w-full max-w-full overflow-x-hidden max-w-xl mx-auto" style={{ backgroundColor: 'var(--fundo)' }}>
             {/* Header */}
             <header className="flex items-center gap-3 pt-1">
                 <button

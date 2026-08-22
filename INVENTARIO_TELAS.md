@@ -7,7 +7,7 @@
 | # | Rota | Tela | Status real (confirmado no código) | Testado manualmente por Guilherme? | Observação |
 |---|---|---|---|---|---|
 | 1 | `/login` | Login | ✅ Código presente e commitado | **Sim** | Só Google + "Continuar sem login" |
-| 2 | `/` | Hub / Início | ✅ Código presente e commitado | **Sim** | Dev reporta faltar widgets (Metrônomo, Atividade Recente) e capas reais em "Mais Ouvidas" — pendência de produto, não urgente |
+| 2 | `/` | Hub / Início | ✅ Código presente e commitado; **Header revertido ao padrão** (violação de fase bloqueada corrigida nesta sessão — ver ARQUITETURA.md v1.10 Seção 2); card "Próximo Culto" restaurado; nova barra de navegação secundária em teste; capas reais em "Mais Ouvidas"/"Cifras em Destaque" | Não (versão desta sessão) | Widget de Metrônomo/Atividade ainda pendente — produto, não urgente |
 | 3 | `/musica` | Hub Música | ✅ Código presente e commitado | **Sim** | Dev reporta faltar card "Tocando Agora" e carrossel de álbuns — pendência de produto |
 | 4 | `/cifra` | Hub Cifra | ✅ Código presente e commitado, grid responsivo corrigido | Não | Botão Importar não vaza mais a largura (confirmado no diff) |
 | 5 | `/biblioteca` | Biblioteca | ✅ Código presente e commitado | Não | — |
@@ -42,10 +42,12 @@ decisão de arquitetura). Das 27, apenas as marcadas "Sim" foram confirmadas por
 — a maioria das telas novas ou refinadas nesta leva (Espaço, Preparação, Medley, Player refinado)
 **ainda não foi vista pelo Guilherme**.
 
-## MiniPlayer — status consolidado
-Passou por 3 rodadas nesta leva: fix original de sobreposição (bottom/z-index, sessão de 09/08),
-redesign Aurora completo (`56b3b8a`), refinamento com `<CapaMusica />` real e card clicável
-(`500c8b0`). Todas commitadas. Falta confirmação visual com música tocando de verdade.
+## MiniPlayer — status consolidado (18/08)
+Passou por várias tentativas de redesenho nas sessões de 15/08 e 16/08 (nenhuma fiel ao original).
+Em 18/08, Claude Gestão recuperou o código-fonte EXATO do design original do Guilherme direto do
+histórico do git e usou ele como base, corrigindo só os 3 bugs reais (dado inventado, tempo
+estático, sem clique). Confirmado pelo Guilherme como correto. Handler de clique pra abrir
+`/player` funcional, anterior/próxima usando a fila real.
 
 ## `/importar` sem ponto de entrada — RESOLVIDO
 Confirmado no código: `Cifra.tsx` agora tem botão "Importar" no grid, ao lado de "Nova Cifra",
@@ -60,7 +62,12 @@ navegando para `/importar`. Duplicação de campos no formulário de upload tamb
 | Campo `tom` ausente no tipo `FaixaAudio` | ✅ Resolvido (2ª vez) | `daf91ec` — não sobreviveu ao histórico da sessão anterior, reaplicado |
 | Assets de logo/favicon nunca versionados | ✅ Resolvido (2ª vez) | `c393428` — mesma lacuna do commit `f32f3f8`, arquivos binários nunca tinham sido dados `git add` |
 | Push pro GitHub | 🟡 **Pendente — depende do Guilherme** | Todos os commits desta sessão estão só no zip local devolvido, não em `origin/main` ainda |
-| Verificação visual das telas novas/refinadas | 🟡 **Pendente — depende do Guilherme** | Espaço, Preparação, Medley, Player (nova versão), MiniPlayer (nova versão), paleta Aurora |
+| Verificação visual das telas novas/refinadas | 🟡 **Pendente — depende do Guilherme** | Espaço, Preparação, Medley — nunca vistas por print/vídeo real |
+| Navegação global | ✅ Resolvida — dock (`NavegacaoInferior`) é a navegação oficial | Barra secundária (`Navegacao.tsx`) existe no código, não montada em lugar nenhum — futuro em aberto |
+| Service Worker preso em versão antiga | ✅ Resolvido (`registerType: autoUpdate`) | Explica boa parte dos "código novo não funciona" — pedir 1 hard-reload/reabertura do app |
+| Header.tsx com link não autorizado pra `/privado` | ✅ Revertido nesta sessão | Violação de fase bloqueada, corrigida — ver ARQUITETURA.md v1.10 Seção 2 |
+| Card "Próximo Culto" sumiu do Início | ✅ Restaurado nesta sessão | Perdido durante reestruturação com a nova barra de navegação secundária |
+| Barra de navegação secundária (Início) | 🟡 Em teste pelo Guilherme | `components/layout/Navegacao.tsx`, cores padronizadas pra Aurora nesta sessão |
 | Modo Palco (`/tocar/:id`) | 🟡 Sem alteração, sem confirmação | Segue como estava — nunca visto por print real |
 | Player: seletor capa/artista/letra/cifra | ⚪ Feature nova solicitada | Não é bug, é pendência de produto pra próxima leva |
 | Fase 19 — tema/cor/layout customizável | ⚪ Bloqueada | Aguarda redesign considerado suficiente |

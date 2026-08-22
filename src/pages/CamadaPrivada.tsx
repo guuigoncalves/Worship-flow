@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Camera, Play, RefreshCw, Download, X, Music2, Settings2, Users, FileText, LogOut, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { CapaMusica, SectionHeader } from '../components/aurora';
+import { CapaMusica, SectionHeader, Header } from '../components/aurora';
 import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 import { useCamadaPrivada } from '../hooks/useCamadaPrivada';
 import type { NavidromeAlbum, NavidromeTrack } from '../hooks/useCamadaPrivada';
@@ -29,15 +29,9 @@ export const CamadaPrivada: React.FC = () => {
 
     if (!navidromeUser || !navidromePass) {
         return (
-            <div className="app-page fade-in">
-                <div className="flex items-center gap-3">
-                    <button className="btn-ghost text-xs" type="button" onClick={() => navigate(-1)}>
-                        <ArrowLeft size={16} />
-                        <span>Voltar</span>
-                    </button>
-                    <h1 className="text-2xl font-bold text-gradient">Camada Privada</h1>
-                </div>
-                <div className="mt-6">
+            <div className="app-page fade-in space-y-4">
+                <Header titulo="Camada Privada" voltar />
+                <div className="mt-2">
                     <div className="card p-6 border border-perigo/30 bg-perigo/10">
                         <h2 className="text-base font-bold text-perigo mb-2">Credenciais do Navidrome não configuradas</h2>
                         <p className="text-sm text-textoSecundario">
@@ -54,15 +48,9 @@ export const CamadaPrivada: React.FC = () => {
 
     if (!autorizado) {
         return (
-            <div className="app-page fade-in">
-                <div className="flex items-center gap-3">
-                    <button className="btn-ghost text-xs" type="button" onClick={() => navigate(-1)}>
-                        <ArrowLeft size={16} />
-                        <span>Voltar</span>
-                    </button>
-                    <h1 className="text-2xl font-bold text-gradient">Camada Privada</h1>
-                </div>
-                <div className="mt-6">
+            <div className="app-page fade-in space-y-4">
+                <Header titulo="Camada Privada" voltar />
+                <div className="mt-2">
                     <EstadoVazio titulo="Acesso Restrito" texto="Você não está na allowlist para acessar a camada privada (Navidrome/Frigate)." />
                 </div>
             </div>
@@ -105,7 +93,7 @@ export const CamadaPrivada: React.FC = () => {
     }
 
     return (
-        <div className="flex min-h-screen bg-[#0B0C10]">
+        <div className="flex min-h-screen bg-[var(--fundo)]">
             {/* Sidebar */}
             <aside className="hidden w-64 flex-col border-r border-white/10 bg-[#0D0E17] lg:flex">
                 <div className="p-5">
@@ -179,7 +167,7 @@ export const CamadaPrivada: React.FC = () => {
                                 ))}
                             </div>
 
-                            <div className="card rounded-2xl border border-white/10 bg-[#141522] shadow-lg shadow-purple-900/10">
+                            <div className="card rounded-2xl border border-white/10 bg-[var(--superficie)] shadow-lg shadow-purple-900/10">
                                 <div className="p-3">
                                     <input className="input" placeholder="Buscar músicas pessoais..." />
                                 </div>
@@ -218,7 +206,7 @@ export const CamadaPrivada: React.FC = () => {
                         </div>
 
                         {/* Player em destaque */}
-                        <div className="card rounded-2xl border border-white/10 bg-[#141522] shadow-lg shadow-purple-900/10 p-6">
+                        <div className="card rounded-2xl border border-white/10 bg-[var(--superficie)] shadow-lg shadow-purple-900/10 p-6">
                             <div className="flex flex-col items-center gap-4">
                                 <div className="relative">
                                     <div className="h-48 w-48 rounded-2xl bg-gradient-to-br from-[#6C5CE7] to-[#A259FF] shadow-2xl shadow-purple-900/40" />
@@ -292,7 +280,7 @@ export const CamadaPrivada: React.FC = () => {
 
                 {modalAberto ? (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                        <div className="card w-full max-w-md space-y-4 rounded-2xl border border-white/10 bg-[#141522] p-5 shadow-lg shadow-purple-900/10">
+                        <div className="card w-full max-w-md space-y-4 rounded-2xl border border-white/10 bg-[var(--superficie)] p-5 shadow-lg shadow-purple-900/10">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-bold text-white">Pedir Música</h2>
                                 <button type="button" className="btn-text h-8 w-8 p-0 text-textoSecundario" onClick={() => setModalAberto(false)}>

@@ -15,7 +15,7 @@ export default function AdminPanel() {
   if (!isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       {/* Header Admin */}
       <header className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-3">
@@ -39,7 +39,7 @@ export default function AdminPanel() {
       </header>
 
       {/* Tabs */}
-      <div className="flex rounded-2xl bg-[#141522]/80 p-1 border border-white/10">
+      <div className="flex rounded-2xl bg-[#12142B]/80 p-1 border border-white/10">
         <button
           type="button"
           onClick={() => setAbaAtiva('moderacao')}
@@ -75,7 +75,7 @@ export default function AdminPanel() {
               {pendentes.map((musica) => (
                 <div
                   key={musica.id}
-                  className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl hover:border-white/20 transition-all"
+                  className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#12142B]/80 rounded-2xl hover:border-white/20 transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
@@ -129,7 +129,7 @@ export default function AdminPanel() {
               {solicitacoesExclusao.map((item) => (
                 <div
                   key={item.id}
-                  className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#141522]/80 rounded-2xl hover:border-white/20 transition-all"
+                  className="card p-3.5 flex items-center justify-between gap-3 border border-white/10 bg-[#12142B]/80 rounded-2xl hover:border-white/20 transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <CapaMusica tom="C" titulo={item.titulo} tamanho="sm" />

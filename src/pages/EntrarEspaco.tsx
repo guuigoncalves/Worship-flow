@@ -24,8 +24,8 @@ export default function EntrarEspaco() {
   }, [codigo, entrarComCodigo, navigate]);
 
   return (
-    <main className="app-page min-h-[80vh] flex items-center justify-center p-4 fade-in" style={{ backgroundColor: '#0B0C10' }}>
-      <section className="card w-full max-w-md p-6 text-center space-y-5 border border-white/10 bg-[#141522]/90 rounded-3xl shadow-2xl backdrop-blur-xl">
+    <main className="app-page min-h-[80vh] flex items-center justify-center p-4 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
+      <section className="card w-full max-w-md p-6 text-center space-y-5 border border-white/10 bg-[#12142B]/90 rounded-3xl shadow-2xl backdrop-blur-xl">
         <div className="mx-auto w-12 h-12 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
           <Users size={24} />
         </div>

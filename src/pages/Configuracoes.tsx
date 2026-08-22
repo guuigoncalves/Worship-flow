@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sliders, PlayCircle, BookOpen, Download, Bell, User, Info, Check, Trash2, HelpCircle } from 'lucide-react';
+import { Sliders, PlayCircle, BookOpen, Download, Bell, User, Info, Check, Trash2, HelpCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTema } from '../utils/temas';
+import { Header } from '../components/aurora';
 
 export default function Configuracoes() {
   const navigate = useNavigate();
@@ -32,19 +33,9 @@ export default function Configuracoes() {
   ];
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       {/* Header */}
-      <header className="flex items-center gap-3 pt-1">
-        <button
-          className="btn-ghost h-9 w-9 p-0 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
-          type="button"
-          onClick={() => navigate(-1)}
-          aria-label="Voltar"
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <h1 className="text-lg font-bold text-white">Configurações</h1>
-      </header>
+      <Header titulo="Configurações" voltar />
 
       {/* Main Content Layout */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -61,7 +52,7 @@ export default function Configuracoes() {
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-medium transition-all shrink-0 md:shrink ${
                   ativo
                     ? 'bg-purple-600/30 text-white border border-purple-500/40 font-semibold'
-                    : 'bg-[#141522]/60 text-white/60 hover:text-white hover:bg-[#141522]'
+                    : 'bg-[#12142B]/60 text-white/60 hover:text-white hover:bg-[var(--superficie)]'
                 }`}
               >
                 <Icon size={16} className={ativo ? 'text-purple-400' : 'text-white/40'} />
@@ -103,7 +94,7 @@ export default function Configuracoes() {
               </div>
 
               {/* Toggles */}
-              <div className="card p-4 space-y-4 border border-white/10 bg-[#141522]/80 rounded-2xl">
+              <div className="card p-4 space-y-4 border border-white/10 bg-[#12142B]/80 rounded-2xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-white">Exibir anúncio em tela cheia</p>
@@ -135,7 +126,7 @@ export default function Configuracoes() {
 
               {/* Idioma e Fuso */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="card p-4 space-y-2 border border-white/10 bg-[#141522]/80 rounded-2xl">
+                <div className="card p-4 space-y-2 border border-white/10 bg-[#12142B]/80 rounded-2xl">
                   <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block">Idioma do aplicativo</label>
                   <select
                     value={idioma}
@@ -148,7 +139,7 @@ export default function Configuracoes() {
                   </select>
                 </div>
 
-                <div className="card p-4 space-y-2 border border-white/10 bg-[#141522]/80 rounded-2xl">
+                <div className="card p-4 space-y-2 border border-white/10 bg-[#12142B]/80 rounded-2xl">
                   <div className="flex items-center gap-1">
                     <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block">Fuso horário</label>
                     <HelpCircle size={12} className="text-white/30" />
@@ -166,7 +157,7 @@ export default function Configuracoes() {
               </div>
 
               {/* Limpar cache */}
-              <div className="card p-4 flex items-center justify-between border border-white/10 bg-[#141522]/80 rounded-2xl">
+              <div className="card p-4 flex items-center justify-between border border-white/10 bg-[#12142B]/80 rounded-2xl">
                 <div>
                   <p className="text-sm font-semibold text-white">Limpar cache</p>
                   <p className="text-xs text-white/40">Libera espaço armazenado • 256 MB</p>
@@ -182,7 +173,7 @@ export default function Configuracoes() {
           )}
 
           {secaoAtiva !== 'geral' && (
-            <div className="card p-6 border border-white/10 bg-[#141522]/80 rounded-2xl text-center space-y-3">
+            <div className="card p-6 border border-white/10 bg-[#12142B]/80 rounded-2xl text-center space-y-3">
               <p className="text-sm font-semibold text-white">Configurações de {secoes.find((s) => s.id === secaoAtiva)?.label}</p>
               <p className="text-xs text-white/40">Opções desta seção estão configuradas com os padrões recomendados.</p>
             </div>

@@ -52,14 +52,14 @@ export default function Biblioteca() {
 
   if (loading) {
     return (
-      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <div className="w-8 h-8 border-2 border-[var(--primaria)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <Header subtitulo="Sua biblioteca musical completa" />
 
       <div className="flex items-center justify-between gap-3 pt-1">
@@ -81,7 +81,7 @@ export default function Biblioteca() {
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Buscar músicas, artistas, coleções..."
-          className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
+          className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
         />
       </div>
 
@@ -99,7 +99,7 @@ export default function Biblioteca() {
             className={`chip shrink-0 text-xs px-4 py-2 transition-all font-medium ${
               abaAtiva === aba.id
                 ? 'bg-gradient-to-r from-[var(--primaria)] to-[var(--acento)] text-fundo border-transparent font-bold'
-                : 'bg-[#141522]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
+                : 'bg-[#12142B]/80 text-white/60 hover:text-white border border-white/10 hover:border-white/20'
             }`}
             onClick={() => setAbaAtiva(aba.id as AbaFiltro)}
           >
@@ -121,7 +121,7 @@ export default function Biblioteca() {
             }
           />
         ) : (
-          <div className="card divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#141522]/90 overflow-hidden shadow-xl">
+          <div className="card divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#12142B]/90 overflow-hidden shadow-xl">
             {musicasFiltradas.map((m) => (
               <div
                 key={m.id}

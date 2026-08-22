@@ -78,7 +78,7 @@ export default function Editor() {
   }
 
   return (
-    <main className="app-page fade-in space-y-5 w-full max-w-full overflow-x-hidden" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page fade-in space-y-5 w-full max-w-full overflow-x-hidden" style={{ backgroundColor: 'var(--fundo)' }}>
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3 min-w-0">
           <button className="btn-ghost text-xs" type="button" onClick={() => navigate(-1)}>

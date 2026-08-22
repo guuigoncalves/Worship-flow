@@ -1,54 +1,53 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BookPlus, ChevronRight, ListMusic, MessageSquarePlus,
-  Minus, Music2, Pause, Play, Plus, Search, SlidersHorizontal, Users, Zap,
-  Volume2, Disc, User, FileText, Radio, Calendar, Flame, MessageSquare, Mic2,
-  CheckCircle2, FileEdit, Clock, FilePlus, Sparkles
+  ChevronRight,
+  ListMusic,
+  Minus,
+  Music2,
+  Pause,
+  Play,
+  Plus,
+  Radio,
+  Search,
+  SlidersHorizontal,
+  Zap,
+  FileText,
+  Clock,
+  FilePlus,
+  MessageSquare,
+  MoreVertical,
+  SkipBack,
+  SkipForward,
+  Repeat
 } from 'lucide-react';
 import { useMusicas } from '../hooks/useMusicas';
-import { useAuth } from '../hooks/useAuth';
-import { useEspacos } from '../hooks/useEspacos';
 import { usePlayer } from '../hooks/usePlayer';
 import { COR_TOM } from '../data/cores-tom';
 import { Metronomo } from '../utils/metronomo';
-import type { Musica } from '../types';
-import { Avatar, CapaMusica, Header } from '../components/aurora';
-
-function diaRelativo(iso: string): string {
-  if (!iso) return 'Recentemente';
-  const dt = new Date(iso);
-  const hoje = new Date();
-  const dias = Math.floor((new Date(hoje.toDateString()).getTime() - new Date(dt.toDateString()).getTime()) / 86400000);
-  if (dias <= 0) return 'Hoje';
-  if (dias === 1) return 'Ontem';
-  return `${dias} dias`;
-}
+import { CapaMusica, Header } from '../components/aurora';
+import { EstadoVazio } from '../components/compartilhado/EstadoVazio';
 
 function SectionHeader({ icon, titulo, verTodas }: { icon: React.ReactNode; titulo: string; verTodas?: string }) {
   return (
-    <div className="mb-3 flex items-center justify-between">
-    <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/80">
-    {icon}{titulo}
+    <div className="mb-2 flex items-center justify-between gap-1">
+    <h2 className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black uppercase tracking-tight sm:tracking-wider text-slate-300 truncate">
+    {icon}
+    <span>{titulo}</span>
     </h2>
     {verTodas && (
-      <Link to={verTodas} className="flex items-center gap-0.5 text-xs font-medium text-[#a78bfa] hover:text-purple-300 transition-colors">
-      Ver todas <ChevronRight className="h-3.5 w-3.5" />
+      <Link to={verTodas} className="flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-purple-400 hover:text-purple-300 shrink-0">
+      <span>Ver todas</span>
+      <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
       </Link>
     )}
     </div>
   );
 }
 
-function EstadoVazio({ texto, acaoLabel, acaoHref }: { texto: string; acaoLabel?: string; acaoHref?: string }) {
-  return (
-    <div className="flex flex-col items-center gap-2 p-6 text-center">
-    <p className="text-xs text-white/40">{texto}</p>
-    {acaoLabel && acaoHref && <Link to={acaoHref} className="text-xs font-semibold text-[#8b5cf6] hover:underline">{acaoLabel}</Link>}
-    </div>
-  );
-}
-
+/* ===================================================================
+ *  METRÔNOMO WIDGET (ALTURA PROPORCIONAL)
+ *  =================================================================== */
 function MetronomoWidget() {
   const metronomoRef = useRef<Metronomo | null>(null);
   const [bpm, setBpm] = useState(120);
@@ -59,299 +58,238 @@ function MetronomoWidget() {
     return () => metronomoRef.current?.parar();
   }, []);
 
-  useEffect(() => { metronomoRef.current?.setBpm(bpm); }, [bpm]);
+  useEffect(() => {
+    metronomoRef.current?.setBpm(bpm);
+  }, [bpm]);
 
   function alternar() {
-    if (ativo) { metronomoRef.current?.parar(); setAtivo(false); return; }
+    if (ativo) {
+      metronomoRef.current?.parar();
+      setAtivo(false);
+      return;
+    }
     metronomoRef.current?.setBpm(bpm);
     metronomoRef.current?.iniciar();
     setAtivo(true);
   }
 
   return (
-    <article className="rounded-2xl border border-[#26194d] bg-[#120c28]/90 p-5 shadow-xl flex flex-col justify-between h-full">
-    <div className="flex items-center justify-between mb-2">
-    <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/80">
-    <Clock className="h-4 w-4 text-[#8b5cf6]" /> METRÔNOMO
-    </h2>
-    <div className={`w-2 h-2 rounded-full ${ativo ? 'bg-[#8b5cf6] animate-ping' : 'bg-white/20'}`} />
+    <div className="rounded-2xl border border-white/10 bg-[#12142B] p-3 flex flex-col gap-2.5">
+    <div className="flex items-center justify-between">
+    <div className="flex items-center gap-1.5">
+    <Clock className="h-3 w-3 text-[var(--primaria)]" />
+    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Metrônomo</span>
+    </div>
+    <span className={`h-1.5 w-1.5 rounded-full ${ativo ? 'bg-[var(--primaria)] animate-pulse' : 'bg-white/15'}`} />
     </div>
 
-    <div className="flex items-center justify-around py-2">
-    {/* Pêndulo / Dial Visual do Metrônomo estilo Mockup */}
-    <div className="relative w-16 h-20 flex items-center justify-center">
-    <div className="absolute inset-0 rounded-full border border-purple-500/20 animate-pulse" />
-    <div className="w-1 h-14 bg-gradient-to-t from-[#8b5cf6] to-[#c084fc] rounded-full origin-bottom animate-bounce" style={{ animationDuration: `${60 / bpm}s` }} />
+    <div className="flex items-center justify-between">
+    <span className="font-mono text-2xl font-black text-white leading-none">{bpm}<span className="text-[9px] font-bold text-slate-400 ml-1">BPM</span></span>
+
+    <div className="relative w-10 h-10 shrink-0">
+    <svg viewBox="0 0 40 40" className="w-full h-full">
+    <polygon points="12,36 28,36 24,10 16,10" fill="none" stroke="#3f3a5c" strokeWidth="1.5" />
+    <line
+    x1="20" y1="34" x2="20" y2="14"
+    stroke="#A78BFA"
+    strokeWidth="2"
+    strokeLinecap="round"
+    style={ativo ? { transformOrigin: '20px 34px', animation: 'balancoPendulo 0.6s ease-in-out infinite alternate' } : undefined}
+    />
+    <circle cx="20" cy="34" r="2" fill="#A78BFA" />
+    </svg>
+    </div>
     </div>
 
-    <div className="text-center">
-    <span className="font-mono text-4xl font-extrabold text-white tracking-tight">{bpm}</span>
-    <p className="text-[10px] font-bold uppercase tracking-widest text-[#8c82ab] mt-1">BPM</p>
-    </div>
-    </div>
+    <style>{`@keyframes balancoPendulo { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }`}</style>
 
-    <div className="flex items-center justify-center gap-3 pt-2">
+    <div className="flex items-center justify-between">
     <button
-    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-[#26194d] active:scale-95"
+    className="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95 transition-transform"
     onClick={() => setBpm((v) => Math.max(40, v - 1))}
-    aria-label="Diminuir BPM"
     >
-    <Minus className="h-4 w-4" />
+    <Minus className="h-3 w-3" />
     </button>
     <button
-    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-white flex items-center justify-center transition-all shadow-lg shadow-purple-950/50 active:scale-95"
+    className="w-8 h-8 rounded-full bg-[var(--primaria)] text-white flex items-center justify-center shadow-md shadow-purple-900/40 hover:brightness-110 active:scale-95 transition-transform"
     onClick={alternar}
-    aria-label={ativo ? 'Parar metrônomo' : 'Iniciar metrônomo'}
     >
-    {ativo ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current ml-0.5" />}
+    {ativo ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current ml-0.5" />}
     </button>
     <button
-    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-[#26194d] active:scale-95"
+    className="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center active:scale-95 transition-transform"
     onClick={() => setBpm((v) => Math.min(240, v + 1))}
-    aria-label="Aumentar BPM"
     >
-    <Plus className="h-4 w-4" />
+    <Plus className="h-3 w-3" />
     </button>
     </div>
-    </article>
+    </div>
   );
 }
 
-function AtividadeRecenteWidget() {
-  const atividades = [
-    { id: 1, titulo: 'Nova cifra adicionada', desc: 'Teu Amor Não Falha – Cifra', tempo: '10 min atrás', icon: FilePlus, cor: 'text-purple-400' },
-    { id: 2, titulo: 'Sugestão aprovada', desc: 'Deus de Promessas – Cifra', tempo: '1 h atrás', icon: CheckCircle2, cor: 'text-emerald-400' },
-    { id: 3, titulo: 'Cifra atualizada', desc: 'A Ele a Glória – Cifra', tempo: '2 h atrás', icon: FileEdit, cor: 'text-blue-400' },
-    { id: 4, titulo: 'Novo comentário', desc: 'Em Grande é o Senhor – Cifra', tempo: '3 h atrás', icon: MessageSquare, cor: 'text-amber-400' },
-  ];
-
-  return (
-    <article className="rounded-2xl border border-[#26194d] bg-[#120c28]/90 p-5 shadow-xl flex flex-col justify-between h-full">
-    <div className="flex items-center justify-between mb-3">
-    <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/80">
-    <Zap className="h-4 w-4 text-[#8b5cf6]" /> ATIVIDADE RECENTE
-    </h2>
-    <Link to="/atividade" className="text-[11px] font-medium text-[#a78bfa] hover:text-purple-300">Ver todas</Link>
-    </div>
-
-    <div className="space-y-2.5">
-    {atividades.map((item) => {
-      const Icon = item.icon;
-      return (
-        <div key={item.id} className="flex items-start justify-between gap-3 p-1.5 rounded-xl hover:bg-white/5 transition-colors">
-        <div className="flex items-center gap-2.5 min-w-0">
-        <div className={`p-1.5 rounded-lg bg-white/5 border border-white/10 shrink-0 ${item.cor}`}>
-        <Icon className="h-3.5 w-3.5" />
-        </div>
-        <div className="min-w-0">
-        <p className="text-xs font-semibold text-white truncate">{item.titulo}</p>
-        <p className="text-[10px] text-[#8c82ab] truncate">{item.desc}</p>
-        </div>
-        </div>
-        <span className="text-[10px] text-[#625785] shrink-0 font-mono">{item.tempo}</span>
-        </div>
-      );
-    })}
-    </div>
-    </article>
-  );
-}
-
-export default function Inicio() {
+/* ===================================================================
+ *  MODO PALCO (CARD COMPACTO)
+ *  =================================================================== */
+function ModoPalcoWidget() {
   const navigate = useNavigate();
   const { musicas } = useMusicas();
-  const { perfilUsuario, user } = useAuth();
-  const { espacos } = useEspacos();
-  const { faixa, tocando, tocar, pausar } = usePlayer();
-
-  const primeiroNome = perfilUsuario?.nome?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Músico';
-  const fotoUsuario = perfilUsuario?.foto || user?.photoURL || undefined;
-
-  const maisOuvidas = useMemo(() => [...musicas].filter((m) => m.vezesTocada > 0).sort((a, b) => b.vezesTocada - a.vezesTocada).slice(0, 5), [musicas]);
-  const cifrasRecentes = useMemo(() => [...musicas].filter((m) => m.ultimaTocada).sort((a, b) => (b.ultimaTocada ?? '').localeCompare(a.ultimaTocada ?? '')).slice(0, 5), [musicas]);
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in max-w-5xl mx-auto px-4 pt-2 text-white" style={{ backgroundColor: '#080710' }}>
-    {/* Cabeçalho com Info de Usuário */}
-    <Header />
-
-    {/* Busca Rápida Estilizada */}
-    <Link to="/busca-rapida" className="flex items-center gap-3 rounded-2xl border border-[#26194d] bg-[#120c28]/80 p-3.5 text-white/40 hover:border-[#8b5cf6]/50 transition-all backdrop-blur-xl shadow-inner">
-    <Search className="h-4 w-4 shrink-0 text-white/40" />
-    <span className="flex-1 text-xs text-white/60">Buscar músicas, artistas, pastas, espaços...</span>
-    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#291757] text-[#a78bfa] border border-[#8b5cf6]/30">
-    <SlidersHorizontal className="h-3.5 w-3.5" />
-    </span>
-    </Link>
-
-    {/* Hero Card: Próximo Culto / Modo Palco */}
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#120c28] via-[#1a1040] to-[#291757] border border-[#26194d] p-5 shadow-2xl">
-    <div className="absolute top-0 right-0 w-72 h-72 bg-[#7c3aed]/15 rounded-full blur-3xl pointer-events-none" />
-    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div className="space-y-1.5">
-    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#291757] border border-[#8b5cf6]/40 text-[#a78bfa] text-[10px] font-bold uppercase tracking-wider">
-    <Calendar size={12} /> Próximo Culto
+    <div className="rounded-2xl border border-[var(--primaria)]/30 bg-gradient-to-br from-[#12142B] to-[#1a1040] p-3 flex flex-col gap-2.5">
+    <div className="flex items-center gap-1.5">
+    <Radio className="h-3 w-3 text-[var(--primaria)]" />
+    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Modo Palco</span>
     </div>
-    <h2 className="text-xl font-extrabold text-white tracking-tight">Culto de Domingo - Noite</h2>
-    <p className="text-xs text-[#8c82ab]">
-    {musicas.length > 0 ? `${Math.min(musicas.length, 4)} músicas no repertório` : 'Repertório em preparação'}
+
+    <div className="flex-1 min-w-0">
+    <p className="text-sm font-black text-white leading-tight truncate">Domingo · Noite</p>
+    <p className="text-[10px] text-slate-400 mt-0.5">
+    {musicas.length > 0 ? `${Math.min(musicas.length, 4)} músicas prontas` : 'Repertório em preparação'}
     </p>
     </div>
 
     <button
     onClick={() => navigate('/player')}
-    className="text-xs py-3 px-6 flex items-center justify-center gap-2 rounded-2xl font-bold bg-gradient-to-r from-[#8b5cf6] to-[#ec4899] text-white shadow-lg shadow-purple-900/40 hover:opacity-95 transition-opacity shrink-0 cursor-pointer"
+    className="flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold bg-[var(--primaria)] text-white hover:brightness-110 active:scale-95 transition-all"
     >
-    <Radio size={16} />
-    <span>Modo Palco</span>
+    <Radio size={12} />
+    <span>Iniciar</span>
     </button>
     </div>
+  );
+}
+
+/* ===================================================================
+ *  PÁGINA PRINCIPAL INÍCIO
+ *  =================================================================== */
+export default function Inicio() {
+  const navigate = useNavigate();
+  const { musicas } = useMusicas();
+  const [busca, setBusca] = useState('');
+
+  // 5 Músicas Mais Ouvidas
+  const maisOuvidas = useMemo(
+    () => [...musicas].filter((m) => m.vezesTocada > 0).sort((a, b) => b.vezesTocada - a.vezesTocada).slice(0, 5),
+                              [musicas]
+  );
+
+  // Garantir exatamente 5 itens para Cifras Recentes
+  const cifrasRecentes = useMemo(() => {
+    const comData = [...musicas].filter((m) => m.ultimaTocada).sort((a, b) => (b.ultimaTocada ?? '').localeCompare(a.ultimaTocada ?? ''));
+    if (comData.length >= 5) return comData.slice(0, 5);
+    const idsJa = new Set(comData.map((m) => m.id));
+    const faltam = musicas.filter((m) => !idsJa.has(m.id));
+    return [...comData, ...faltam].slice(0, 5);
+  }, [musicas]);
+
+  return (
+    <main className="app-page space-y-3.5 sm:space-y-5 pb-36 fade-in max-w-6xl mx-auto px-3 pt-1 text-white">
+    {/* 1. Header Topo */}
+    <Header />
+
+    {/* 2. Campo de Busca */}
+    <div className="relative flex items-center gap-2">
+    <div className="relative flex-1">
+    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+    <input
+    type="text"
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    placeholder="Buscar músicas, artistas, pastas, espaços..."
+    className="w-full bg-[#12142B] border border-white/10 rounded-2xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-purple-500/50"
+    />
+    </div>
+    <button onClick={() => navigate('/busca-rapida')} className="p-2 bg-[#12142B] border border-white/10 rounded-2xl text-purple-400 hover:text-purple-300">
+    <SlidersHorizontal className="h-4 w-4" />
+    </button>
     </div>
 
-    {/* Playlists - Carrossel horizontal */}
+    {/* 4. Playlists */}
     <section>
-    <SectionHeader icon={<ListMusic className="h-4 w-4 text-[#8b5cf6]" />} titulo="PLAYLISTS" verTodas="/playlists" />
-    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+    <SectionHeader icon={<ListMusic className="h-4 w-4 text-purple-400" />} titulo="PLAYLISTS" verTodas="/playlists" />
+    <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
     {[
-      { id: 1, titulo: 'Domingo Manhã', qtd: 12, imagemUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80' },
-      { id: 2, titulo: 'Ensaio Geral', qtd: 20, imagemUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=80' },
-      { id: 3, titulo: 'Acústico', qtd: 8, imagemUrl: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80' },
-      { id: 4, titulo: 'Culto de Jovens', qtd: 15, imagemUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80' },
+      { id: 1, titulo: 'Domingo Manhã', qtd: '12 músicas', bg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80' },
+      { id: 2, titulo: 'Ensaio Geral', qtd: '20 músicas', bg: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&q=80' },
+      { id: 3, titulo: 'Acústico', qtd: '8 músicas', bg: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80' },
+      { id: 4, titulo: 'Culto de Jovens', qtd: '15 músicas', bg: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80' }
     ].map((item) => (
       <article
       key={item.id}
       onClick={() => navigate('/playlists')}
-      className="overflow-hidden rounded-2xl border border-[#26194d] bg-[#120c28]/90 hover:border-[#8b5cf6]/50 transition-all cursor-pointer group shadow-lg shrink-0 w-44"
+      className="relative w-28 h-36 sm:w-32 sm:h-42 rounded-2xl overflow-hidden border border-white/10 shadow-lg group cursor-pointer shrink-0 transition-transform hover:scale-105"
       >
-      <div className="relative">
-      <div className="flex h-24 items-center justify-center bg-cover bg-center p-2 text-center border-b border-white/5" style={{ backgroundImage: `url(${item.imagemUrl})` }}>
-      <span className="text-xs font-bold text-white drop-shadow-md group-hover:text-[#a78bfa] transition-colors">{item.titulo}</span>
-      </div>
-      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
-      <button type="button" className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-[#8b5cf6] text-white shadow-md group-hover:scale-110 transition-transform">
-      <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
+      <img src={item.bg} alt={item.titulo} className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B16] via-black/30 to-transparent" />
+      <button className="absolute top-2 right-2 text-white/70 p-1 rounded-full bg-black/40">
+      <MoreVertical className="w-3 h-3" />
       </button>
+      <div className="absolute bottom-8 left-2">
+      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md">
+      <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current ml-0.5" />
       </div>
-      <div className="p-2.5">
-      <p className="truncate text-xs font-semibold text-white">{item.titulo}</p>
-      <p className="text-[10px] text-[#8c82ab]">{item.qtd} músicas</p>
+      </div>
+      <div className="absolute bottom-2 left-2 right-2">
+      <p className="font-bold text-[11px] sm:text-xs text-white truncate">{item.titulo}</p>
+      <p className="text-[9px] text-slate-300">{item.qtd}</p>
       </div>
       </article>
     ))}
     </div>
     </section>
 
-    {/* Mais ouvida + Cifras recentes em 2 colunas */}
-    <section className="grid gap-6 md:grid-cols-2">
+    {/* 5. METRÔNOMO + MODO PALCO — compacto, acima de Mais Ouvidas/Cifras Recentes */}
+    <section className="grid grid-cols-2 gap-2.5 sm:gap-4">
+    <MetronomoWidget />
+    <ModoPalcoWidget />
+    </section>
+
+    {/* 6. 2 COLUNAS LADO A LADO (MAIS OUVIDAS + CIFRAS RECENTES) */}
+    <section className="grid grid-cols-2 gap-2.5 sm:gap-4">
+    {/* Coluna Esquerda: MAIS OUVIDAS */}
     <div>
-    <SectionHeader icon={<Music2 className="h-4 w-4 text-[#8b5cf6]" />} titulo="MAIS OUVIDAS" verTodas="/musica" />
-    <div className="divide-y divide-white/5 rounded-2xl border border-[#26194d] bg-[#120c28]/90 overflow-hidden shadow-xl">
+    <SectionHeader icon={<Music2 className="h-3.5 w-3.5 text-purple-400 shrink-0" />} titulo="MAIS OUVIDAS" verTodas="/musica" />
+    <div className="divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#12142B] overflow-hidden">
     {maisOuvidas.map((musica) => (
-      <Link key={musica.id} to={`/musica/${musica.id}`} className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors group">
-      <div className="flex items-center gap-3 min-w-0">
-      <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="sm" />
+      <Link key={musica.id} to={'/musica/' + musica.id} className="flex items-center justify-between p-2.5 hover:bg-white/5 group h-12">
+      <div className="flex items-center gap-2.5 min-w-0">
+      <CapaMusica tom={musica.tom} titulo={musica.titulo} capaUrl={musica.capaUrl} tamanho="sm" />
       <div className="min-w-0">
-      <p className="text-xs font-semibold text-white truncate group-hover:text-[#a78bfa] transition-colors">{musica.titulo}</p>
-      <p className="text-[10px] text-[#8c82ab] truncate">{musica.artista || 'Artista não informado'}</p>
+      <p className="text-xs font-bold text-white truncate group-hover:text-purple-300">{musica.titulo}</p>
+      <p className="text-[10px] text-slate-400 truncate">{musica.artista || 'Artista não informado'}</p>
       </div>
       </div>
       </Link>
     ))}
-    {!maisOuvidas.length && <EstadoVazio texto="Nenhuma música tocada ainda." acaoLabel="Ir pra Música" acaoHref="/musica" />}
     </div>
+    {!maisOuvidas.length && <EstadoVazio titulo="Nada tocado ainda" texto="Suas músicas mais ouvidas aparecem aqui" />}
     </div>
 
+    {/* Coluna Direita: CIFRAS RECENTES */}
     <div>
-    <SectionHeader icon={<FileText className="h-4 w-4 text-[#8b5cf6]" />} titulo="CIFRAS RECENTES" verTodas="/cifra" />
-    <div className="divide-y divide-white/5 rounded-2xl border border-[#26194d] bg-[#120c28]/90 overflow-hidden shadow-xl">
+    <SectionHeader icon={<FileText className="h-3.5 w-3.5 text-purple-400 shrink-0" />} titulo="CIFRAS RECENTES" verTodas="/cifra" />
+    <div className="divide-y divide-white/5 rounded-2xl border border-white/10 bg-[#12142B] overflow-hidden">
     {cifrasRecentes.map((musica) => {
       const corHex = COR_TOM[musica.tom || 'C'] || '#8B5CF6';
-      return (
-        <Link key={musica.id} to={`/musica/${musica.id}`} className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors group">
-        <div className="flex items-center gap-3 min-w-0">
-        {/* Badge Circular de Tom Estilo Mockup #1 */}
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold border" style={{ backgroundColor: `${corHex}22`, color: corHex, borderColor: `${corHex}66` }}>
-        {musica.tom || 'C'}
-        </div>
-        <div className="min-w-0">
-        <p className="text-xs font-semibold text-white truncate group-hover:text-[#a78bfa] transition-colors">{musica.titulo}</p>
-        <p className="text-[10px] text-[#8c82ab] truncate">{musica.artista || 'Artista não informado'}</p>
-        </div>
-        </div>
-        <span className="shrink-0 text-[10px] text-[#625785] font-mono pl-2">{diaRelativo(musica.ultimaTocada as string)}</span>
-        </Link>
-      );
-    })}
-    {!cifrasRecentes.length && <EstadoVazio texto="Nenhuma cifra acessada ainda." acaoLabel="Ir pra Cifra" acaoHref="/cifra" />}
-    </div>
-    </div>
-    </section>
-
-    {/* Grid: Metrônomo (Esquerda) + Atividade Recente (Direita) - Estilo Mockup #1 */}
-    <section className="grid gap-6 md:grid-cols-2">
-    <MetronomoWidget />
-    <AtividadeRecenteWidget />
-    </section>
-
-    {/* Comunidade */}
-    <section>
-    <SectionHeader icon={<Users className="h-4 w-4 text-[#8b5cf6]" />} titulo="COMUNIDADE" />
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-    <Link to="/editor" className="flex flex-col items-center gap-2 rounded-2xl border border-[#26194d] bg-[#120c28]/90 p-4 text-center hover:border-[#8b5cf6]/50 transition-all group">
-    <div className="p-2.5 rounded-xl bg-[#291757] text-[#a78bfa] group-hover:scale-110 transition-transform">
-    <Plus className="h-5 w-5" />
-    </div>
-    <span className="text-xs font-semibold text-white">Adicionar música</span>
-    </Link>
-    <Link to="/editor" className="flex flex-col items-center gap-2 rounded-2xl border border-[#26194d] bg-[#120c28]/90 p-4 text-center hover:border-[#8b5cf6]/50 transition-all group">
-    <div className="p-2.5 rounded-xl bg-[#291757] text-[#a78bfa] group-hover:scale-110 transition-transform">
-    <BookPlus className="h-5 w-5" />
-    </div>
-    <span className="text-xs font-semibold text-white">Adicionar cifra</span>
-    </Link>
-    <button type="button" disabled className="flex cursor-not-allowed flex-col items-center gap-2 rounded-2xl border border-[#26194d]/50 bg-[#120c28]/40 p-4 text-center opacity-50">
-    <div className="p-2.5 rounded-xl bg-white/5 text-white/40">
-    <MessageSquare className="h-5 w-5" />
-    </div>
-    <span className="text-xs font-semibold text-white/60">Fazer sugestão</span>
-    </button>
-    <button type="button" disabled className="flex cursor-not-allowed flex-col items-center gap-2 rounded-2xl border border-[#26194d]/50 bg-[#120c28]/40 p-4 text-center opacity-50">
-    <div className="p-2.5 rounded-xl bg-white/5 text-white/40">
-    <Users className="h-5 w-5" />
-    </div>
-    <span className="text-xs font-semibold text-white/60">Ver comunidade</span>
-    </button>
-    </div>
-    </section>
-
-    {/* Seções inferiores (Destaque / Artistas) */}
-    <section className="grid gap-6 md:grid-cols-2">
-    <div>
-    <SectionHeader icon={<Flame className="h-4 w-4 text-[#8b5cf6]" />} titulo="CIFRAS EM DESTAQUE" verTodas="/cifra" />
-    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-    {musicas.slice(0, 5).map((musica) => (
-      <Link key={`destaque-${musica.id}`} to={`/musica/${musica.id}`} className="min-w-[150px] rounded-2xl border border-[#26194d] bg-[#120c28]/90 p-3 shadow-lg hover:border-[#8b5cf6]/50 transition-all group shrink-0">
-      <CapaMusica tom={musica.tom} titulo={musica.titulo} tamanho="md" />
-      <p className="mt-2 truncate text-xs font-bold text-white group-hover:text-[#a78bfa] transition-colors">{musica.titulo}</p>
-      <p className="truncate text-[10px] text-[#8c82ab]">{musica.artista || 'Artista'}</p>
-      </Link>
-    ))}
-    </div>
-    </div>
-
-    <div>
-    <SectionHeader icon={<Mic2 className="h-4 w-4 text-[#8b5cf6]" />} titulo="ARTISTAS EM ALTA" verTodas="/artistas" />
-    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-    {[...new Set(musicas.map((m) => m.artista).filter(Boolean))].slice(0, 8).map((artista) => (
-      <Link key={artista} to={`/artista/${encodeURIComponent(artista)}`} className="min-w-[120px] rounded-2xl border border-[#26194d] bg-[#120c28]/90 p-3 text-center shadow-lg hover:border-[#8b5cf6]/50 transition-all group shrink-0">
-      <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-gradient-to-tr from-[#7c3aed] to-[#c084fc] text-white font-bold text-xs border border-white/10 shadow-md">
-      {artista[0].toUpperCase()}
+    return (
+      <Link key={musica.id} to={'/musica/' + musica.id} className="flex items-center justify-between p-2.5 hover:bg-white/5 group h-12">
+      <div className="flex items-center gap-2.5 min-w-0">
+      <div
+      className="flex w-8 h-8 shrink-0 items-center justify-center rounded-xl text-xs font-black border"
+      style={{ backgroundColor: corHex + '22', color: corHex, borderColor: corHex + '66' }}
+      >
+      {musica.tom || 'C'}
       </div>
-      <p className="mt-2 truncate text-xs font-bold text-white group-hover:text-[#a78bfa] transition-colors">{artista}</p>
-      <p className="text-[10px] text-[#8c82ab]">1.2k seguidores</p>
+      <div className="min-w-0">
+      <p className="text-xs font-bold text-white truncate group-hover:text-purple-300">{musica.titulo}</p>
+      <p className="text-[10px] text-slate-400 truncate">{musica.artista || 'Artista não informado'}</p>
+      </div>
+      </div>
       </Link>
-    ))}
+    );
+    })}
     </div>
+    {!cifrasRecentes.length && <EstadoVazio titulo="Nada por aqui ainda" texto="Cifras que você acessar aparecem aqui" />}
     </div>
     </section>
     </main>

@@ -68,14 +68,14 @@ export default function Cifra() {
 
   if (loading) {
     return (
-      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: '#0B0C10' }}>
+      <div className="app-page flex items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--fundo)' }}>
         <div className="w-8 h-8 border-2 border-[var(--primaria)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: '#0B0C10' }}>
+    <main className="app-page space-y-6 pb-32 fade-in" style={{ backgroundColor: 'var(--fundo)' }}>
       <Header />
 
 
@@ -84,7 +84,7 @@ export default function Cifra() {
       <div className="grid grid-cols-2 gap-3 min-w-0">
         <button
           onClick={() => navigate('/biblioteca')}
-          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#12142B]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
         >
           <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
             <BookOpen size={20} />
@@ -93,7 +93,7 @@ export default function Cifra() {
         </button>
         <button
           onClick={() => navigate('/editor')}
-          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#12142B]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
         >
           <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
             <Plus size={20} />
@@ -102,7 +102,7 @@ export default function Cifra() {
         </button>
         <button
           onClick={() => navigate('/importar')}
-          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#12142B]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
         >
           <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
             <Download size={20} />
@@ -111,7 +111,7 @@ export default function Cifra() {
         </button>
         <button
           onClick={() => navigate('/comunidade')}
-          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#141522]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
+          className="min-w-0 p-4 flex items-center gap-3 border border-purple-500/20 bg-[#12142B]/80 hover:bg-white/5 transition-all cursor-pointer group rounded-2xl overflow-hidden"
         >
           <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
             <Users size={20} />
@@ -127,7 +127,7 @@ export default function Cifra() {
           value={termoBusca}
           onChange={(e) => setTermoBusca(e.target.value)}
           placeholder="Filtrar cifras por nome ou artista..."
-          className="w-full bg-[#141522]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
+          className="w-full bg-[#12142B]/80 border border-white/10 rounded-2xl pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[var(--primaria)]/50 focus:ring-1 focus:ring-[var(--primaria)]/50 backdrop-blur-xl transition-all"
         />
       </div>
 
